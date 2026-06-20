@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Institution — Student Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap"
+          rel="stylesheet">
 
     <style>
         :root {
@@ -55,6 +56,7 @@
         .login-hint code{background:rgba(255,255,255,.08);padding:2px 7px;border-radius:6px;font-size:11px;}
         .login-btn{width:100%;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:var(--glow-pink);}
         .login-btn:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 0 40px rgba(255,45,120,.5);}
+        .login-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
         #loginError{color:var(--pink);text-align:center;font-size:13px;margin-top:14px;min-height:18px;}
         @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
 
@@ -70,6 +72,11 @@
         .sb-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--pink),var(--purple));border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:var(--glow-pink);flex-shrink:0;}
         .sb-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;}
         .sb-ver{font-size:10px;color:var(--muted);letter-spacing:1px;}
+
+        .conn-row{display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--border);margin-bottom:10px;font-size:11px;color:var(--muted);}
+        .conn-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+        .conn-dot.on{background:var(--green);box-shadow:0 0 8px var(--green);animation:puls 2s infinite;}
+        .conn-dot.off{background:var(--pink);}
 
         .theme-row{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--border);margin-bottom:16px;cursor:pointer;transition:all .22s;}
         [data-theme="light"] .theme-row{background:rgba(0,0,0,.04);}
@@ -127,18 +134,6 @@
         transform:translateY(0);
     }
 }
-
-.welcome-bar h1{
-    font-family:'Sora', sans-serif;
-    font-size:35px;
-    font-weight:800;
-    font-style:italic;
-    letter-spacing:-1px;
-    line-height:1.1;
-}
-
-/* ── Pair 1: Playfair Display + Inter ── */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=swap');
 
 /* ── Pair 1: Playfair Display + Inter ── */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=swap');
@@ -334,6 +329,11 @@
         .assign-tab:hover,.assign-tab.active{background:rgba(0,245,212,.15);border-color:var(--cyan);color:var(--cyan);}
         .overdue-flag{font-size:10px;color:var(--pink);margin-left:4px;}
 
+        /* ─── DUPLICATES ─── */
+        .dup-banner{display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:rgba(255,228,77,.08);border:1px solid rgba(255,228,77,.25);border-radius:14px;padding:13px 18px;margin-bottom:16px;}
+        .dup-banner.show{display:flex;}
+        .dup-banner .dtxt{font-size:13px;color:var(--yellow);font-weight:600;}
+
         /* ─── RESPONSIVE ─── */
         @media(max-width:900px){.stats-grid{grid-template-columns:1fr 1fr;}.charts-row{grid-template-columns:1fr;}.fgrid,.mgrid{grid-template-columns:1fr;}}
         @media(max-width:680px){.sidebar{width:220px;}.content{padding:18px;}}
@@ -344,7 +344,11 @@
 </head>
 <body>
 
-<div class="blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+<div class="blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
 
 <!-- ════ LOGIN ════ -->
 <div id="loginPage">
@@ -352,10 +356,12 @@
         <div class="login-logo"><span class="spin-emoji">🎓</span></div>
         <h1>Institution</h1>
         <p class="login-sub">Admin portal — sign in to continue ✨</p>
-        <div class="inp-group"><label>Username</label><input type="text" id="username" placeholder="admin" autocomplete="off"></div>
-        <div class="inp-group"><label>Password</label><input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"></div>
+        <div class="inp-group"><label>Username</label><input type="text" id="username" placeholder="admin"
+                                                             autocomplete="off"></div>
+        <div class="inp-group"><label>Password</label><input type="password" id="password" placeholder="••••••••"
+                                                             onkeydown="if(event.key==='Enter')login()"></div>
         <p class="login-hint">Demo: <code>admin</code> / <code>1234</code></p>
-        <button class="login-btn" onclick="login()">Sign In →</button>
+        <button class="login-btn" id="loginBtn" onclick="login()">Sign In →</button>
         <p id="loginError"></p>
     </div>
 </div>
@@ -368,23 +374,47 @@
         <div class="sidebar">
             <div class="sb-brand">
                 <div class="sb-icon">🎓</div>
-                <div><div class="sb-name">Institution</div><div class="sb-ver">v2.1</div></div>
+                <div>
+                    <div class="sb-name">Institution</div>
+                    <div class="sb-ver">v2.2</div>
+                </div>
+            </div>
+
+            <div class="conn-row" id="connRow">
+                <div class="conn-dot" id="connDot"></div>
+                <span id="connText">Checking backend…</span>
             </div>
 
             <div class="theme-row" onclick="toggleTheme()">
                 <span>☀️ Light Mode</span>
-                <div class="tog-track" id="themeTrack"><div class="tog-thumb" id="themeThumb"></div></div>
+                <div class="tog-track" id="themeTrack">
+                    <div class="tog-thumb" id="themeThumb"></div>
+                </div>
             </div>
 
             <div class="nav-lbl">Menu</div>
-            <button class="menu-btn" onclick="showSection('addSection',this)"><span class="micon">✦</span> Add Student</button>
-            <button class="menu-btn" onclick="showSection('searchSection',this)"><span class="micon">🔍</span> Search Student</button>
-            <button class="menu-btn" onclick="showSection('viewSection',this)"><span class="micon">⊞</span> All Students <span class="badge-count" id="sideCount">0</span></button>
-            <button class="menu-btn" onclick="showSection('analyticsSection',this)"><span class="micon">◈</span> Analytics</button>
-            <button class="menu-btn" onclick="showSection('topSection',this)"><span class="micon">🏆</span> Top Performers</button>
-            <button class="menu-btn" onclick="showSection('gradeSection',this)"><span class="micon">🎯</span> Grade Calc</button>
-            <button class="menu-btn" onclick="showSection('assignmentSection',this)"><span class="micon">📝</span> Assignments <span class="badge-count" id="assignCount">0</span></button>
-            <button class="menu-btn" onclick="showSection('completionSection',this)"><span class="micon">✅</span> Completion Tracker</button>
+            <button class="menu-btn" onclick="showSection('addSection',this)"><span class="micon">✦</span> Add Student
+            </button>
+            <button class="menu-btn" onclick="showSection('searchSection',this)"><span class="micon">🔍</span> Search
+                Student
+            </button>
+            <button class="menu-btn" onclick="showSection('viewSection',this)"><span class="micon">⊞</span> All Students
+                <span class="badge-count" id="sideCount">0</span></button>
+            <button class="menu-btn" onclick="showSection('analyticsSection',this)"><span class="micon">◈</span>
+                Analytics
+            </button>
+            <button class="menu-btn" onclick="showSection('topSection',this)"><span class="micon">🏆</span> Top
+                Performers
+            </button>
+            <button class="menu-btn" onclick="showSection('gradeSection',this)"><span class="micon">🎯</span> Grade Calc
+            </button>
+            <button class="menu-btn" onclick="showSection('assignmentSection',this)"><span class="micon">📝</span>
+                Assignments <span class="badge-count" id="assignCount">0</span></button>
+            <button class="menu-btn" onclick="showSection('completionSection',this)"><span class="micon">✅</span>
+                Completion Tracker
+            </button>
+            <button class="menu-btn" onclick="showSection('dupSection',this)"><span class="micon">⧉</span>
+                Duplicates <span class="badge-count" id="dupCount">0</span></button>
 
             <div class="act-log">
                 <h4>Recent Activity</h4>
@@ -405,21 +435,42 @@
                     <h1>Hey, <span>Admin</span> 👋</h1>
                     <p>Manage your students — all in one place.</p>
                 </div>
-                <div class="status-pill"><div class="status-dot"></div>Live</div>
+                <div class="status-pill">
+                    <div class="status-dot"></div>
+                    Live
+                </div>
             </div>
 
             <!-- ── ADD ── -->
             <div class="card" id="addSection">
-                <div class="card-hdr"><div class="cicon ci-cyan">✦</div><div><h3>Add Student</h3><p>Fill in the details below</p></div></div>
+                <div class="card-hdr">
+                    <div class="cicon ci-cyan">✦</div>
+                    <div><h3>Add Student</h3>
+                        <p>Fill in the details below</p></div>
+                </div>
                 <div class="fgrid">
-                    <div class="fg"><label>Full Name *</label><input type="text" id="name" placeholder="e.g. Aryan Sharma"></div>
-                    <div class="fg"><label>Marks (0–100) *</label><input type="number" id="marks" placeholder="e.g. 85" min="0" max="100" oninput="autoResult()"></div>
+                    <div class="fg"><label>Full Name *</label><input type="text" id="name"
+                                                                     placeholder="e.g. Aryan Sharma"></div>
+                    <div class="fg"><label>Marks (0–100) *</label><input type="number" id="marks" placeholder="e.g. 85"
+                                                                         min="0" max="100" oninput="autoResult()"></div>
                     <div class="fg"><label>Section *</label><input type="text" id="section" placeholder="e.g. A"></div>
-                    <div class="fg"><label>Status *</label><input type="text" id="Status" placeholder="e.g. Active"></div>
-                    <div class="fg"><label>Result <span style="color:var(--cyan);font-size:10px">(auto-set)</span></label>
-                        <select id="result"><option value="">Auto-detect</option><option value="pass">Pass ✓</option><option value="fail">Fail ✗</option></select></div>
-                    <div class="fg"><label>Subject / Notes</label><input type="text" id="subject" placeholder="e.g. Mathematics"></div>
-                    <div class="fg" style="align-self:end"><div id="gradePreview" style="padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;font-size:13px;color:var(--muted);">Grade preview here</div></div>
+                    <div class="fg"><label>Status *</label><input type="text" id="Status" placeholder="e.g. Active">
+                    </div>
+                    <div class="fg"><label>Result <span
+                            style="color:var(--cyan);font-size:10px">(auto-set)</span></label>
+                        <select id="result">
+                            <option value="">Auto-detect</option>
+                            <option value="pass">Pass ✓</option>
+                            <option value="fail">Fail ✗</option>
+                        </select></div>
+                    <div class="fg"><label>Subject / Notes</label><input type="text" id="subject"
+                                                                         placeholder="e.g. Mathematics"></div>
+                    <div class="fg" style="align-self:end">
+                        <div id="gradePreview"
+                             style="padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;font-size:13px;color:var(--muted);">
+                            Grade preview here
+                        </div>
+                    </div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                     <button class="btn btn-primary" onclick="addStudent()">✦ Add Student</button>
@@ -429,9 +480,17 @@
 
             <!-- ── SEARCH ── -->
             <div class="card" id="searchSection">
-                <div class="card-hdr"><div class="cicon ci-purple">🔍</div><div><h3>Search Student</h3><p>Find by student ID</p></div></div>
+                <div class="card-hdr">
+                    <div class="cicon ci-purple">🔍</div>
+                    <div><h3>Search Student</h3>
+                        <p>Find by student ID</p></div>
+                </div>
                 <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
-                    <div class="fg" style="flex:1;min-width:140px;"><label>Student ID</label><input type="number" id="searchId" placeholder="Enter ID…" onkeydown="if(event.key==='Enter')searchStudent()"></div>
+                    <div class="fg" style="flex:1;min-width:140px;"><label>Student ID</label><input type="number"
+                                                                                                    id="searchId"
+                                                                                                    placeholder="Enter ID…"
+                                                                                                    onkeydown="if(event.key==='Enter')searchStudent()">
+                    </div>
                     <button class="btn btn-purple" onclick="searchStudent()">Search →</button>
                 </div>
                 <div id="singleStudent"></div>
@@ -439,16 +498,27 @@
 
             <!-- ── VIEW ── -->
             <div class="card" id="viewSection">
-                <div class="card-hdr"><div class="cicon ci-yellow">⊞</div><div><h3>All Students</h3><p id="viewSub">Ready</p></div></div>
+                <div class="card-hdr">
+                    <div class="cicon ci-yellow">⊞</div>
+                    <div><h3>All Students</h3>
+                        <p id="viewSub">Ready</p></div>
+                </div>
                 <div class="exp-row">
                     <button class="btn btn-outline" onclick="getStudents()">↻ Refresh</button>
                     <button class="btn btn-green" onclick="exportCSV()">⬇ Export CSV</button>
                     <button class="btn btn-purple btn-sm" onclick="exportJSON()">⬇ Export JSON</button>
+                    <button class="btn btn-danger btn-sm" onclick="confirmDeleteAll()">🗑 Delete All</button>
                 </div>
                 <div class="filt-row">
                     <input type="text" id="searchFilter" placeholder="🔍 Search by name…" oninput="applyFilters()">
-                    <select id="resultFilter" onchange="applyFilters()"><option value="all">All Results</option><option value="pass">Pass Only</option><option value="fail">Fail Only</option></select>
-                    <select id="sectionFilter" onchange="applyFilters()"><option value="all">All Sections</option></select>
+                    <select id="resultFilter" onchange="applyFilters()">
+                        <option value="all">All Results</option>
+                        <option value="pass">Pass Only</option>
+                        <option value="fail">Fail Only</option>
+                    </select>
+                    <select id="sectionFilter" onchange="applyFilters()">
+                        <option value="all">All Sections</option>
+                    </select>
                     <select id="assignmentFilter" onchange="filterAssignments()">
                         <option value="">All</option>
                         <option value="completed">Completed</option>
@@ -465,79 +535,163 @@
                     <button class="sort-btn" id="sortAssign" onclick="sortBy('assign')">Completion %</button>
                 </div>
                 <table>
-                    <thead><tr><th>ID</th><th>Name</th><th>Marks</th><th>Grade</th><th>Section</th><th>Result</th><th>Assignments</th><th>Status</th></tr><th>Actions</th></tr></thead>
-                    <tbody id="studentTable"><tr><td colspan="8"><div class="empty"><div class="eico">📋</div><p>Click Refresh to load</p></div></td></tr></tbody>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Marks</th>
+                        <th>Grade</th>
+                        <th>Section</th>
+                        <th>Result</th>
+                        <th>Assignments</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="studentTable">
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty">
+                                <div class="eico">📋</div>
+                                <p>Click Refresh to load</p></div>
+                        </td>
+                    </tr>
+                    </tbody>
                 </table>
             </div>
 
             <!-- ── ANALYTICS ── -->
             <div class="card" id="analyticsSection">
-                <div class="card-hdr"><div class="cicon ci-pink">◈</div><div><h3>Analytics</h3><p>Overview &amp; insights</p></div></div>
+                <div class="card-hdr">
+                    <div class="cicon ci-pink">◈</div>
+                    <div><h3>Analytics</h3>
+                        <p>Overview &amp; insights</p></div>
+                </div>
                 <div class="stats-grid">
-                    <div class="sc total"><span class="semi">📊</span><div class="snum" id="totalStudents">0</div><div class="slbl">Total Students</div></div>
-                    <div class="sc passed"><span class="semi">🎉</span><div class="snum" id="passedStudents">0</div><div class="slbl">Passed</div></div>
-                    <div class="sc failed"><span class="semi">😬</span><div class="snum" id="failedStudents">0</div><div class="slbl">Failed</div></div>
-                    <div class="sc avg"><span class="semi">⭐</span><div class="snum" id="avgMarks">0</div><div class="slbl">Avg Marks</div></div>
+                    <div class="sc total"><span class="semi">📊</span>
+                        <div class="snum" id="totalStudents">0</div>
+                        <div class="slbl">Total Students</div>
+                    </div>
+                    <div class="sc passed"><span class="semi">🎉</span>
+                        <div class="snum" id="passedStudents">0</div>
+                        <div class="slbl">Passed</div>
+                    </div>
+                    <div class="sc failed"><span class="semi">😬</span>
+                        <div class="snum" id="failedStudents">0</div>
+                        <div class="slbl">Failed</div>
+                    </div>
+                    <div class="sc avg"><span class="semi">⭐</span>
+                        <div class="snum" id="avgMarks">0</div>
+                        <div class="slbl">Avg Marks</div>
+                    </div>
                 </div>
                 <div class="cwrap" style="margin-bottom:14px;">
                     <div class="ctitle">Grade Distribution</div>
                     <div id="gradeDist"></div>
                 </div>
                 <div class="charts-row">
-                    <div class="cwrap"><div class="ctitle">Pass vs Fail — Bar</div><canvas id="barChart" height="140"></canvas></div>
-                    <div class="cwrap"><div class="ctitle">Pass vs Fail — Donut</div><canvas id="donutChart" height="140"></canvas></div>
+                    <div class="cwrap">
+                        <div class="ctitle">Pass vs Fail — Bar</div>
+                        <canvas id="barChart" height="140"></canvas>
+                    </div>
+                    <div class="cwrap">
+                        <div class="ctitle">Pass vs Fail — Donut</div>
+                        <canvas id="donutChart" height="140"></canvas>
+                    </div>
                 </div>
                 <div class="filt-row">
-                    <select id="filterSelect" onchange="filterStudents()"><option value="all">All Students</option><option value="pass">Passed Only</option><option value="fail">Failed Only</option></select>
+                    <select id="filterSelect" onchange="filterStudents()">
+                        <option value="all">All Students</option>
+                        <option value="pass">Passed Only</option>
+                        <option value="fail">Failed Only</option>
+                    </select>
                     <button class="btn btn-outline btn-sm" onclick="loadAnalytics()">↻ Refresh</button>
                 </div>
                 <table>
-                    <thead><tr><th>ID</th><th>Name</th><th>Marks</th><th>Grade</th><th>Section</th><th>Result</th></tr></thead>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Marks</th>
+                        <th>Grade</th>
+                        <th>Section</th>
+                        <th>Result</th>
+                    </tr>
+                    </thead>
                     <tbody id="filterTable"></tbody>
                 </table>
             </div>
 
             <!-- ── TOP PERFORMERS ── -->
             <div class="card" id="topSection">
-                <div class="card-hdr"><div class="cicon ci-yellow">🏆</div><div><h3>Top Performers</h3><p>Highest scoring students</p></div></div>
+                <div class="card-hdr">
+                    <div class="cicon ci-yellow">🏆</div>
+                    <div><h3>Top Performers</h3>
+                        <p>Highest scoring students</p></div>
+                </div>
                 <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
-                    <select id="topCount" onchange="renderTop()"><option value="3">Top 3</option><option value="5" selected>Top 5</option><option value="10">Top 10</option></select>
-                    <select id="topSection2" onchange="renderTop()"><option value="all">All Sections</option></select>
+                    <select id="topCount" onchange="renderTop()">
+                        <option value="3">Top 3</option>
+                        <option value="5" selected>Top 5</option>
+                        <option value="10">Top 10</option>
+                    </select>
+                    <select id="topSection2" onchange="renderTop()">
+                        <option value="all">All Sections</option>
+                    </select>
                 </div>
                 <div class="top-list" id="topList"></div>
             </div>
 
             <!-- ── GRADE CALCULATOR ── -->
             <div class="card" id="gradeSection">
-                <div class="card-hdr"><div class="cicon ci-green">🎯</div><div><h3>Grade Calculator</h3><p>Instant grade &amp; result checker</p></div></div>
+                <div class="card-hdr">
+                    <div class="cicon ci-green">🎯</div>
+                    <div><h3>Grade Calculator</h3>
+                        <p>Instant grade &amp; result checker</p></div>
+                </div>
                 <div class="fgrid">
-                    <div class="fg"><label>Student Name (optional)</label><input type="text" id="gcName" placeholder="e.g. Priya Verma"></div>
-                    <div class="fg"><label>Marks (0–100)</label><input type="number" id="gcMarks" placeholder="Enter marks" min="0" max="100" oninput="calcGrade()"></div>
-                    <div class="fg"><label>Pass Threshold</label><input type="number" id="gcThreshold" value="33" min="0" max="100" oninput="calcGrade()"></div>
-                    <div class="fg"><label>Subject</label><input type="text" id="gcSubject" placeholder="e.g. Physics"></div>
+                    <div class="fg"><label>Student Name (optional)</label><input type="text" id="gcName"
+                                                                                 placeholder="e.g. Priya Verma"></div>
+                    <div class="fg"><label>Marks (0–100)</label><input type="number" id="gcMarks"
+                                                                       placeholder="Enter marks" min="0" max="100"
+                                                                       oninput="calcGrade()"></div>
+                    <div class="fg"><label>Pass Threshold</label><input type="number" id="gcThreshold" value="33"
+                                                                        min="0" max="100" oninput="calcGrade()"></div>
+                    <div class="fg"><label>Subject</label><input type="text" id="gcSubject" placeholder="e.g. Physics">
+                    </div>
                 </div>
                 <div class="grade-display" id="gradeDisplay">
                     <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-                        <div><div class="grade-big" id="gradeLetter">A</div><div class="grade-desc" id="gradeDesc"></div></div>
+                        <div>
+                            <div class="grade-big" id="gradeLetter">A</div>
+                            <div class="grade-desc" id="gradeDesc"></div>
+                        </div>
                         <div style="flex:1;min-width:160px;">
                             <div style="display:flex;justify-content:space-between;margin-bottom:7px;">
                                 <span style="font-size:12px;color:var(--muted);">Score</span>
-                                <span id="gradeScoreTxt" style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;"></span>
+                                <span id="gradeScoreTxt"
+                                      style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;"></span>
                             </div>
-                            <div class="grade-bar"><div class="grade-fill" id="gradeFill"></div></div>
+                            <div class="grade-bar">
+                                <div class="grade-fill" id="gradeFill"></div>
+                            </div>
                             <div style="display:flex;justify-content:space-between;margin-top:5px;">
-                                <span style="font-size:11px;color:var(--muted);">0</span><span style="font-size:11px;color:var(--muted);">50</span><span style="font-size:11px;color:var(--muted);">100</span>
+                                <span style="font-size:11px;color:var(--muted);">0</span><span
+                                    style="font-size:11px;color:var(--muted);">50</span><span
+                                    style="font-size:11px;color:var(--muted);">100</span>
                             </div>
                         </div>
                         <span id="gcBadge" class="badge" style="font-size:14px;padding:7px 17px;"></span>
                     </div>
                     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
-                        <div id="gcStudentName" style="font-family:'Syne',sans-serif;font-size:13px;color:var(--muted);"></div>
+                        <div id="gcStudentName"
+                             style="font-family:'Syne',sans-serif;font-size:13px;color:var(--muted);"></div>
                         <div id="gcFeedback" style="font-size:13px;color:var(--muted);margin-top:4px;"></div>
                     </div>
                 </div>
                 <div style="margin-top:20px;">
-                    <div style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:12px;">Grading Scale</div>
+                    <div style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:12px;">
+                        Grading Scale
+                    </div>
                     <div class="scale-grid" id="scaleGrid"></div>
                 </div>
             </div>
@@ -546,12 +700,14 @@
             <div class="card" id="assignmentSection">
                 <div class="card-hdr">
                     <div class="cicon ci-green">📝</div>
-                    <div><h3>Assignments</h3><p>Add and manage assignments</p></div>
+                    <div><h3>Assignments</h3>
+                        <p>Add and manage assignments</p></div>
                 </div>
                 <div class="fgrid">
                     <div class="fg">
                         <label>Assignment Title *</label>
-                        <input type="text" id="assignmentTitle" placeholder="e.g. Chapter 5 Summary" onkeydown="if(event.key==='Enter')addAssignment()">
+                        <input type="text" id="assignmentTitle" placeholder="e.g. Chapter 5 Summary"
+                               onkeydown="if(event.key==='Enter')addAssignment()">
                     </div>
                     <div class="fg">
                         <label>Description *</label>
@@ -572,11 +728,14 @@
                 </div>
 
                 <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
-                    <div style="padding:12px 18px;background:rgba(0,245,212,.08);border:1px solid rgba(0,245,212,.2);border-radius:13px;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--cyan);" id="assignTotalNum">0 <span style="font-size:12px;color:var(--muted);font-weight:500;">Total</span></div>
+                    <div style="padding:12px 18px;background:rgba(0,245,212,.08);border:1px solid rgba(0,245,212,.2);border-radius:13px;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--cyan);"
+                         id="assignTotalNum">0 <span
+                            style="font-size:12px;color:var(--muted);font-weight:500;">Total</span></div>
                 </div>
 
                 <div class="filt-row">
-                    <input type="text" id="assignSearch" placeholder="🔍 Search assignments…" oninput="renderAssignments()" style="max-width:240px;">
+                    <input type="text" id="assignSearch" placeholder="🔍 Search assignments…"
+                           oninput="renderAssignments()" style="max-width:240px;">
                 </div>
 
                 <table>
@@ -591,7 +750,13 @@
                     </tr>
                     </thead>
                     <tbody id="assignmentTable">
-                    <tr><td colspan="6"><div class="empty"><div class="eico">📝</div><p>No assignments yet — add one above!</p></div></td></tr>
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty">
+                                <div class="eico">📝</div>
+                                <p>No assignments yet — add one above!</p></div>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -600,7 +765,8 @@
             <div class="card" id="completionSection">
                 <div class="card-hdr">
                     <div class="cicon ci-cyan">✅</div>
-                    <div><h3>Assignment Completion Tracker</h3><p>Track which students completed which assignments</p></div>
+                    <div><h3>Assignment Completion Tracker</h3>
+                        <p>Track which students completed which assignments</p></div>
                 </div>
 
                 <!-- Overall stats -->
@@ -612,7 +778,8 @@
 
                 <!-- Filter controls -->
                 <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
-                    <input type="text" id="compStudentSearch" placeholder="🔍 Filter by student…" oninput="renderCompletionTable()" style="max-width:200px;">
+                    <input type="text" id="compStudentSearch" placeholder="🔍 Filter by student…"
+                           oninput="renderCompletionTable()" style="max-width:200px;">
                     <select id="compAssignFilter" onchange="renderCompletionTable()">
                         <option value="all">All Assignments</option>
                     </select>
@@ -633,14 +800,58 @@
                     <table id="completionTable">
                         <thead id="completionHead"></thead>
                         <tbody id="completionBody">
-                        <tr><td colspan="3"><div class="empty"><div class="eico">✅</div><p>Add students and assignments to track completion</p></div></td></tr>
+                        <tr>
+                            <td colspan="3">
+                                <div class="empty">
+                                    <div class="eico">✅</div>
+                                    <p>Add students and assignments to track completion</p></div>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div style="margin-top:14px;font-size:12px;color:var(--muted);">
-                    💡 Click the checkbox to toggle: <strong style="color:var(--green)">✓ Done</strong> → <strong style="color:var(--yellow)">⏳ Pending</strong> → <strong style="color:var(--pink)">✕ Missed</strong>
+                    💡 Click the checkbox to toggle: <strong style="color:var(--green)">✓ Done</strong> → <strong
+                        style="color:var(--yellow)">⏳ Pending</strong> → <strong style="color:var(--pink)">✕
+                    Missed</strong>
                 </div>
+            </div>
+
+            <!-- ── DUPLICATES ── -->
+            <div class="card" id="dupSection">
+                <div class="card-hdr">
+                    <div class="cicon ci-purple">⧉</div>
+                    <div><h3>Duplicate Students</h3>
+                        <p>Find and clean up students sharing the same name</p></div>
+                </div>
+                <div class="dup-banner" id="dupBanner">
+                    <span class="dtxt" id="dupBannerTxt"></span>
+                    <button class="btn btn-danger btn-sm" onclick="confirmDeleteDupes()">🗑 Delete All Duplicates</button>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+                    <button class="btn btn-outline" onclick="findDuplicates()">↻ Scan for Duplicates</button>
+                </div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Marks</th>
+                        <th>Section</th>
+                        <th>Result</th>
+                    </tr>
+                    </thead>
+                    <tbody id="dupTable">
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty">
+                                <div class="eico">⧉</div>
+                                <p>Click "Scan for Duplicates" to check</p></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
 
         </div><!-- /content -->
@@ -650,13 +861,19 @@
 <!-- ════ EDIT STUDENT MODAL ════ -->
 <div class="modal-ov" id="editModal">
     <div class="modal">
-        <div class="mhdr"><h3>✎ Edit Student</h3><button class="mclose" onclick="closeModal()">✕</button></div>
+        <div class="mhdr"><h3>✎ Edit Student</h3>
+            <button class="mclose" onclick="closeModal()">✕</button>
+        </div>
         <input type="hidden" id="editId">
         <div class="mgrid">
             <div class="fg"><label>Full Name</label><input type="text" id="editName"></div>
-            <div class="fg"><label>Marks</label><input type="number" id="editMarks" min="0" max="100" oninput="editAutoRes()"></div>
+            <div class="fg"><label>Marks</label><input type="number" id="editMarks" min="0" max="100"
+                                                       oninput="editAutoRes()"></div>
             <div class="fg"><label>Section</label><input type="text" id="editSection"></div>
-            <div class="fg"><label>Result</label><select id="editResult"><option value="pass">Pass ✓</option><option value="fail">Fail ✗</option></select></div>
+            <div class="fg"><label>Result</label><select id="editResult">
+                <option value="pass">Pass ✓</option>
+                <option value="fail">Fail ✗</option>
+            </select></div>
         </div>
         <div class="mact">
             <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
@@ -668,7 +885,9 @@
 <!-- ════ EDIT ASSIGNMENT MODAL ════ -->
 <div class="modal-ov" id="editAssignModal">
     <div class="modal">
-        <div class="mhdr"><h3>✎ Edit Assignment</h3><button class="mclose" onclick="closeAssignModal()">✕</button></div>
+        <div class="mhdr"><h3>✎ Edit Assignment</h3>
+            <button class="mclose" onclick="closeAssignModal()">✕</button>
+        </div>
         <input type="hidden" id="editAssignId">
         <div class="mgrid">
             <div class="fg"><label>Title</label><input type="text" id="editAssignTitle"></div>
@@ -683,18 +902,34 @@
     </div>
 </div>
 
+<!-- ════ CONFIRM MODAL ════ -->
+<div class="modal-ov" id="confirmModal">
+    <div class="modal" style="width:420px;">
+        <div class="mhdr"><h3 id="confirmTitle">⚠️ Are you sure?</h3>
+            <button class="mclose" onclick="closeConfirmModal()">✕</button>
+        </div>
+        <p id="confirmBody" style="color:var(--muted);font-size:13px;margin-bottom:20px;">This action cannot be undone.</p>
+        <div class="mact">
+            <button class="btn btn-outline" onclick="closeConfirmModal()">Cancel</button>
+            <button class="btn btn-danger" id="confirmActionBtn" style="padding:11px 20px;font-size:13px;">Delete</button>
+        </div>
+    </div>
+</div>
+
 <script>
     /* ══════════════ STATE ══════════════ */
+    const AUTH_BASE = "http://localhost:8081/auth";
     const BASE_URL = "http://localhost:8081/API";
     let allStudents = [];
     let displayedStudents = [];
-    // ✅ FIX: assignments now use consistent fields: {id, title, description, subject, due}
     let assignments = [];
-    // completionMap[studentId][assignmentId] = 'done' | 'pending' | 'missed'
     let completionMap = {};
     let bChart, dChart;
     let currentSort = 'id';
     let lightMode = false;
+    let authToken = null;       // JWT from /auth/login
+    let backendOnline = false;  // whether real backend responded
+    let dupGroups = [];         // duplicate-name groups from /API/sameName
 
     const DEMO_STUDENTS = [
       {id:1,name:'Aryan Sharma',marks:92,section:'A',result:'pass'},
@@ -708,6 +943,13 @@
       {id:9,name:'Aditya Gupta',marks:97,section:'A',result:'pass'},
       {id:10,name:'Shreya Pillai',marks:73,section:'B',result:'pass'},
     ];
+
+    /* ══ AUTH HEADERS HELPER ══ */
+    function authHeaders(extra){
+      const h = Object.assign({}, extra||{});
+      if(authToken) h['Authorization'] = 'Bearer ' + authToken;
+      return h;
+    }
 
     /* ══ GRADE UTILS ══ */
     function getGrade(m){ m=parseInt(m); if(m>=90)return'A+'; if(m>=80)return'A'; if(m>=70)return'B'; if(m>=60)return'C'; if(m>=33)return'D'; return'F'; }
@@ -743,26 +985,38 @@
       list.insertBefore(d,list.firstChild);
       while(list.children.length>7)list.removeChild(list.lastChild);
     }
-  async function filterAssignments() {
 
-    const status =
-        document.getElementById('assignmentFilter').value;
-
-    let url = 'http://localhost:8081/API/all';
-
-    if(status !== ''){
-        url = `http://localhost:8081/API/assignments/${status}`;
+    /* ══ CONNECTION STATUS ══ */
+    function setConnStatus(online){
+      backendOnline = online;
+      const dot = document.getElementById('connDot');
+      const txt = document.getElementById('connText');
+      dot.className = 'conn-dot ' + (online ? 'on' : 'off');
+      txt.textContent = online ? 'Backend connected' : 'Offline — demo mode';
     }
 
-    const response = await fetch(url);
+    async function checkBackend(){
+      try{
+        const res = await fetch(`${BASE_URL}/all`,{headers:authHeaders(),signal:AbortSignal.timeout(3000)});
+        setConnStatus(res.ok);
+      } catch(e){ setConnStatus(false); }
+    }
 
-    students = await response.json();
-
-    renderTable();
-    console.log("Filtered" , students);
-}
-
-
+    /* ══ ASSIGNMENT STATUS FILTER (View tab) ══ */
+    async function filterAssignments() {
+      const status = document.getElementById('assignmentFilter').value;
+      if(!status){ getStudents(); return; }
+      try{
+        const response = await fetch(`${BASE_URL}/assignments/${status}`,{headers:authHeaders(),signal:AbortSignal.timeout(4000)});
+        if(!response.ok) throw new Error();
+        const data = await response.json();
+        if(Array.isArray(data)) allStudents = data;
+        applyFilters();
+        showToast(`Filtered: ${status}`);
+      } catch(e){
+        showToast('Could not filter from backend (demo mode)','warn');
+      }
+    }
 
     /* ══ THEME ══ */
     function toggleTheme(){
@@ -773,24 +1027,56 @@
       addLog(lightMode?'Switched to Light mode':'Switched to Dark mode');
     }
 
-    /* ══ LOGIN ══ */
-    function login(){
+    /* ══ LOGIN (real JWT auth, with demo fallback) ══ */
+    async function login(){
       const u=document.getElementById('username').value.trim();
       const p=document.getElementById('password').value;
       const err=document.getElementById('loginError');
-      if(u==='admin' && p==='1234'){
-        document.getElementById('loginPage').style.display='none';
-        document.getElementById('mainPage').style.display='block';
-        // ✅ FIX: Load demo students immediately on login so "All Students" is never empty
-        allStudents=[...DEMO_STUDENTS];
-        updateCount();
-        _showSection('addSection', document.querySelector('.menu-btn'));
-        addLog('Admin logged in');
-      } else {
+      const btn=document.getElementById('loginBtn');
+      err.innerText='';
+      btn.disabled=true; btn.innerText='Signing in…';
+
+      try{
+        const res=await fetch(`${AUTH_BASE}/login`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({username:u,password:p}),
+          signal:AbortSignal.timeout(4000)
+        });
+        const text=await res.text();
+        if(res.ok && !text.toLowerCase().includes('invalid')){
+          // controller returns "token : -> token : -> <jwt>" — pull the last token-like chunk
+          const parts=text.split('->').map(s=>s.trim());
+          authToken=parts[parts.length-1];
+          enterDashboard();
+          return;
+        } else {
+          throw new Error('invalid');
+        }
+      } catch(e){
+        // Backend unreachable or rejected — fall back to local demo auth
+        if(u==='admin' && p==='1234'){
+          authToken=null;
+          enterDashboard();
+          showToast('Signed in (offline demo mode)','warn');
+          return;
+        }
         err.innerText='⚠️ Invalid credentials — try again!';
         err.style.animation='none';
         requestAnimationFrame(()=>{ err.style.animation='shake .4s ease'; });
+      } finally {
+        btn.disabled=false; btn.innerText='Sign In →';
       }
+    }
+
+    function enterDashboard(){
+      document.getElementById('loginPage').style.display='none';
+      document.getElementById('mainPage').style.display='block';
+      allStudents=[...DEMO_STUDENTS];
+      updateCount();
+      _showSection('addSection', document.querySelector('.menu-btn'));
+      addLog('Admin logged in');
+      checkBackend();
     }
 
     function logout(){ addLog('Logged out'); setTimeout(()=>location.reload(),200); }
@@ -811,6 +1097,7 @@
       if(id==='gradeSection') buildScaleGrid();
       if(id==='assignmentSection') renderAssignments();
       if(id==='completionSection') refreshCompletion();
+      if(id==='dupSection') findDuplicates();
     }
 
     /* ══ AUTO RESULT ══ */
@@ -844,8 +1131,9 @@
       if(!name||!marks||!section){ showToast('Fill all required fields','warn'); return; }
       if(!result) result=parseInt(marks)>=33?'pass':'fail';
       try{
-        const res=await fetch(`${BASE_URL}/add`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name,marks:parseInt(marks),section,result}])});
-        if(res.ok){ showToast(`${name} added!`); addLog(`Added: ${name}`); clearForm(); updateCount(); }
+        // ✅ matches controller: POST /API/add takes a single Model, not a list
+        const res=await fetch(`${BASE_URL}/add`,{method:'POST',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify({name,marks:parseInt(marks),section,result})});
+        if(res.ok){ showToast(`${name} added!`); addLog(`Added: ${name}`); clearForm(); getStudents(); }
         else throw new Error();
       } catch(e){
         const newId=allStudents.length?Math.max(...allStudents.map(s=>s.id))+1:1;
@@ -857,19 +1145,19 @@
     }
 
     /* ══ GET STUDENTS ══ */
-    // ✅ FIX: Always fall back to demo data; never return empty if API fails
     async function getStudents(){
       try{
-        const res=await fetch(`${BASE_URL}/all`,{signal:AbortSignal.timeout(4000)});
+        const res=await fetch(`${BASE_URL}/all`,{headers:authHeaders(),signal:AbortSignal.timeout(4000)});
         if(!res.ok) throw new Error('non-ok');
         const data=await res.json();
+        setConnStatus(true);
         if(Array.isArray(data) && data.length>0){
           allStudents=data;
         } else {
           throw new Error('empty');
         }
       } catch(e){
-        // Backend unavailable — keep current list or seed demo data
+        setConnStatus(false);
         if(allStudents.length===0) allStudents=[...DEMO_STUDENTS];
       }
       populateFilters();
@@ -896,8 +1184,6 @@
     }
 
     /* ══ FILTERS & SORT ══ */
-
-    // Helper: get assignment summary for a student
     function getStudentAssignSummary(studentId){
       if(!assignments.length) return {done:0,pending:0,missed:0,total:0,pct:0};
       const map=completionMap[studentId]||{};
@@ -917,17 +1203,10 @@
       const srch=document.getElementById('searchFilter')?.value.toLowerCase()||'';
       const res=document.getElementById('resultFilter')?.value||'all';
       const sec=document.getElementById('sectionFilter')?.value||'all';
-      const assignSt=document.getElementById('assignStatusFilter')?.value||'all';
       displayedStudents=allStudents.filter(s=>{
         if(!s.name.toLowerCase().includes(srch)) return false;
         if(res!=='all'&&s.result.toLowerCase()!==res) return false;
         if(sec!=='all'&&s.section!==sec) return false;
-        if(assignSt!=='all'&&assignments.length){
-          const sm=getStudentAssignSummary(s.id);
-          if(assignSt==='completed'&&sm.pct!==100) return false;
-          if(assignSt==='has_pending'&&sm.pending===0) return false;
-          if(assignSt==='has_missed'&&sm.missed===0) return false;
-        }
         return true;
       });
       const sub=document.getElementById('viewSub');
@@ -953,31 +1232,23 @@
       renderTable(sorted);
     }
 
-    function renderTable(data = students){
-      const hasAssign=assignments.length>0;
-      const colspan=hasAssign?8:8; // always 8 cols now
-      if(!data.length){
-      data = students;
-      document.getElementById('studentTable').innerHTML=`<tr><td colspan="8"><div class="empty"><div class="eico">🔍</div><p>No students match</p></div></td></tr>`; return; }
+    function renderTable(data){
+      if(!data || !data.length){
+        document.getElementById('studentTable').innerHTML=`<tr><td colspan="8"><div class="empty"><div class="eico">🔍</div><p>No students match</p></div></td></tr>`; return;
+      }
       document.getElementById('studentTable').innerHTML=data.map(s=>{
         const g=getGrade(s.marks);
         const sm=getStudentAssignSummary(s.id);
-
-        // Assignment cell
-        let assignCell = `
-<td>
-    <span class="badge"
-          style="
-            background:rgba(34,211,122,.12);
-            color:var(--green);
-            border:1px solid rgba(34,211,122,.25);
-          ">
-        ${s.assignments || 'No assignments'}
-    </span>
-</td>
-`;
-
-
+        const assignCell = assignments.length
+          ? `<td>
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:100px;min-width:46px;overflow:hidden;">
+                  <div style="height:100%;width:${sm.pct}%;background:${sm.pct===100?'var(--green)':sm.pct>=50?'var(--yellow)':'var(--pink)'};border-radius:100px;"></div>
+                </div>
+                <span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;">${sm.pct}%</span>
+              </div>
+            </td>`
+          : `<td><span style="color:var(--muted);font-size:12px">No assignments</span></td>`;
 
         return `<tr>
           <td><span style="color:var(--muted);font-size:11px">#</span><strong>${s.id}</strong></td>
@@ -999,16 +1270,31 @@
     async function deleteStudent(id){
       const student=allStudents.find(s=>s.id===id);
       try{
-        const res=await fetch(`${BASE_URL}/delete/${id}`,{method:'DELETE'});
+        const res=await fetch(`${BASE_URL}/delete/${id}`,{method:'DELETE',headers:authHeaders()});
         if(res.ok){ showToast('Student removed'); addLog(`Deleted: ${student?.name||id}`); getStudents(); }
         else throw new Error();
       } catch(e){
         allStudents=allStudents.filter(s=>s.id!==id);
-        // clean up completion map
         delete completionMap[id];
         showToast('Removed (demo)'); addLog(`Deleted: ${student?.name||id}`);
         populateFilters(); applyFilters(); updateCount();
       }
+    }
+
+    /* ══ DELETE ALL STUDENTS ══ */
+    function confirmDeleteAll(){
+      openConfirmModal('🗑 Delete All Students', `This will permanently remove all ${allStudents.length} students. This cannot be undone.`, async ()=>{
+        try{
+          const res=await fetch(`${BASE_URL}/allDelete`,{method:'DELETE',headers:authHeaders()});
+          if(!res.ok) throw new Error();
+          showToast('All students deleted');
+        } catch(e){
+          showToast('Deleted locally (demo)','warn');
+        }
+        allStudents=[]; completionMap={};
+        populateFilters(); applyFilters(); updateCount();
+        addLog('Deleted ALL students');
+      });
     }
 
     /* ══ SEARCH STUDENT ══ */
@@ -1017,7 +1303,7 @@
       const box=document.getElementById('singleStudent');
       if(!id){ showToast('Enter an ID','warn'); return; }
       try{
-        const res=await fetch(`${BASE_URL}/${id}`);
+        const res=await fetch(`${BASE_URL}/${id}`,{headers:authHeaders()});
         if(res.ok) renderSearchResult(await res.json(),box);
         else{ const d=allStudents.find(s=>s.id===parseInt(id)); d?renderSearchResult(d,box):notFound(box,id); }
       } catch(e){
@@ -1054,22 +1340,25 @@
     document.getElementById('editModal').addEventListener('click',e=>{ if(e.target===e.currentTarget)closeModal(); });
 
     async function saveEdit(){
-      const id=document.getElementById('editId').value;
+      const id=parseInt(document.getElementById('editId').value);
       const name=document.getElementById('editName').value.trim();
       const marks=document.getElementById('editMarks').value;
       const section=document.getElementById('editSection').value.trim();
       const result=document.getElementById('editResult').value;
       if(!name||!marks||!section){ showToast('Fill all fields','warn'); return; }
       try{
-        const res=await fetch(`${BASE_URL}/update/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,marks:parseInt(marks),section,result})});
+        // ✅ matches controller: PUT /API/update takes a LIST of Model
+        const res=await fetch(`${BASE_URL}/update`,{method:'PUT',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify([{id,name,marks:parseInt(marks),section,result}])});
         if(!res.ok) throw new Error();
         showToast('Student updated!');
+        getStudents();
       } catch(e){
-        const idx=allStudents.findIndex(s=>s.id===parseInt(id));
+        const idx=allStudents.findIndex(s=>s.id===id);
         if(idx>-1) allStudents[idx]={...allStudents[idx],name,marks:parseInt(marks),section,result};
         showToast('Updated (demo)!');
+        applyFilters();
       }
-      addLog(`Edited: ${name}`); closeModal(); applyFilters();
+      addLog(`Edited: ${name}`); closeModal();
     }
 
     /* ══ EXPORT ══ */
@@ -1219,7 +1508,7 @@
     }
 
     /* ═══════════════════════════════════════════
-       ══  ASSIGNMENTS  ══  (FIXED field names)
+       ══  ASSIGNMENTS
     ═══════════════════════════════════════════ */
 
     function updateAssignCount(){
@@ -1236,7 +1525,6 @@
 
       if(!title||!description){ showToast('Fill Title and Description','warn'); return; }
 
-      // ✅ FIX: consistent object shape — always use title & description
       const newAssign={
         id: assignments.length ? Math.max(...assignments.map(a=>a.id))+1 : 1,
         title,
@@ -1246,15 +1534,14 @@
       };
 
       try{
+        // ✅ controller: POST /API/assignments takes a single Model
         const res=await fetch(`${BASE_URL}/assignments`,{
           method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify([{title,description,subject,due}])
+          headers:authHeaders({'Content-Type':'application/json'}),
+          body: JSON.stringify({title,description,subject,due})
         });
         if(!res.ok) throw new Error();
-        const result=await res.json();
-        // normalise server response to same shape
-        const serverAssign=Array.isArray(result)?result[0]:result;
+        const serverAssign=await res.json();
         assignments.push({
           id: serverAssign.id||newAssign.id,
           title: serverAssign.title||title,
@@ -1276,7 +1563,6 @@
       renderAssignments();
     }
 
-    // ✅ FIX: renderAssignments now uses a.title and a.description (not a.assignments)
     function renderAssignments(){
       const search=(document.getElementById('assignSearch')?.value||'').toLowerCase();
       const filtered=assignments.filter(a=>
@@ -1314,10 +1600,9 @@
 
     async function loadAssignments(){
       try{
-        const res=await fetch(`${BASE_URL}/assignments`,{signal:AbortSignal.timeout(4000)});
+        const res=await fetch(`${BASE_URL}/assignments`,{headers:authHeaders(),signal:AbortSignal.timeout(4000)});
         if(!res.ok) throw new Error();
         const data=await res.json();
-        // normalise server data
         assignments=data.map(a=>({
           id:a.id,
           title:a.title||a.assignments||'Untitled',
@@ -1335,7 +1620,6 @@
     function deleteAssignment(id){
       const a=assignments.find(x=>x.id===id);
       assignments=assignments.filter(x=>x.id!==id);
-      // remove from completion map too
       Object.keys(completionMap).forEach(sid=>{ delete completionMap[sid][id]; });
       showToast(`Removed: ${a?.title||'assignment'}`);
       addLog(`Deleted assignment: ${a?.title||id}`);
@@ -1378,10 +1662,9 @@
     }
 
     /* ═══════════════════════════════════════════
-       ══  COMPLETION TRACKER  ══  (NEW FEATURE)
+       ══  COMPLETION TRACKER
     ═══════════════════════════════════════════ */
 
-    // Status cycle: undefined → 'pending' → 'done' → 'missed' → 'pending'
     function cycleStatus(current){
       if(!current||current==='pending') return 'done';
       if(current==='done') return 'missed';
@@ -1393,7 +1676,6 @@
       const cur=completionMap[studentId][assignId]||'pending';
       completionMap[studentId][assignId]=cycleStatus(cur);
       renderCompletionTable();
-      // Also refresh All Students table if it's currently visible
       if(document.getElementById('viewSection').style.display==='block') sortAndRender();
     }
 
@@ -1412,7 +1694,6 @@
 
     function refreshCompletion(){
       if(allStudents.length===0) allStudents=[...DEMO_STUDENTS];
-      // Populate assignment filter dropdown
       const sel=document.getElementById('compAssignFilter');
       if(sel){
         sel.innerHTML='<option value="all">All Assignments</option>';
@@ -1430,15 +1711,11 @@
       const assignFilter=document.getElementById('compAssignFilter')?.value||'all';
       const statusFilter=document.getElementById('compStatusFilter')?.value||'all';
 
-      // Filter students
       const filteredStudents=allStudents.filter(s=>s.name.toLowerCase().includes(studentSearch));
-
-      // Filter assignments
       const filteredAssigns=assignFilter==='all'
         ? assignments
         : assignments.filter(a=>String(a.id)===String(assignFilter));
 
-      // Overall stats
       const stats=getCompletionStats();
       document.getElementById('completionStats').innerHTML=`
         <div class="cstat cstat-done">${stats.done} <span>Completed</span></div>
@@ -1452,7 +1729,6 @@
         return;
       }
 
-      // Build table header: Student | assign1 | assign2 | ... | Progress
       const head=document.getElementById('completionHead');
       head.innerHTML=`<tr>
         <th style="min-width:130px">Student</th>
@@ -1463,20 +1739,15 @@
         <th>Progress</th>
       </tr>`;
 
-      // Build rows — apply status filter
       const body=document.getElementById('completionBody');
       const rows=filteredStudents.map(s=>{
         const g=getGrade(s.marks);
         let doneCount=0,totalCount=filteredAssigns.length;
 
-        // Filter cells by status
         const cells=filteredAssigns.map(a=>{
           const status=(completionMap[s.id]||{})[a.id]||'pending';
           if(status==='done') doneCount++;
-
-          // Hide row if status doesn't match filter
           if(statusFilter!=='all'&&status!==statusFilter) return null;
-
           const icon=status==='done'?'✓':status==='missed'?'✕':'⏳';
           const cls=status==='done'?'done':status==='missed'?'missed':'pending';
           const title=status==='done'?'Done — click to mark Missed':status==='missed'?'Missed — click to mark Pending':'Pending — click to mark Done';
@@ -1485,7 +1756,6 @@
           </td>`;
         });
 
-        // If status filter active and no cells match — skip row
         if(statusFilter!=='all'&&cells.every(c=>c===null)) return '';
 
         const pct=totalCount?Math.round(doneCount/totalCount*100):0;
@@ -1510,6 +1780,82 @@
 
       body.innerHTML=rows.join('')||`<tr><td colspan="${filteredAssigns.length+2}"><div class="empty"><div class="eico">🔍</div><p>No students match the status filter</p></div></td></tr>`;
     }
+
+    /* ═══════════════════════════════════════════
+       ══  DUPLICATES (uses /API/sameName, /API/deletByName)
+    ═══════════════════════════════════════════ */
+
+    async function findDuplicates(){
+      const tb=document.getElementById('dupTable');
+      try{
+        const res=await fetch(`${BASE_URL}/sameName`,{headers:authHeaders(),signal:AbortSignal.timeout(4000)});
+        if(!res.ok) throw new Error();
+        dupGroups=await res.json();
+      } catch(e){
+        // local fallback: group allStudents by name
+        const byName={};
+        allStudents.forEach(s=>{ (byName[s.name.toLowerCase()]=byName[s.name.toLowerCase()]||[]).push(s); });
+        dupGroups=Object.values(byName).filter(g=>g.length>1).flat();
+        if(!dupGroups.length) showToast('No backend — scanned locally','warn');
+      }
+      document.getElementById('dupCount').innerText=dupGroups.length;
+      const banner=document.getElementById('dupBanner');
+      if(dupGroups.length>0){
+        banner.classList.add('show');
+        document.getElementById('dupBannerTxt').textContent=`Found ${dupGroups.length} student(s) sharing a name with another record.`;
+      } else {
+        banner.classList.remove('show');
+      }
+      if(!dupGroups.length){
+        tb.innerHTML=`<tr><td colspan="5"><div class="empty"><div class="eico">✨</div><p>No duplicate names found</p></div></td></tr>`;
+        return;
+      }
+      tb.innerHTML=dupGroups.map(s=>{
+        const g=getGrade(s.marks);
+        return `<tr>
+          <td><strong>#${s.id}</strong></td>
+          <td><strong>${s.name}</strong></td>
+          <td>${s.marks} <span class="badge ${gradeCls(g)}" style="font-size:9px;margin-left:5px">${g}</span></td>
+          <td>${s.section}</td>
+          <td><span class="badge ${s.result.toLowerCase()==='pass'?'bp':'bf'}">${s.result}</span></td>
+        </tr>`;
+      }).join('');
+      addLog(`Scanned duplicates: ${dupGroups.length} found`);
+    }
+
+    function confirmDeleteDupes(){
+      openConfirmModal('🗑 Delete Duplicate Students', `This will permanently remove all ${dupGroups.length} students with duplicate names (keeps no copy). This cannot be undone.`, async ()=>{
+        try{
+          const res=await fetch(`${BASE_URL}/deletByName`,{method:'DELETE',headers:authHeaders()});
+          if(!res.ok) throw new Error();
+          showToast('Duplicates deleted');
+          getStudents();
+        } catch(e){
+          const dupIds=new Set(dupGroups.map(s=>s.id));
+          allStudents=allStudents.filter(s=>!dupIds.has(s.id));
+          showToast('Duplicates deleted (demo)','warn');
+          populateFilters(); applyFilters(); updateCount();
+        }
+        dupGroups=[];
+        findDuplicates();
+        addLog('Deleted duplicate students');
+      });
+    }
+
+    /* ══ GENERIC CONFIRM MODAL ══ */
+    let _confirmCb=null;
+    function openConfirmModal(title, body, onConfirm){
+      document.getElementById('confirmTitle').textContent=title;
+      document.getElementById('confirmBody').textContent=body;
+      _confirmCb=onConfirm;
+      document.getElementById('confirmModal').classList.add('open');
+    }
+    function closeConfirmModal(){ document.getElementById('confirmModal').classList.remove('open'); _confirmCb=null; }
+    document.getElementById('confirmModal').addEventListener('click',e=>{ if(e.target===e.currentTarget)closeConfirmModal(); });
+    document.getElementById('confirmActionBtn').addEventListener('click',async ()=>{
+      if(_confirmCb) await _confirmCb();
+      closeConfirmModal();
+    });
 
     /* ══ INIT ══ */
     buildScaleGrid();

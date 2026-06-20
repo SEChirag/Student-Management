@@ -1,10 +1,9 @@
-package main.java.com.test.Entity;
+package com.test.Entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 
 @Getter
@@ -19,22 +18,7 @@ public class Model {
     private String name;
     private long marks;
     private String section;
-    private  String result;
+    private String result;
     private String assignments;
     private String status;
-//    @Getter @Setter
-//    private long Even;
-
-
-//    public Model(long id, String name , long marks ,String section , String result, String assignments) {
-//        this.id = id;
-//        this.name = name;
-//        this.marks = marks;
-//        this.section=section;
-//        this.result = result;
-//        this.assignments = assignments;
-//
-//
-//    }
-
 }

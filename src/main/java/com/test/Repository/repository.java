@@ -1,7 +1,8 @@
-package main.java.com.test.Repository;
+package com.test.Repository;
 
 
-import main.java.com.test.Entity.Model;
+
+import com.test.Entity.Model;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

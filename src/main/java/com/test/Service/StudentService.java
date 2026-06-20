@@ -1,11 +1,14 @@
-package main.java.com.test.Service;
+package com.test.Service;
 
 
-import main.java.com.test.Entity.Model;
+import com.test.Entity.Model;
+import com.test.Exceptions.StudentNotFoundException;
+import com.test.Repository.repository;
 
 
-import main.java.com.test.Exceptions.StudentNotFoundException;
-import main.java.com.test.Repository.repository;
+
+
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,13 +52,6 @@ public class StudentService {
     public void deleteAllStudents() {
         Repo.deleteAll();
     }
-
-//    public List<Model> getEvenId() {
-//            return Repo.findAll()
-//                .stream()
-//                .filter(a -> a.getEven() % 2 == 0)
-//                .toList();
-//    }
 
 
     public Page<Model> getStudents(int page, int size) {

@@ -1,4 +1,4 @@
-package main.java.com.test.Exceptions;
+package com.test.Exceptions;
 
 public class StudentNotFoundException extends RuntimeException{
     public StudentNotFoundException(String message) {

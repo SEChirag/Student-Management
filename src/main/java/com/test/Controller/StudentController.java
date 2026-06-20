@@ -1,7 +1,9 @@
-package main.java.com.test.Controller;
+package com.test.Controller;
 
-import main.java.com.test.Entity.Model;
-import main.java.com.test.Service.StudentService;
+import com.test.Entity.Model;
+import com.test.Service.StudentService;
+
+
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
