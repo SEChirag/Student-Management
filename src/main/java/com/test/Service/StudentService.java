@@ -6,9 +6,8 @@ import com.test.Exceptions.StudentNotFoundException;
 import com.test.Repository.repository;
 
 
-
-
-
+import com.test.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +21,8 @@ import java.util.stream.Collectors;
 @Service
 public class StudentService {
     private final repository Repo;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     public StudentService(repository Repo) {
         this.Repo = Repo;
@@ -50,6 +51,8 @@ public class StudentService {
     }
 
     public void deleteAllStudents() {
+        jwtUtil.extractUsername("admin");
+
         Repo.deleteAll();
     }
 
