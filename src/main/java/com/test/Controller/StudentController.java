@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
+
 import java.util.List;
 
 @CrossOrigin("*")
@@ -22,7 +23,7 @@ public class StudentController {
     private repository repository;
     private JwtUtil jwtUtil;
 
-    public StudentController(StudentService service, JwtUtil jwtUtil ,repository repo ,UseRepository useRepository) {
+    public StudentController(StudentService service, JwtUtil jwtUtil, repository repo, UseRepository useRepository) {
         this.service = service;
         this.jwtUtil = jwtUtil;
         this.repository = repository;
@@ -38,14 +39,12 @@ public class StudentController {
     public Model getbyid(@PathVariable Long id) {
         return service.getbyid(id);
     }
+
     @PostMapping("/add")
     public Model addStudent(@RequestBody Model model, Authentication authentication) {
 
         String username = authentication.getName();
-
-        User user = useRepository.findByUsername(username)
-                .orElseThrow();
-
+        User user = useRepository.findByUsername(username).orElseThrow();
         model.setUser(user);
 
         return service.addStudent(model);
