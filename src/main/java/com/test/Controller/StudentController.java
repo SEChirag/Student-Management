@@ -75,9 +75,15 @@ public class StudentController {
         return service.addAssignments(assignments);
     }
 
+    @PatchMapping("/updateAssignments/{id}")
+    public String updateAssignments(@RequestParam String assignments , @PathVariable long id) {
+        service.updateAssignments(assignments , id);
+        return "Assignment updated for Student id "+id;
+    }
+
     @GetMapping("/assignments/{status}")
-    public List<Model> GetallAssignment(@PathVariable String status) {
-        return service.GetallAssignment(status);
+    public List<Model> getallAssignment(@PathVariable String status) {
+        return service.getallAssignment(status);
     }
 
     @GetMapping("/allStatus/{status}")

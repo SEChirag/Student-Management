@@ -20,10 +20,13 @@ public class Model {
     private long marks;
     private String section;
     private String result;
+    @Getter
+    @Setter
     private String assignments;
     private String status;
 
     @ManyToOne
-    @JoinColumn(name ="user_id")
+    @Getter
+    @Setter
     private  User user;
 }

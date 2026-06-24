@@ -7,7 +7,6 @@ import com.test.Repository.repository;
 
 
 import com.test.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,11 +20,12 @@ import java.util.stream.Collectors;
 @Service
 public class StudentService {
     private final repository Repo;
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    public StudentService(repository Repo) {
+
+    public StudentService(repository Repo , JwtUtil jwtUtil) {
         this.Repo = Repo;
+        this.jwtUtil=jwtUtil;
     }
 
     public List<Model> getAllStudents() {
@@ -51,8 +51,6 @@ public class StudentService {
     }
 
     public void deleteAllStudents() {
-        jwtUtil.extractUsername("admin");
-
         Repo.deleteAll();
     }
 
@@ -66,8 +64,10 @@ public class StudentService {
         return Repo.save(assignments);
     }
 
-    public List<Model> GetallAssignment(String status) {
-
+    public List<Model> getallAssignment(String status) {
+        if (status.equalsIgnoreCase("all")) {
+            return Repo.findAll(); // return all students
+        }
         return Repo.findAll().stream()
                 .filter(s -> s.getAssignments() != null &&
                         s.getAssignments().equalsIgnoreCase(status))
@@ -91,5 +91,14 @@ public class StudentService {
         Map<String, Long> nameCount = students.stream().collect(Collectors.groupingBy(s -> s.getName().toLowerCase(), Collectors.counting()));
 
         return students.stream().filter(s -> nameCount.get(s.getName().toLowerCase()) > 1).sorted(Comparator.comparing(Model -> Model.getName())).collect(Collectors.toList());
+    }
+
+
+    public void updateAssignments(String assignments , Long id) {
+
+       Model student = Repo.findById(id).orElseThrow(()->new StudentNotFoundException("Student not found with this id"+ id));
+            student.setAssignments(assignments);
+
+        Repo.save(student);
     }
 }

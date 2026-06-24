@@ -1,6 +1,5 @@
 package com.test.Repository;
 
-import com.test.Entity.Model;
 import com.test.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

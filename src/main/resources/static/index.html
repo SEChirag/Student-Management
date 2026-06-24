@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Institution — Student Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
           --bg:#0d0d0d; --surface:#151515; --card:#1a1a1a; --card2:#202020; --border:rgba(255,255,255,0.08);
@@ -24,7 +24,7 @@
 
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
         html,body{height:100%;}
-        body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;transition:background var(--transition),color var(--transition);}
+        body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;transition:background var(--transition),color var(--transition);}
 
         /* ─── LOGIN ─── */
         #loginPage{height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);}
@@ -71,7 +71,7 @@
         .nav-btn{
           width:100%;padding:9px 10px;margin-bottom:2px;border-radius:9px;
           background:transparent;border:none;color:var(--muted);
-          font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+          font-family:'Inter',sans-serif;font-size:14px;font-weight:500;
           cursor:pointer;display:flex;align-items:center;gap:9px;
           transition:all .18s;text-align:left;position:relative;
         }
@@ -343,6 +343,27 @@
         ::-webkit-scrollbar{width:4px;}
         ::-webkit-scrollbar-track{background:transparent;}
         ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:100px;}
+        body,input,select,textarea,button{font-family:'Inter',sans-serif;font-size:14px;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased;}
+.sb-name,.qa-btn-title,.page-card-hdr h3,.gd-title,.qa-title,.mhdr h3,h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-0.03em;}
+.topbar-left h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.04em;}
+.sc-num{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.05em;}
+.sc-label{font-size:11px;font-weight:500;letter-spacing:0.01em;text-transform:uppercase;}
+.badge{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.02em;}
+.btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:-0.01em;}
+.login-btn{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;}
+.fg label,.inp-group label{font-size:11px;font-weight:600;letter-spacing:0.07em;}
+th{font-size:11px;font-weight:600;letter-spacing:0.06em;}
+td{font-size:13px;font-weight:400;line-height:1.5;}
+.nav-btn{font-size:13px;font-weight:450;}
+.nav-label{font-size:10px;letter-spacing:1.2px;}
+.page-card-hdr h3{font-size:17px;font-weight:700;letter-spacing:-0.03em;}
+.page-card-hdr p{font-size:12px;font-weight:400;}
+.grade-big{font-family:'Plus Jakarta Sans',sans-serif;font-size:52px;font-weight:800;letter-spacing:-0.06em;}
+.top-name{font-size:13px;font-weight:600;}
+.top-score{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;}
+.sort-btn,.assign-tab{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;}
+.sb-info .sb-name{font-size:14px;font-weight:700;}
+.toast{font-size:13px;font-weight:500;}
     </style>
 </head>
 <body>
@@ -350,12 +371,16 @@
 <!-- ════ LOGIN ════ -->
 <div id="loginPage">
     <div class="login-card">
-        <div class="login-logo"><div class="logo-icon">🎓</div></div>
+        <div class="login-logo">
+            <div class="logo-icon">🎓</div>
+        </div>
         <h1>Institution</h1>
-        <p class="login-sub">Admin portal — sign in to continue</p>
-        <div class="inp-group"><label>Username</label><input type="text" id="username" placeholder="admin" autocomplete="off"></div>
-        <div class="inp-group"><label>Password</label><input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"></div>
-        <p class="login-hint">Demo: <code>admin</code> / <code>1234</code></p>
+        <p class="login-sub"> sign in to continue</p>
+        <div class="inp-group"><label>Username</label><input type="text" id="username" placeholder="admin"
+                                                             autocomplete="off"></div>
+        <div class="inp-group"><label>Password</label><input type="password" id="password" placeholder="••••••••"
+                                                             onkeydown="if(event.key==='Enter')login()"></div>
+        <!--        <p class="login-hint">Demo: <code>admin</code> / <code>1234</code></p>-->
         <button class="login-btn" id="loginBtn" onclick="login()">Sign In →</button>
         <p id="loginError"></p>
     </div>
@@ -379,7 +404,8 @@
             <div class="nav-section">
                 <div class="nav-label">Overview</div>
                 <button class="nav-btn active" onclick="showSection('dashSection',this)">
-                    <div class="nav-icon">⊞</div> Dashboard
+                    <div class="nav-icon">⊞</div>
+                    Dashboard
                 </button>
             </div>
 
@@ -387,14 +413,17 @@
             <div class="nav-section">
                 <div class="nav-label">Students</div>
                 <button class="nav-btn" onclick="showSection('addSection',this)">
-                    <div class="nav-icon">✦</div> Add student
+                    <div class="nav-icon">✦</div>
+                    Add student
                 </button>
                 <button class="nav-btn" onclick="showSection('viewSection',this)">
-                    <div class="nav-icon">👥</div> All students
+                    <div class="nav-icon">👥</div>
+                    All students
                     <span class="nav-badge" id="sideCount">0</span>
                 </button>
                 <button class="nav-btn" onclick="showSection('searchSection',this)">
-                    <div class="nav-icon">🔍</div> Search
+                    <div class="nav-icon">🔍</div>
+                    Search
                 </button>
             </div>
 
@@ -402,14 +431,17 @@
             <div class="nav-section">
                 <div class="nav-label">Academics</div>
                 <button class="nav-btn" onclick="showSection('assignmentSection',this)">
-                    <div class="nav-icon">📝</div> Assignments
+                    <div class="nav-icon">📝</div>
+                    Assignments
                     <span class="nav-badge" id="assignCount">0</span>
                 </button>
                 <button class="nav-btn" onclick="showSection('completionSection',this)">
-                    <div class="nav-icon">✅</div> Completion
+                    <div class="nav-icon">✅</div>
+                    Completion
                 </button>
                 <button class="nav-btn" onclick="showSection('gradeSection',this)">
-                    <div class="nav-icon">🎯</div> Grade calc
+                    <div class="nav-icon">🎯</div>
+                    Grade calc
                 </button>
             </div>
 
@@ -417,13 +449,16 @@
             <div class="nav-section">
                 <div class="nav-label">Insights</div>
                 <button class="nav-btn" onclick="showSection('analyticsSection',this)">
-                    <div class="nav-icon">◈</div> Analytics
+                    <div class="nav-icon">◈</div>
+                    Analytics
                 </button>
                 <button class="nav-btn" onclick="showSection('topSection',this)">
-                    <div class="nav-icon">🏆</div> Top performers
+                    <div class="nav-icon">🏆</div>
+                    Top performers
                 </button>
                 <button class="nav-btn" onclick="showSection('dupSection',this)">
-                    <div class="nav-icon">⧉</div> Duplicates
+                    <div class="nav-icon">⧉</div>
+                    Duplicates
                     <span class="nav-badge" id="dupCount">0</span>
                 </button>
             </div>
@@ -437,7 +472,8 @@
 
             <div class="sb-footer">
                 <button class="theme-toggle" onclick="toggleTheme()">
-                    <div class="nav-icon">☀️</div> <span id="themeLabel">Light mode</span>
+                    <div class="nav-icon">☀️</div>
+                    <span id="themeLabel">Light mode</span>
                 </button>
             </div>
         </div>
@@ -468,7 +504,7 @@
                 <!-- ── DASHBOARD HOME ── -->
                 <div class="section active" id="dashSection">
                     <!-- Stat cards -->
-                    <div class="dash-grid">
+                    <div class="dash-grid" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr;">
                         <div class="stat-card sc-total">
                             <div class="sc-top">
                                 <div class="sc-icon">👥</div>
@@ -501,7 +537,16 @@
                             <div class="sc-num" id="dashAvg">0</div>
                             <div class="sc-sub">out of 100</div>
                         </div>
-                    </div>
+                        <div class="stat-card">
+                            <div class="sc-top">
+                                <div class="sc-icon" style="background:rgba(177,76,255,.12);">⚡</div>
+                                <div class="sc-label">Active students</div>
+                            </div>
+                            <div class="sc-num" id="dashActive" style="color:var(--purple)">0</div>
+                            <div class="sc-sub" id="dashInactive"></div>
+                        </div>
+                        </div>
+
 
                     <!-- Bottom row: Quick actions + Grade dist -->
                     <div class="dash-bottom">
@@ -509,21 +554,36 @@
                             <div class="qa-title">Quick actions</div>
                             <div class="qa-sub">Common tasks at a glance</div>
                             <div class="qa-grid">
-                                <button class="qa-btn" onclick="showSection('addSection', document.querySelectorAll('.nav-btn')[1])">
+                                <button class="qa-btn"
+                                        onclick="showSection('addSection', document.querySelectorAll('.nav-btn')[1])">
                                     <div class="qa-btn-icon">✦</div>
-                                    <div><div class="qa-btn-title">Add student</div><div class="qa-btn-sub">New enrollment</div></div>
+                                    <div>
+                                        <div class="qa-btn-title">Add student</div>
+                                        <div class="qa-btn-sub">New enrollment</div>
+                                    </div>
                                 </button>
-                                <button class="qa-btn" onclick="showSection('assignmentSection', document.querySelectorAll('.nav-btn')[4])">
+                                <button class="qa-btn"
+                                        onclick="showSection('assignmentSection', document.querySelectorAll('.nav-btn')[4])">
                                     <div class="qa-btn-icon">📝</div>
-                                    <div><div class="qa-btn-title">New assignment</div><div class="qa-btn-sub">Create &amp; assign</div></div>
+                                    <div>
+                                        <div class="qa-btn-title">New assignment</div>
+                                        <div class="qa-btn-sub">Create &amp; assign</div>
+                                    </div>
                                 </button>
-                                <button class="qa-btn" onclick="showSection('analyticsSection', document.querySelectorAll('.nav-btn')[7])">
+                                <button class="qa-btn"
+                                        onclick="showSection('analyticsSection', document.querySelectorAll('.nav-btn')[7])">
                                     <div class="qa-btn-icon">◈</div>
-                                    <div><div class="qa-btn-title">View analytics</div><div class="qa-btn-sub">Charts &amp; stats</div></div>
+                                    <div>
+                                        <div class="qa-btn-title">View analytics</div>
+                                        <div class="qa-btn-sub">Charts &amp; stats</div>
+                                    </div>
                                 </button>
                                 <button class="qa-btn" onclick="exportCSV()">
                                     <div class="qa-btn-icon">⬇</div>
-                                    <div><div class="qa-btn-title">Export CSV</div><div class="qa-btn-sub">Download data</div></div>
+                                    <div>
+                                        <div class="qa-btn-title">Export CSV</div>
+                                        <div class="qa-btn-sub">Download data</div>
+                                    </div>
                                 </button>
                             </div>
                         </div>
@@ -544,19 +604,34 @@
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-cyan">✦</div>
-                            <div><h3>Add Student</h3><p>Fill in the details below</p></div>
+                            <div><h3>Add Student</h3>
+                                <p>Fill in the details below</p></div>
                         </div>
                         <div class="fgrid">
-                            <div class="fg"><label>Full Name *</label><input type="text" id="name" placeholder="e.g. Aryan Sharma"></div>
-                            <div class="fg"><label>Marks (0–100) *</label><input type="number" id="marks" placeholder="e.g. 85" min="0" max="100" oninput="autoResult()"></div>
-                            <div class="fg"><label>Section *</label><input type="text" id="section" placeholder="e.g. A"></div>
-                            <div class="fg"><label>Status *</label><input type="text" id="Status" placeholder="e.g. Active"></div>
-                            <div class="fg"><label>Result <span style="color:var(--cyan);font-size:10px">(auto-set)</span></label>
-                                <select id="result"><option value="">Auto-detect</option><option value="pass">Pass ✓</option><option value="fail">Fail ✗</option></select>
+                            <div class="fg"><label>Full Name *</label><input type="text" id="name"
+                                                                             placeholder="e.g. Aryan Sharma"></div>
+                            <div class="fg"><label>Marks (0–100) *</label><input type="number" id="marks"
+                                                                                 placeholder="e.g. 85" min="0" max="100"
+                                                                                 oninput="autoResult()"></div>
+                            <div class="fg"><label>Section *</label><input type="text" id="section"
+                                                                           placeholder="e.g. A"></div>
+                            <div class="fg"><label>Status *</label><input type="text" id="Status"
+                                                                          placeholder="e.g. Active"></div>
+                            <div class="fg"><label>Result <span
+                                    style="color:var(--cyan);font-size:10px">(auto-set)</span></label>
+                                <select id="result">
+                                    <option value="">Auto-detect</option>
+                                    <option value="pass">Pass ✓</option>
+                                    <option value="fail">Fail ✗</option>
+                                </select>
                             </div>
-                            <div class="fg"><label>Subject / Notes</label><input type="text" id="subject" placeholder="e.g. Mathematics"></div>
+                            <div class="fg"><label>Subject / Notes</label><input type="text" id="subject"
+                                                                                 placeholder="e.g. Mathematics"></div>
                             <div class="fg" style="align-self:end">
-                                <div id="gradePreview" style="padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;font-size:13px;color:var(--muted);">Grade preview here</div>
+                                <div id="gradePreview"
+                                     style="padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;font-size:13px;color:var(--muted);">
+                                    Grade preview here
+                                </div>
                             </div>
                         </div>
                         <div style="display:flex;gap:9px;flex-wrap:wrap;">
@@ -571,11 +646,13 @@
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-purple">🔍</div>
-                            <div><h3>Search Student</h3><p>Find by student ID</p></div>
+                            <div><h3>Search Student</h3>
+                                <p>Find by student ID</p></div>
                         </div>
                         <div style="display:flex;gap:9px;align-items:flex-end;flex-wrap:wrap;">
                             <div class="fg" style="flex:1;min-width:130px;"><label>Student ID</label>
-                                <input type="number" id="searchId" placeholder="Enter ID…" onkeydown="if(event.key==='Enter')searchStudent()">
+                                <input type="number" id="searchId" placeholder="Enter ID…"
+                                       onkeydown="if(event.key==='Enter')searchStudent()">
                             </div>
                             <button class="btn btn-purple" onclick="searchStudent()">Search →</button>
                         </div>
@@ -588,7 +665,8 @@
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-yellow">⊞</div>
-                            <div><h3>All Students</h3><p id="viewSub">Ready</p></div>
+                            <div><h3>All Students</h3>
+                                <p id="viewSub">Ready</p></div>
                         </div>
                         <div class="exp-row">
                             <button class="btn btn-outline" onclick="getStudents()">↻ Refresh</button>
@@ -597,13 +675,16 @@
                             <button class="btn btn-danger btn-sm" onclick="confirmDeleteAll()">🗑 Delete All</button>
                         </div>
                         <div class="filt-row">
-                            <input type="text" id="searchFilter" placeholder="🔍 Search by name…" oninput="applyFilters()">
+                            <input type="text" id="searchFilter" placeholder="🔍 Search by name…"
+                                   oninput="applyFilters()">
                             <select id="resultFilter" onchange="applyFilters()">
                                 <option value="all">All Results</option>
                                 <option value="pass">Pass Only</option>
                                 <option value="fail">Fail Only</option>
                             </select>
-                            <select id="sectionFilter" onchange="applyFilters()"><option value="all">All Sections</option></select>
+                            <select id="sectionFilter" onchange="applyFilters()">
+                                <option value="all">All Sections</option>
+                            </select>
                             <select id="assignmentFilter" onchange="filterAssignments()">
                                 <option value="">All</option>
                                 <option value="completed">Completed</option>
@@ -620,9 +701,27 @@
                             <button class="sort-btn" id="sortAssign" onclick="sortBy('assign')">Completion %</button>
                         </div>
                         <table>
-                            <thead><tr><th>ID</th><th>Name</th><th>Marks</th><th>Grade</th><th>Section</th><th>Result</th><th>Assignments</th><th>Actions</th></tr></thead>
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Marks</th>
+                                <th>Grade</th>
+                                <th>Section</th>
+                                <th>Results</th>
+                                <th>Assignments</th>
+                                <th>Status
+                                <th>Operations</th>
+                            </tr>
+                            </thead>
                             <tbody id="studentTable">
-                            <tr><td colspan="8"><div class="empty"><div class="eico">📋</div><p>Click Refresh to load</p></div></td></tr>
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty">
+                                        <div class="eico">📋</div>
+                                        <p>Click Refresh to load</p></div>
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -633,21 +732,40 @@
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-pink">◈</div>
-                            <div><h3>Analytics</h3><p>Overview &amp; insights</p></div>
+                            <div><h3>Analytics</h3>
+                                <p>Overview &amp; insights</p></div>
                         </div>
                         <div class="stats-grid">
-                            <div class="sc2 total"><div class="snum" id="totalStudents">0</div><div class="slbl">Total Students</div></div>
-                            <div class="sc2 passed"><div class="snum" id="passedStudents">0</div><div class="slbl">Passed</div></div>
-                            <div class="sc2 failed"><div class="snum" id="failedStudents">0</div><div class="slbl">Failed</div></div>
-                            <div class="sc2 avg"><div class="snum" id="avgMarks">0</div><div class="slbl">Avg Marks</div></div>
+                            <div class="sc2 total">
+                                <div class="snum" id="totalStudents">0</div>
+                                <div class="slbl">Total Students</div>
+                            </div>
+                            <div class="sc2 passed">
+                                <div class="snum" id="passedStudents">0</div>
+                                <div class="slbl">Passed</div>
+                            </div>
+                            <div class="sc2 failed">
+                                <div class="snum" id="failedStudents">0</div>
+                                <div class="slbl">Failed</div>
+                            </div>
+                            <div class="sc2 avg">
+                                <div class="snum" id="avgMarks">0</div>
+                                <div class="slbl">Avg Marks</div>
+                            </div>
                         </div>
                         <div class="cwrap" style="margin-bottom:13px;">
                             <div class="ctitle">Grade Distribution</div>
                             <div id="gradeDist"></div>
                         </div>
                         <div class="charts-row">
-                            <div class="cwrap"><div class="ctitle">Pass vs Fail — Bar</div><canvas id="barChart" height="140"></canvas></div>
-                            <div class="cwrap"><div class="ctitle">Pass vs Fail — Donut</div><canvas id="donutChart" height="140"></canvas></div>
+                            <div class="cwrap">
+                                <div class="ctitle">Pass vs Fail — Bar</div>
+                                <canvas id="barChart" height="140"></canvas>
+                            </div>
+                            <div class="cwrap">
+                                <div class="ctitle">Pass vs Fail — Donut</div>
+                                <canvas id="donutChart" height="140"></canvas>
+                            </div>
                         </div>
                         <div class="filt-row">
                             <select id="filterSelect" onchange="filterStudents()">
@@ -658,7 +776,16 @@
                             <button class="btn btn-outline btn-sm" onclick="loadAnalytics()">↻ Refresh</button>
                         </div>
                         <table>
-                            <thead><tr><th>ID</th><th>Name</th><th>Marks</th><th>Grade</th><th>Section</th><th>Result</th></tr></thead>
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Marks</th>
+                                <th>Grade</th>
+                                <th>Section</th>
+                                <th>Result</th>
+                            </tr>
+                            </thead>
                             <tbody id="filterTable"></tbody>
                         </table>
                     </div>
@@ -669,7 +796,8 @@
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-yellow">🏆</div>
-                            <div><h3>Top Performers</h3><p>Highest scoring students</p></div>
+                            <div><h3>Top Performers</h3>
+                                <p>Highest scoring students</p></div>
                         </div>
                         <div style="display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;">
                             <select id="topCount" onchange="renderTop()">
@@ -677,7 +805,9 @@
                                 <option value="5" selected>Top 5</option>
                                 <option value="10">Top 10</option>
                             </select>
-                            <select id="topSection2" onchange="renderTop()"><option value="all">All Sections</option></select>
+                            <select id="topSection2" onchange="renderTop()">
+                                <option value="all">All Sections</option>
+                            </select>
                         </div>
                         <div class="top-list" id="topList"></div>
                     </div>
@@ -688,13 +818,20 @@
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-green">🎯</div>
-                            <div><h3>Grade Calculator</h3><p>Instant grade &amp; result checker</p></div>
+                            <div><h3>Grade Calculator</h3>
+                                <p>Instant grade &amp; result checker</p></div>
                         </div>
                         <div class="fgrid">
-                            <div class="fg"><label>Student Name (optional)</label><input type="text" id="gcName" placeholder="null"></div>
-                            <div class="fg"><label>Marks (0–100)</label><input type="number" id="gcMarks" placeholder="Enter marks" min="0" max="100" oninput="calcGrade()"></div>
-                            <div class="fg"><label>Pass Threshold</label><input type="number" id="gcThreshold" value="33" min="0" max="100" oninput="calcGrade()"></div>
-                            <div class="fg"><label>Subject</label><input type="text" id="gcSubject" placeholder="e.g. Physics"></div>
+                            <div class="fg"><label>Student Name (optional)</label><input type="text" id="gcName"
+                                                                                         placeholder="null"></div>
+                            <div class="fg"><label>Marks (0–100)</label><input type="number" id="gcMarks"
+                                                                               placeholder="Enter marks" min="0"
+                                                                               max="100" oninput="calcGrade()"></div>
+                            <div class="fg"><label>Pass Threshold</label><input type="number" id="gcThreshold"
+                                                                                value="33" min="0" max="100"
+                                                                                oninput="calcGrade()"></div>
+                            <div class="fg"><label>Subject</label><input type="text" id="gcSubject"
+                                                                         placeholder="e.g. Physics"></div>
                         </div>
                         <div class="grade-display" id="gradeDisplay">
                             <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
@@ -705,9 +842,12 @@
                                 <div style="flex:1;min-width:150px;">
                                     <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
                                         <span style="font-size:12px;color:var(--muted);">Score</span>
-                                        <span id="gradeScoreTxt" style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;"></span>
+                                        <span id="gradeScoreTxt"
+                                              style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;"></span>
                                     </div>
-                                    <div class="grade-bar"><div class="grade-fill" id="gradeFill"></div></div>
+                                    <div class="grade-bar">
+                                        <div class="grade-fill" id="gradeFill"></div>
+                                    </div>
                                     <div style="display:flex;justify-content:space-between;margin-top:4px;">
                                         <span style="font-size:10px;color:var(--muted);">0</span>
                                         <span style="font-size:10px;color:var(--muted);">50</span>
@@ -717,12 +857,15 @@
                                 <span id="gcBadge" class="badge" style="font-size:13px;padding:6px 15px;"></span>
                             </div>
                             <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
-                                <div id="gcStudentName" style="font-family:'Syne',sans-serif;font-size:12px;color:var(--muted);"></div>
+                                <div id="gcStudentName"
+                                     style="font-family:'Syne',sans-serif;font-size:12px;color:var(--muted);"></div>
                                 <div id="gcFeedback" style="font-size:13px;color:var(--muted);margin-top:3px;"></div>
                             </div>
                         </div>
                         <div style="margin-top:18px;">
-                            <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px;">Grading Scale</div>
+                            <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px;">
+                                Grading Scale
+                            </div>
                             <div class="scale-grid" id="scaleGrid"></div>
                         </div>
                     </div>
@@ -733,30 +876,59 @@
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-green">📝</div>
-                            <div><h3>Assignments</h3><p>Add and manage assignments</p></div>
+                            <div><h3>Assignments</h3>
+                                <p>Add and manage assignments</p></div>
                         </div>
                         <div class="fgrid">
-                            <div class="fg"><label>Assignment Title *</label><input type="text" id="assignmentTitle" placeholder="e.g. Chapter 5 Summary" onkeydown="if(event.key==='Enter')addAssignment()"></div>
-                            <div class="fg"><label>Description *</label><input type="text" id="assignmentDescription" placeholder="e.g. Write a 2-page summary"></div>
+                            <div class="fg"><label>Assignment Title *</label><input type="text" id="assignmentTitle"
+                                                                                    placeholder="e.g. Chapter 5 Summary"
+                                                                                    onkeydown="if(event.key==='Enter')addAssignment()">
+                            </div>
+                            <div class="fg"><label>Description *</label><input type="text" id="assignmentDescription"
+                                                                               placeholder="e.g. Write a 2-page summary">
+                            </div>
                             <div class="fg"><label>Due Date</label><input type="date" id="assignmentDue"></div>
-                            <div class="fg"><label>Subject / Class</label><input type="text" id="assignmentSubject" placeholder="e.g. Mathematics"></div>
+                            <div class="fg"><label>Subject / Class</label><input type="text" id="assignmentSubject"
+                                                                                 placeholder="e.g. Mathematics"></div>
                         </div>
                         <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px;">
                             <button class="btn btn-primary" onclick="addAssignment()">➕ Add Assignment</button>
                             <button class="btn btn-outline" onclick="loadAssignments()">↻ Refresh</button>
                         </div>
                         <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-                            <div style="padding:10px 16px;background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.18);border-radius:11px;font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--cyan);" id="assignTotalNum">
+                            <div style="padding:10px 16px;background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.18);border-radius:11px;font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--cyan);"
+                                 id="assignTotalNum">
                                 0 <span style="font-size:11px;color:var(--muted);font-weight:500;">Total</span>
                             </div>
                         </div>
                         <div class="filt-row">
-                            <input type="text" id="assignSearch" placeholder="🔍 Search assignments…" oninput="renderAssignments()" style="max-width:230px;">
+                            <input type="text" id="assignSearch" ...>
+                            <select id="assignStatusFilter" onchange="filterAssignments()">
+                                <option value="all">All</option>
+                                <option value="completed">Completed</option>
+                                <option value="incompleted">Incompleted</option>
+                                <option value="pending">Pending</option>
+                            </select>
                         </div>
                         <table>
-                            <thead><tr><th>ID</th><th>Title</th><th>Description</th><th>Subject</th><th>Due Date</th><th>Action</th></tr></thead>
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Subject</th>
+                                <th>Due Date</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
                             <tbody id="assignmentTable">
-                            <tr><td colspan="6"><div class="empty"><div class="eico">📝</div><p>No assignments yet — add one above!</p></div></td></tr>
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty">
+                                        <div class="eico">📝</div>
+                                        <p>No assignments yet — add one above!</p></div>
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -767,7 +939,8 @@
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-cyan">✅</div>
-                            <div><h3>Completion Tracker</h3><p>Track which students completed which assignments</p></div>
+                            <div><h3>Completion Tracker</h3>
+                                <p>Track which students completed which assignments</p></div>
                         </div>
                         <div class="completion-stats" id="completionStats">
                             <div class="cstat cstat-done">0 <span>Completed</span></div>
@@ -775,8 +948,11 @@
                             <div class="cstat cstat-miss">0 <span>Missed</span></div>
                         </div>
                         <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
-                            <input type="text" id="compStudentSearch" placeholder="🔍 Filter by student…" oninput="renderCompletionTable()" style="max-width:190px;">
-                            <select id="compAssignFilter" onchange="renderCompletionTable()"><option value="all">All Assignments</option></select>
+                            <input type="text" id="compStudentSearch" placeholder="🔍 Filter by student…"
+                                   oninput="renderCompletionTable()" style="max-width:190px;">
+                            <select id="compAssignFilter" onchange="renderCompletionTable()">
+                                <option value="all">All Assignments</option>
+                            </select>
                             <select id="compStatusFilter" onchange="renderCompletionTable()">
                                 <option value="all">All Statuses</option>
                                 <option value="done">Completed</option>
@@ -790,12 +966,20 @@
                             <table id="completionTable">
                                 <thead id="completionHead"></thead>
                                 <tbody id="completionBody">
-                                <tr><td colspan="3"><div class="empty"><div class="eico">✅</div><p>Add students and assignments to track</p></div></td></tr>
+                                <tr>
+                                    <td colspan="3">
+                                        <div class="empty">
+                                            <div class="eico">✅</div>
+                                            <p>Add students and assignments to track</p></div>
+                                    </td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
                         <div style="margin-top:12px;font-size:12px;color:var(--muted);">
-                            💡 Click the checkbox to toggle: <strong style="color:var(--green)">✓ Done</strong> → <strong style="color:var(--yellow)">⏳ Pending</strong> → <strong style="color:var(--pink)">✕ Missed</strong>
+                            💡 Click the checkbox to toggle: <strong style="color:var(--green)">✓ Done</strong> → <strong
+                                style="color:var(--yellow)">⏳ Pending</strong> → <strong style="color:var(--pink)">✕
+                            Missed</strong>
                         </div>
                     </div>
                 </div>
@@ -805,19 +989,36 @@
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-purple">⧉</div>
-                            <div><h3>Duplicate Students</h3><p>Find and clean up students sharing the same name</p></div>
+                            <div><h3>Duplicate Students</h3>
+                                <p>Find and clean up students sharing the same name</p></div>
                         </div>
                         <div class="dup-banner" id="dupBanner">
                             <span class="dtxt" id="dupBannerTxt"></span>
-                            <button class="btn btn-danger btn-sm" onclick="confirmDeleteDupes()">🗑 Delete All Duplicates</button>
+                            <button class="btn btn-danger btn-sm" onclick="confirmDeleteDupes()">🗑 Delete All
+                                Duplicates
+                            </button>
                         </div>
                         <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px;">
                             <button class="btn btn-outline" onclick="findDuplicates()">↻ Scan for Duplicates</button>
                         </div>
                         <table>
-                            <thead><tr><th>ID</th><th>Name</th><th>Marks</th><th>Section</th><th>Result</th></tr></thead>
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Marks</th>
+                                <th>Section</th>
+                                <th>Result</th>
+                            </tr>
+                            </thead>
                             <tbody id="dupTable">
-                            <tr><td colspan="5"><div class="empty"><div class="eico">⧉</div><p>Click "Scan for Duplicates" to check</p></div></td></tr>
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty">
+                                        <div class="eico">⧉</div>
+                                        <p>Click "Scan for Duplicates" to check</p></div>
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -831,13 +1032,25 @@
 <!-- EDIT STUDENT MODAL -->
 <div class="modal-ov" id="editModal">
     <div class="modal">
-        <div class="mhdr"><h3>✎ Edit Student</h3><button class="mclose" onclick="closeModal()">✕</button></div>
+        <div class="mhdr"><h3>✎ Edit Student</h3>
+            <button class="mclose" onclick="closeModal()">✕</button>
+        </div>
         <input type="hidden" id="editId">
         <div class="mgrid">
             <div class="fg"><label>Full Name</label><input type="text" id="editName"></div>
-            <div class="fg"><label>Marks</label><input type="number" id="editMarks" min="0" max="100" oninput="editAutoRes()"></div>
+            <div class="fg"><label>Marks</label><input type="number" id="editMarks" min="0" max="100"
+                                                       oninput="editAutoRes()"></div>
             <div class="fg"><label>Section</label><input type="text" id="editSection"></div>
-            <div class="fg"><label>Result</label><select id="editResult"><option value="pass">Pass ✓</option><option value="fail">Fail ✗</option></select></div>
+            <div class="fg"><label>Result</label><select id="editResult">
+                <option value="pass">Pass ✓</option>
+                <option value="fail">Fail ✗</option>
+            </select></div>
+            <div class="fg"><label>Status</label>
+                <select id="editStatus">
+                    <option value="Active">Active ✓</option>
+                    <option value="Inactive">Inactive ✗</option>
+                </select>
+            </div>
         </div>
         <div class="mact">
             <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
@@ -849,11 +1062,15 @@
 <!-- CONFIRM MODAL -->
 <div class="modal-ov" id="confirmModal">
     <div class="modal" style="width:400px;">
-        <div class="mhdr"><h3 id="confirmTitle">⚠️ Are you sure?</h3><button class="mclose" onclick="closeConfirmModal()">✕</button></div>
-        <p id="confirmBody" style="color:var(--muted);font-size:13px;margin-bottom:18px;">This action cannot be undone.</p>
+        <div class="mhdr"><h3 id="confirmTitle">⚠️ Are you sure?</h3>
+            <button class="mclose" onclick="closeConfirmModal()">✕</button>
+        </div>
+        <p id="confirmBody" style="color:var(--muted);font-size:13px;margin-bottom:18px;">This action cannot be
+            undone.</p>
         <div class="mact">
             <button class="btn btn-outline" onclick="closeConfirmModal()">Cancel</button>
-            <button class="btn btn-danger" id="confirmActionBtn" style="padding:10px 18px;font-size:13px;">Delete</button>
+            <button class="btn btn-danger" id="confirmActionBtn" style="padding:10px 18px;font-size:13px;">Delete
+            </button>
         </div>
     </div>
 </div>
@@ -861,7 +1078,9 @@
 <!-- EDIT ASSIGNMENT MODAL -->
 <div class="modal-ov" id="editAssignModal">
     <div class="modal">
-        <div class="mhdr"><h3>✎ Edit Assignment</h3><button class="mclose" onclick="closeAssignModal()">✕</button></div>
+        <div class="mhdr"><h3>✎ Edit Assignment</h3>
+            <button class="mclose" onclick="closeAssignModal()">✕</button>
+        </div>
         <input type="hidden" id="editAssignId">
         <div class="mgrid">
             <div class="fg"><label>Title</label><input type="text" id="editAssignTitle"></div>
@@ -889,7 +1108,8 @@
     let bChart, dChart, dashDChart;
     let currentSort   = 'id';
     let lightMode     = false;
-    let authToken     = localStorage.getItem('jwt') || null;
+    let authToken = localStorage.getItem('jwt') || null;
+    let loggedInUser = localStorage.getItem('loggedInUser') || 'User';
     let backendOnline = false;
     let dupGroups     = [];
 
@@ -927,7 +1147,8 @@
       document.getElementById('topbarDate').textContent = now.toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
       const h = now.getHours();
       const greet = h<12?'Good morning':'h<17'?'Good afternoon':'Good evening';
-      document.getElementById('topbarGreeting').textContent = (h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', Admin 👋';
+      const name = loggedInUser.charAt(0).toUpperCase() + loggedInUser.slice(1);
+      document.getElementById('topbarGreeting').textContent = (h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', '+name+' 👋';
     }
 
     /* ── TOAST ── */
@@ -987,7 +1208,10 @@
         const res=await fetch(`${AUTH_BASE}/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p}),signal:AbortSignal.timeout(5000)});
         const text=await res.text();
         if(res.ok&&text&&!text.toLowerCase().includes('invalid')&&!text.toLowerCase().includes('not found')){
-          authToken=text.trim(); localStorage.setItem('jwt',authToken); enterDashboard(false); return;
+          authToken=text.trim(); localStorage.setItem('jwt',authToken);
+          loggedInUser = u;
+          localStorage.setItem('loggedInUser', u);
+           enterDashboard(false); return;
         }
         throw new Error('invalid_credentials');
       }catch(e){
@@ -996,8 +1220,11 @@
           err.style.animation='none'; requestAnimationFrame(()=>{err.style.animation='shake .4s ease';});
           btn.disabled=false; btn.innerText='Sign In →'; return;
         }
-        if(u==='admin'&&p==='1234'){ authToken=null; localStorage.removeItem('jwt'); enterDashboard(true); return; }
-        err.innerText='⚠️ Could not reach server. Try demo: admin / 1234';
+        if(u==='admin'&&p==='1234'){
+         loggedInUser = u;
+         localStorage.setItem('loggedInUser', u)
+        authToken=null; localStorage.removeItem('jwt'); enterDashboard(true); return; }
+<!--        err.innerText='⚠️ Could not reach server. Try demo: admin / 1234';-->
       }finally{ btn.disabled=false; btn.innerText='Sign In →'; }
     }
 
@@ -1035,9 +1262,9 @@
       if(id==='analyticsSection')  loadAnalytics();
       if(id==='viewSection')       getStudents();
       if(id==='topSection')        getStudents().then(renderTop);
+      if(id==='completionSection') refreshCompletion();
       if(id==='gradeSection')      buildScaleGrid();
       if(id==='assignmentSection') loadAssignments();
-      if(id==='completionSection') refreshCompletion();
       if(id==='dupSection')        findDuplicates();
     }
 
@@ -1055,6 +1282,9 @@
       document.getElementById('dashAvg').textContent=avg;
       document.getElementById('dashPassRate').textContent=data.length?Math.round(passed.length/data.length*100)+'% pass rate':'';
       document.getElementById('dashFailNote').textContent=failed.length>0?'needs attention':'';
+      const active=data.filter(s=>(s.status||'').toLowerCase()==='active').length;
+      document.getElementById('dashActive').textContent=active;
+      document.getElementById('dashInactive').textContent=(data.length-active)+' inactive';
 
       buildDashGradeDist(data);
       buildDashDonut(passed.length,failed.length);
@@ -1159,18 +1389,29 @@
       });
     }
 
-    async function filterAssignments(){
-      const status=document.getElementById('assignmentFilter').value;
-      if(!status){ getStudents(); return; }
-      try{
-        const res=await fetch(`${BASE_URL}/assignments/${status}`,{headers:authHeaders(),signal:AbortSignal.timeout(4000)});
-        if(!res.ok) throw new Error();
-        const data=await res.json();
-        if(Array.isArray(data)) allStudents=data;
-        applyFilters(); showToast(`Filtered: ${status}`);
-      }catch(e){ showToast('Filter failed — local data','warn'); applyFilters(); }
-    }
+async function filterByStatus(status){
+  try{
+    const res = await fetch(`${BASE_URL}/allStatus/${status}`, {headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    allStudents = await res.json();
+    applyFilters();
+  }catch(e){ showToast('Filter failed','warn'); }
+}
 
+
+async function updateAssignmentStatus(studentId, status){
+  try{
+    const res = await fetch(`${BASE_URL}/updateAssignments/${studentId}?assignments=${status}`, {
+      method:'PATCH', headers:authHeaders()
+    });
+    if(!res.ok) throw new Error();
+    showToast(`Status updated: ${status}`);
+  }catch(e){ showToast('Updated locally','warn'); }
+}
+async function filterAssignments(){
+  const status = document.getElementById('assignStatusFilter').value || 'all';
+  loadAssignments(status);
+}
     /* ── FILTERS ── */
     function getStudentAssignSummary(studentId){
       if(!assignments.length) return{done:0,pending:0,missed:0,total:0,pct:0};
@@ -1185,8 +1426,12 @@
       const srch=document.getElementById('searchFilter')?.value.toLowerCase()||'';
       const res=document.getElementById('resultFilter')?.value||'all';
       const sec=document.getElementById('sectionFilter')?.value||'all';
+
+  console.log('Filters:', srch, res, sec);
+  console.log('allStudents count:', allStudents.length)
+
       displayedStudents=allStudents.filter(s=>{
-        if(!s.name.toLowerCase().includes(srch)) return false;
+      if(!(s.name||'').toLowerCase().includes(srch)) return false;
         if(res!=='all'&&(s.result||'').toLowerCase()!==res) return false;
         if(sec!=='all'&&s.section!==sec) return false;
         return true;
@@ -1214,29 +1459,32 @@
       renderTable(sorted);
     }
 
-    function renderTable(data){
-      if(!data||!data.length){ document.getElementById('studentTable').innerHTML=`<tr><td colspan="8"><div class="empty"><div class="eico">🔍</div><p>No students match</p></div></td></tr>`; return; }
-      document.getElementById('studentTable').innerHTML=data.map(s=>{
-        const g=getGrade(s.marks);
-        const sm=getStudentAssignSummary(s.id);
-        const assignCell=assignments.length
-          ?`<td><div style="display:flex;align-items:center;gap:6px;"><div style="flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:100px;min-width:40px;overflow:hidden;"><div style="height:100%;width:${sm.pct}%;background:${sm.pct===100?'var(--green)':sm.pct>=50?'var(--yellow)':'var(--pink)'};border-radius:100px;"></div></div><span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;">${sm.pct}%</span></div></td>`
-          :`<td><span style="color:var(--muted);font-size:12px">No assignments</span></td>`;
-        return`<tr>
-          <td><span style="color:var(--muted);font-size:11px">#</span><strong>${s.id}</strong></td>
-          <td><strong>${s.name}</strong></td>
-          <td><strong>${s.marks}</strong></td>
-          <td><span class="badge ${gradeCls(g)}">${g}</span></td>
-          <td>${s.section}</td>
-          <td><span class="badge ${(s.result||'').toLowerCase()==='pass'?'bp':'bf'}">${s.result||'—'}</span></td>
-          ${assignCell}
-          <td style="display:flex;gap:5px;flex-wrap:wrap;">
-            <button class="btn btn-edit" onclick="openEdit(${s.id})">✎ Edit</button>
-            <button class="btn btn-danger" onclick="deleteStudent(${s.id})">✕</button>
-          </td>
-        </tr>`;
-      }).join('');
-    }
+function renderTable(data) {
+  if (!data || !data.length) {
+    document.getElementById('studentTable').innerHTML =
+      `<tr><td colspan="7"><div class="empty"><div class="eico">📋</div><p>No students found</p></div></td></tr>`;
+    return;
+  }
+  document.getElementById('studentTable').innerHTML = data.map(s => {
+    const g = getGrade(s.marks);
+    const assignBadge = s.assignments === 'completed'   ? 'bp' :
+                        s.assignments === 'incompleted' ? 'bf' : 'gc';
+    return `<tr>
+  <td><span style="color:var(--muted);font-size:11px">#</span><strong>${s.id}</strong></td>
+  <td><strong>${s.name||'—'}</strong></td>
+  <td><strong>${s.marks}</strong></td>
+  <td><span class="badge ${gradeCls(g)}">${g}</span></td>
+  <td>${s.section}</td>
+<td><span class="badge ${(s.result||'').toLowerCase()==='pass'?'bp':'bf'}">${s.result||'—'}</span></td>
+  <td><span class="badge ${assignBadge}">${s.assignments||'pending'}</span></td>
+  <td><span class="badge ${(s.status||'').toLowerCase()==='active'?'bp':'bf'}">${s.status||'—'}</span></td>
+  <td style="display:flex;gap:6px;">
+    <button class="btn btn-edit" onclick="openEdit(${s.id})">✎ Edit</button>
+    <button class="btn btn-danger" onclick="deleteStudent(${s.id})">🗑</button>
+  </td>
+</tr>`;
+  }).join('');
+}
 
     /* ── DELETE STUDENT ── */
     async function deleteStudent(id){
@@ -1297,29 +1545,35 @@
       document.getElementById('editMarks').value=s.marks;
       document.getElementById('editSection').value=s.section;
       document.getElementById('editResult').value=s.result||'pass';
+      document.getElementById('editStatus').value= s.status || 'Active';
       document.getElementById('editModal').classList.add('open');
     }
     function closeModal(){ document.getElementById('editModal').classList.remove('open'); }
     document.getElementById('editModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
 
-    async function saveEdit(){
-      const id=parseInt(document.getElementById('editId').value);
-      const name=document.getElementById('editName').value.trim();
-      const marks=document.getElementById('editMarks').value;
-      const section=document.getElementById('editSection').value.trim();
-      const result=document.getElementById('editResult').value;
-      if(!name||!marks||!section){ showToast('Fill all fields','warn'); return; }
-      const payload=[{id,name,marks:parseInt(marks),section,result}];
-      try{
-        const res=await fetch(`${BASE_URL}/update`,{method:'PUT',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify(payload)});
-        if(!res.ok) throw new Error(); showToast('Student updated!'); getStudents();
-      }catch(e){
-        const idx=allStudents.findIndex(s=>s.id===id);
-        if(idx>-1) allStudents[idx]={...allStudents[idx],name,marks:parseInt(marks),section,result};
-        showToast('Updated (demo)!'); applyFilters();
-      }
-      addLog(`Edited: ${name}`); closeModal();
-    }
+async function saveEdit(){
+  const id      = parseInt(document.getElementById('editId').value);
+  const name    = document.getElementById('editName').value.trim();
+  const marks   = document.getElementById('editMarks').value;
+  const section = document.getElementById('editSection').value.trim();
+  const result  = document.getElementById('editResult').value;
+  const status  = document.getElementById('editStatus').value;
+
+  if(!name||!marks||!section){ showToast('Fill all fields','warn'); return; }
+
+  const payload = [{id, name, marks:parseInt(marks), section, result, status}];
+
+  try{
+    const res=await fetch(`${BASE_URL}/update`,{method:'PUT',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error();
+    showToast('Student updated!'); getStudents();
+  }catch(e){
+    const idx=allStudents.findIndex(s=>s.id===id);
+    if(idx>-1) allStudents[idx]={...allStudents[idx], name, marks:parseInt(marks), section, result, status};
+    showToast('Updated (demo)!'); applyFilters();
+  }
+  addLog(`Edited: ${name}`); closeModal();
+}
 
     /* ── EXPORT ── */
     function exportCSV(){
@@ -1463,36 +1717,43 @@
       document.getElementById('assignmentDue').value='';
       renderAssignments();
     }
-    async function loadAssignments(){
-      try{
-        const res=await fetch(`${BASE_URL}/assignments/all`,{headers:authHeaders(),signal:AbortSignal.timeout(3000)});
-        if(res.ok){ const data=await res.json(); if(Array.isArray(data)&&data.length) assignments=data.map(a=>({id:a.id,title:a.title||'Untitled',description:a.description||'',subject:a.subject||'—',due:a.due||null})); }
-      }catch(e){}
-      renderAssignments();
-      showToast(assignments.length?`${assignments.length} assignment(s) loaded`:'No assignments yet');
-    }
-    function renderAssignments(){
-      const search=(document.getElementById('assignSearch')?.value||'').toLowerCase();
-      const filtered=assignments.filter(a=>(a.title||'').toLowerCase().includes(search)||(a.description||'').toLowerCase().includes(search)||(a.subject||'').toLowerCase().includes(search));
-      updateAssignCount();
-      const tb=document.getElementById('assignmentTable');
-      if(!filtered.length){ tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="eico">📝</div><p>${assignments.length?'No matches found':'No assignments yet — add one above!'}</p></div></td></tr>`; return; }
-      tb.innerHTML=filtered.map(a=>{
-        const overdueFlag=isOverdue(a.due)?`<span class="overdue-flag">⚠ Overdue</span>`:'';
-        const dueStr=a.due?`<span style="color:${isOverdue(a.due)?'var(--pink)':'var(--yellow)'};font-size:12px">📅 ${new Date(a.due).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</span>${overdueFlag}`:`<span style="color:var(--muted);font-size:12px">—</span>`;
-        return`<tr>
-          <td><span style="color:var(--muted);font-size:11px">#</span><strong>${a.id}</strong></td>
-          <td><strong>${a.title}</strong></td>
-          <td style="color:var(--muted)">${a.description}</td>
-          <td>${a.subject||'—'}</td>
-          <td>${dueStr}</td>
-          <td style="display:flex;gap:5px;">
-            <button class="btn btn-edit" onclick="openAssignEdit(${a.id})" style="padding:5px 10px;font-size:11px;">✎</button>
-            <button class="btn btn-danger" onclick="deleteAssignment(${a.id})" style="padding:5px 10px;font-size:11px;">✕</button>
-          </td>
-        </tr>`;
-      }).join('');
-    }
+  async function loadAssignments(status = 'all'){
+  try{
+    const res = await fetch(`${BASE_URL}/assignments/${status}`, {headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    // data is List<Model> (students), render them in the table
+    renderStudentAssignmentTable(data);
+    showToast(`${data.length} student(s) loaded`);
+  }catch(e){ showToast('Failed to load','warn'); }
+}
+ function renderStudentAssignmentTable(data){
+  updateAssignCount(data.length);
+  const tb = document.getElementById('assignmentTable');
+  if(!data.length){
+    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="eico">📝</div><p>No students found</p></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = data.map(s => `<tr>
+    <td><strong>#${s.id}</strong></td>
+    <td><strong>${s.name}</strong></td>
+    <td>${s.section}</td>
+    <td><span class="badge ${(s.result||'').toLowerCase()==='pass'?'bp':'bf'}">${s.result||'—'}</span></td>
+    <td>
+      <select onchange="updateAssignmentStatus(${s.id}, this.value)" style="width:auto;">
+        <option value="pending"   ${s.assignments==='pending'   ?'selected':''}>⏳ Pending</option>
+        <option value="completed" ${s.assignments==='completed' ?'selected':''}>✓ Completed</option>
+        <option value="incompleted" ${s.assignments==='incompleted'?'selected':''}>✕ Incompleted</option>
+      </select>
+    </td>
+    <td><span class="badge ${s.assignments==='completed'?'bp':s.assignments==='incompleted'?'bf':'gc'}">${s.assignments||'pending'}</span></td>
+  </tr>`).join('');
+}
+
+function updateAssignCount(n){
+  document.getElementById('assignCount').innerText = n;
+  document.getElementById('assignTotalNum').innerHTML = `${n} <span style="font-size:11px;color:var(--muted);font-weight:500;">Total</span>`;
+}
     function deleteAssignment(id){
       const a=assignments.find(x=>x.id===id);
       assignments=assignments.filter(x=>x.id!==id);
@@ -1526,7 +1787,11 @@
     function toggleCompletion(studentId,assignId){
       if(!completionMap[studentId]) completionMap[studentId]={};
       const cur=completionMap[studentId][assignId]||'pending';
-      completionMap[studentId][assignId]=cycleStatus(cur);
+      const next = cycleStatus(cur);
+  completionMap[studentId][assignId] = next;
+  updateAssignmentStatus(studentId, next);
+
+
       renderCompletionTable();
       if(document.getElementById('viewSection').classList.contains('active')) sortAndRender();
     }
@@ -1535,12 +1800,62 @@
       allStudents.forEach(s=>{ assignments.forEach(a=>{ const status=(completionMap[s.id]||{})[a.id]||'pending'; if(status==='done') done++; else if(status==='missed') missed++; else pending++; }); });
       return{done,pending,missed};
     }
-    function refreshCompletion(){
-      if(allStudents.length===0) allStudents=[...DEMO_STUDENTS];
-      const sel=document.getElementById('compAssignFilter');
-      if(sel){ sel.innerHTML='<option value="all">All Assignments</option>'; assignments.forEach(a=>{ const o=document.createElement('option'); o.value=a.id; o.textContent=a.title; sel.appendChild(o); }); }
-      renderCompletionTable();
-    }
+  async function refreshCompletion(){
+  let completedStudents = [];
+  try{
+    const res = await fetch(`${BASE_URL}/assignments/completed`, {headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    completedStudents = await res.json();
+  }catch(e){
+    completedStudents = allStudents.filter(s => s.assignments === 'completed');
+    showToast('Using local data','warn');
+  }
+
+  // populate filter dropdown
+  const sel = document.getElementById('compAssignFilter');
+  if(sel){
+    sel.innerHTML='<option value="all">All Assignments</option>';
+    completedStudents.forEach(s=>{
+      const o=document.createElement('option');
+      o.value=s.id;
+      o.textContent=s.name;
+      sel.appendChild(o);
+    });
+  }
+
+  renderCompletionBody(completedStudents);
+}
+function renderCompletionBody(data){
+  const stats = { done: data.length, pending: 0, missed: 0 };
+  document.getElementById('completionStats').innerHTML=`
+    <div class="cstat cstat-done">${stats.done} <span>Completed</span></div>
+    <div class="cstat cstat-pend">0 <span>Pending</span></div>
+    <div class="cstat cstat-miss">0 <span>Missed</span></div>`;
+
+  document.getElementById('completionHead').innerHTML=`
+    <tr>
+      <th>ID</th><th>Name</th><th>Section</th><th>Grade</th><th>Result</th><th>Status</th>
+    </tr>`;
+
+  if(!data.length){
+    document.getElementById('completionBody').innerHTML=`
+      <tr><td colspan="6"><div class="empty"><div class="eico">✅</div>
+      <p>No completed assignments found</p></div></td></tr>`;
+    return;
+  }
+
+  document.getElementById('completionBody').innerHTML = data.map(s => {
+    const g = getGrade(s.marks);
+    return `<tr>
+      <td><strong>#${s.id}</strong></td>
+      <td><strong>${s.name}</strong></td>
+      <td>${s.section}</td>
+      <td><span class="badge ${gradeCls(g)}">${g}</span></td>
+      <td><span class="badge ${(s.result||'').toLowerCase()==='pass'?'bp':'bf'}">${s.result||'—'}</span></td>
+      <td><span class="badge bp">✓ Completed</span></td>
+    </tr>`;
+  }).join('');
+}
     function renderCompletionTable(){
       const studentSearch=(document.getElementById('compStudentSearch')?.value||'').toLowerCase();
       const assignFilter=document.getElementById('compAssignFilter')?.value||'all';

@@ -30,7 +30,6 @@ public class AuthControl {
     return "User registered";
     }
 
-
     @PostMapping("/login")
     public String login(@RequestBody LoginRequest request) {
         User user = repo.findByUsername(request.getUsername()).orElse(null);
