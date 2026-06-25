@@ -148,7 +148,7 @@
         [data-theme="light"] .qa-btn{background:var(--card2);border-color:var(--border);}
         .qa-btn-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:rgba(255,255,255,.07);}
         [data-theme="light"] .qa-btn-icon{background:rgba(0,0,0,.06);}
-        .qa-btn-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:2px;}
+        .qa-btn-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:2px;color: var(--text);}
         .qa-btn-sub{font-size:11px;color:var(--muted);}
 
         .grade-dist-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;}
@@ -713,7 +713,6 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
                                 <th>Grade</th>
                                 <th>Section</th>
                                 <th>Results</th>
-                                <th>Assignments</th>
                                 <th>Status
                                 <th>Operations</th>
                             </tr>
@@ -1247,18 +1246,29 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
     }
 
     function enterDashboard(isDemo){
-      document.getElementById('loginPage').style.display='none';
-      document.getElementById('mainPage').style.display='block';
-      allStudents=[...DEMO_STUDENTS];
-      initTopbar();
-      updateCount();
-      _showSection('dashSection',document.querySelector('.nav-btn'));
-      loadDashboard();
-      addLog('Admin logged in'+(isDemo?' (demo)':''));
-      if(isDemo) showToast('Offline demo mode','warn');
-      checkBackend();
-    }
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('mainPage').style.display='block';
+  allStudents=[...DEMO_STUDENTS];
+  initTopbar();
+  updateCount();
+  _showSection('dashSection',document.querySelector('.nav-btn'));
+  loadDashboard();
+  addLog('Admin logged in'+(isDemo?' (demo)':''));
+  if(isDemo) showToast('Offline demo mode','warn');
+  checkBackend();
 
+  // LOAD COMPLETION MAP ON STARTUP
+  fetch(`${BASE_URL}/StuentAssignment/all`, {headers:authHeaders()})
+    .then(r => r.json())
+    .then(records => {
+      completionMap = {};
+      records.forEach(r => {
+        if(!completionMap[r.studentId]) completionMap[r.studentId] = {};
+        completionMap[r.studentId][r.assignmentId] = r.status;
+      });
+    })
+    .catch(()=>{});
+}
     function logout(){
       localStorage.removeItem('jwt'); authToken=null;
       addLog('Logged out');
@@ -1485,9 +1495,9 @@ async function filterByStatus(status){
 
 async function updateAssignmentStatus(studentId, status){
   try{
-    const res = await fetch(`${BASE_URL}/updateAssignments/${studentId}?assignments=${status}`, {
-      method:'PATCH', headers:authHeaders()
-    });
+    const res = await fetch(`${BASE_URL}/updateAssignments/${studentId}?assignmentId=${assignId}&status=${next}`, {
+    method: 'PATCH', headers: authHeaders()
+});
     if(!res.ok) throw new Error();
   }catch(e){ showToast('Updated locally','warn'); }
 }
@@ -1555,8 +1565,7 @@ function renderTable(data) {
   }
   document.getElementById('studentTable').innerHTML = data.map(s => {
     const g = getGrade(s.marks);
-    const assignBadge = s.assignments === 'completed'   ? 'bp' :
-                        s.assignments === 'incompleted' ? 'bf' : 'gc';
+  
     return `<tr>
   <td><span style="color:var(--muted);font-size:11px">#</span><strong>${s.id}</strong></td>
   <td><strong>${s.name||'—'}</strong></td>
@@ -1564,7 +1573,6 @@ function renderTable(data) {
   <td><span class="badge ${gradeCls(g)}">${g}</span></td>
   <td>${s.section}</td>
 <td><span class="badge ${(s.result||'').toLowerCase()==='pass'?'bp':'bf'}">${s.result||'—'}</span></td>
-  <td><span class="badge ${assignBadge}">${s.assignments||'pending'}</span></td>
   <td><span class="badge ${(s.status||'').toLowerCase()==='active'?'bp':'bf'}">${s.status||'—'}</span></td>
   <td style="display:flex;gap:6px;">
     <button class="btn btn-edit" onclick="openEdit(${s.id})">✎ Edit</button>
@@ -1794,7 +1802,7 @@ async function saveEdit(){
       if(!title||!description){ showToast('Fill Title and Description','warn'); return; }
       const localAssign={id:assignments.length?Math.max(...assignments.map(a=>a.id))+1:1,title,description,subject:subject||'—',due:due||null};
       try{
-        const res=await fetch(`${BASE_URL}/assignments`,{method:'POST',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify({assignments:title, subjects:subject, description:description, dueDate: due ? due+'T00:00:00' : null})});
+        const res=await fetch(`${BASE_URL}/Addassignments`,{method:'POST',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify({assignments:title, subjects:subject, description:description, dueDate: due ? due+'T00:00:00' : null})});
         if(!res.ok) throw new Error();
         const server=await res.json();
         assignments.push({id:server.id||localAssign.id,title:server.title||title,description:server.description||description,subject:server.subject||subject||'—',due:server.due||due||null});
@@ -1877,29 +1885,49 @@ async function updateAssignment(id, status){
     }
 
     /* ── COMPLETION TRACKER ── */
-    function cycleStatus(current){ if(!current||current==='pending') return'done'; if(current==='done') return'missed'; return'pending'; }
+   function cycleStatus(current){
+    if(!current||current==='pending') return 'completed';
+    if(current==='completed') return 'incompleted';
+    return 'pending';
+}
 
 async function toggleCompletion(studentId, assignId){
-  if(!completionMap[studentId]) completionMap[studentId]={};
-  const cur = completionMap[studentId][assignId]||'pending';
-  const next = cycleStatus(cur);
-  completionMap[studentId][assignId] = next;
+    if(!completionMap[studentId]) completionMap[studentId]={};
+    const cur = completionMap[studentId][assignId]||'pending';
+    const next = cycleStatus(cur);
+    completionMap[studentId][assignId] = next;
 
-  await updateAssignmentStatus(studentId, next);
-  await getStudents();
-  await loadAssignmentReport();
-  renderCompletionTable();
+    try{
+        await fetch(`${BASE_URL}/updateAssignments/${studentId}?assignmentId=${assignId}&status=${next}`, {
+            method:'PATCH', headers:authHeaders()
+        });
+    }catch(e){ showToast('Update failed','warn'); }
+
+    await loadAssignmentReport();
+    renderCompletionTable();
 }
     function getCompletionStats(){
       let done=0,pending=0,missed=0;
-      allStudents.forEach(s=>{ assignments.forEach(a=>{ const status=(completionMap[s.id]||{})[a.id]||'pending'; if(status==='done') done++; else if(status==='missed') missed++; else pending++; }); });
+      allStudents.forEach(s=>{ assignments.forEach(a=>{ const status=(completionMap[s.id]||{})[a.id]||'pending'; if(status==='done') done++; else if(status==='incompleted') missed++; else pending++; }); });
       return{done,pending,missed};
     }
- async function refreshCompletion(){
+async function refreshCompletion(){
   await getStudents();
   await loadAssignments();
 
-  // populate assignment filter dropdown correctly
+  // LOAD SAVED STATUSES FROM BACKEND
+  try{
+    const res = await fetch(`${BASE_URL}/studentAssignments/all`, {headers:authHeaders()});
+    if(res.ok){
+      const records = await res.json();
+      completionMap = {}; // reset then rebuild
+      records.forEach(r => {
+        if(!completionMap[r.studentId]) completionMap[r.studentId] = {};
+        completionMap[r.studentId][r.assignmentId] = r.status;
+      });
+    }
+  }catch(e){ console.log('Could not load completion map'); }
+
   const sel = document.getElementById('compAssignFilter');
   if(sel){
     sel.innerHTML='<option value="all">All Assignments</option>';
@@ -1963,7 +1991,8 @@ function renderCompletionBody(data){
       document.getElementById('completionHead').innerHTML=`<tr><th style="min-width:130px">Student</th>${filteredAssigns.map(a=>`<th style="min-width:100px;max-width:130px"><div style="font-size:10px">${a.title}</div>${a.due?`<div style="font-size:9px;color:${isOverdue(a.due)?'var(--pink)':'var(--muted)'}">${isOverdue(a.due)?'⚠ ':''}${new Date(a.due).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div>`:''}</th>`).join('')}<th>Progress</th></tr>`;
       const rows=filteredStudents.map(s=>{
         const g=getGrade(s.marks); let doneCount=0; const totalCount=filteredAssigns.length;
-        const cells=filteredAssigns.map(a=>{ const status=(completionMap[s.id]||{})[a.id]||'pending'; if(status==='done') doneCount++; if(statusFilter!=='all'&&status!==statusFilter) return null; const icon=status==='done'?'✓':status==='missed'?'✕':'⏳'; const cls=status==='done'?'done':status==='missed'?'missed':'pending'; return`<td style="text-align:center"><button class="comp-toggle ${cls}" onclick="toggleCompletion(${s.id},${a.id})">${icon}</button></td>`; });
+        const cells=filteredAssigns.map(a=>{ const status=(completionMap[s.id]||{})[a.id]||'pending'; if(status==='completed') doneCount++; if(statusFilter!=='all'&&status!==statusFilter) return null; const icon=status==='completed'?'✓':status==='incompleted'?'✕':'⏳'; const cls=status==='completed'?'done':status==='incompleted'?'missed':'pending';
+        return`<td style="text-align:center"><button class="comp-toggle ${cls}" onclick="toggleCompletion(${s.id},${a.id})">${icon}</button></td>`; });
         if(statusFilter!=='all'&&cells.every(c=>c===null)) return'';
         const pct=totalCount?Math.round(doneCount/totalCount*100):0;
         const pctColor=pct===100?'var(--green)':pct>=50?'var(--yellow)':'var(--pink)';

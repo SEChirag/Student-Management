@@ -181,7 +181,7 @@ public class StudentServiceTest {
         when(repo.findAll()).thenReturn(students);
 
         List<AssignmentsList> result =
-                studentService.getallAssignment();
+                studentService.getAllassignments();
 
         assertEquals(1, result.size());
         assertEquals("Completed",

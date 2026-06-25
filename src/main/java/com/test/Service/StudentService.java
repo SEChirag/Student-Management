@@ -3,8 +3,10 @@ package com.test.Service;
 
 import com.test.Entity.AssignmentsList;
 import com.test.Entity.Model;
+import com.test.Entity.StudentAssignments;
 import com.test.Exceptions.StudentNotFoundException;
 import com.test.Repository.AssignmentRepo;
+import com.test.Repository.StudentAssignmentRepo;
 import com.test.Repository.repository;
 
 
@@ -27,12 +29,14 @@ public class StudentService {
     private final repository Repo;
     private final JwtUtil jwtUtil;
     private final AssignmentRepo AssignmentRepo;
+    private final StudentAssignmentRepo StudentAssignmentRepo;
 
 
-    public StudentService(repository Repo , JwtUtil jwtUtil,AssignmentRepo AssignmentRepo) {
+    public StudentService(repository Repo , JwtUtil jwtUtil,AssignmentRepo AssignmentRepo , StudentAssignmentRepo StudentAssignmentRepo) {
         this.Repo = Repo;
         this.jwtUtil=jwtUtil;
         this.AssignmentRepo=AssignmentRepo;
+        this.StudentAssignmentRepo=StudentAssignmentRepo;
     }
 
     public List<Model> getAllStudents() {
@@ -67,14 +71,11 @@ public class StudentService {
         return Repo.findAll(pageable);
     }
 
-    public List<AssignmentsList> addAssignments() {
-        return AssignmentRepo.findAll();
+    public AssignmentsList addAssignments(AssignmentsList assignmentsList) {
+        return AssignmentRepo.save(assignmentsList);
     }
 
-    public List<AssignmentsList> getallAssignment() {
 
-            return AssignmentRepo.findAll();
-    }
 
     public List<Model> getAllStatus(String status) {
         return Repo.findByStatus(status);
@@ -96,12 +97,14 @@ public class StudentService {
     }
 
 
-    public AssignmentsList updateAssignments(String assignments , long studentId) {
+    public StudentAssignments updateAssignments(Long assignmentId , Long studentId,String status) {
 
-       AssignmentsList student = AssignmentRepo.findById(studentId).orElseThrow();
-            student.setAssignments(assignments);
+       StudentAssignments record = StudentAssignmentRepo.findByStudentIdAndAssignmentId(studentId ,assignmentId).orElse(new StudentAssignments());
+            record.setStudentId(studentId);
+            record.setAssignmentId(assignmentId);
+            record.setStatus(status);
 
-       return AssignmentRepo.save(student);
+       return StudentAssignmentRepo.save(record);
     }
 
     public void deleteAssignment(Long id) {
@@ -130,16 +133,17 @@ public class StudentService {
     }
     public List<Map<String, Object>> getStudentAssignmentReport() {
         List<Model> students = Repo.findAll();
-        List<AssignmentsList> allAssignments = AssignmentRepo.findAll();
+        long totalStudent = AssignmentRepo.count();
+        List<StudentAssignments> allAssignments = StudentAssignmentRepo.findAll();
 
         return students.stream().map(s -> {
-            List<AssignmentsList> studentAssignments = allAssignments.stream()
+            List<StudentAssignments> studentAssignments = allAssignments.stream()
                     .filter(a -> a.getStudentId() != null && a.getStudentId().equals(s.getId()))
                     .collect(Collectors.toList());
 
             long completed   = studentAssignments.stream().filter(a -> "completed".equals(a.getStatus())).count();
             long incompleted = studentAssignments.stream().filter(a -> "incompleted".equals(a.getStatus())).count();
-            long pending     = studentAssignments.stream().filter(a -> "pending".equals(a.getStatus())).count();
+            long pending     = totalStudent - completed - incompleted;
 
             Map<String, Object> map = new HashMap<>();
             map.put("studentId",   s.getId());
@@ -151,5 +155,14 @@ public class StudentService {
             map.put("pending",     pending);
             return map;
         }).collect(Collectors.toList());
+    }
+
+    public List<AssignmentsList> getAllassignments() {
+
+        return AssignmentRepo.findAll();
+    }
+
+    public List<StudentAssignments> getAllStudentAssignments() {
+        return StudentAssignmentRepo.findAll();
     }
 }

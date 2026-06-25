@@ -2,6 +2,7 @@ package com.test.Controller;
 
 import com.test.Entity.AssignmentsList;
 import com.test.Entity.Model;
+import com.test.Entity.StudentAssignments;
 import com.test.Entity.User;
 import com.test.Repository.UseRepository;
 import com.test.Repository.repository;
@@ -72,14 +73,14 @@ public class StudentController {
         return service.getStudents(page, size);
     }
 
-    @GetMapping("/assignments")
-    public List<AssignmentsList> addAssignments() {
-        return service.addAssignments();
+    @PostMapping("/Addassignments")
+    public AssignmentsList addAssignments(@RequestBody AssignmentsList assignmentsList) {
+        return service.addAssignments(assignmentsList);
     }
 
     @PatchMapping("/updateAssignments/{studentId}")
-    public AssignmentsList updateAssignments(@RequestParam String assignments , @PathVariable long studentId) {
-      return service.updateAssignments(assignments , studentId);
+    public StudentAssignments updateAssignments(@PathVariable long studentId ,@RequestParam long assignmentId ,@RequestParam String status) {
+      return service.updateAssignments(assignmentId , studentId ,status);
 
     }
 
@@ -116,5 +117,12 @@ public class StudentController {
         return service.getStudentAssignmentReport();
     }
 
-
+@GetMapping("/assignments")
+    public List<AssignmentsList> getAllassignments(){
+       return service.getAllassignments();
+}
+@GetMapping("/StuentAssignment/all")
+    public List<StudentAssignments> getAllStudentAssignments(){
+        return service.getAllStudentAssignments();
+}
 }
