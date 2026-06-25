@@ -1,8 +1,10 @@
 package com.test.Service;
 
 
+import com.test.Entity.AssignmentsList;
 import com.test.Entity.Model;
 import com.test.Exceptions.StudentNotFoundException;
+import com.test.Repository.AssignmentRepo;
 import com.test.Repository.repository;
 
 
@@ -13,19 +15,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class StudentService {
     private final repository Repo;
     private final JwtUtil jwtUtil;
+    private final AssignmentRepo AssignmentRepo;
 
 
-    public StudentService(repository Repo , JwtUtil jwtUtil) {
+    public StudentService(repository Repo , JwtUtil jwtUtil,AssignmentRepo AssignmentRepo) {
         this.Repo = Repo;
         this.jwtUtil=jwtUtil;
+        this.AssignmentRepo=AssignmentRepo;
     }
 
     public List<Model> getAllStudents() {
@@ -60,18 +67,13 @@ public class StudentService {
         return Repo.findAll(pageable);
     }
 
-    public Model addAssignments(Model assignments) {
-        return Repo.save(assignments);
+    public List<AssignmentsList> addAssignments() {
+        return AssignmentRepo.findAll();
     }
 
-    public List<Model> getallAssignment(String status) {
-        if (status.equalsIgnoreCase("all")) {
-            return Repo.findAll(); // return all students
-        }
-        return Repo.findAll().stream()
-                .filter(s -> s.getAssignments() != null &&
-                        s.getAssignments().equalsIgnoreCase(status))
-                .toList();
+    public List<AssignmentsList> getallAssignment() {
+
+            return AssignmentRepo.findAll();
     }
 
     public List<Model> getAllStatus(String status) {
@@ -80,7 +82,7 @@ public class StudentService {
 
     public void deleteBySameName() {
 
-        List<Model> duplicateName = getSameName().stream().filter(student -> student.getMarks() < 30).collect(Collectors.toList());
+        List<Model> duplicateName = getSameName().stream().filter(student -> student.getMarks() < 30).collect(toList());
 
         Repo.deleteAll(duplicateName);
     }
@@ -90,15 +92,64 @@ public class StudentService {
 
         Map<String, Long> nameCount = students.stream().collect(Collectors.groupingBy(s -> s.getName().toLowerCase(), Collectors.counting()));
 
-        return students.stream().filter(s -> nameCount.get(s.getName().toLowerCase()) > 1).sorted(Comparator.comparing(Model -> Model.getName())).collect(Collectors.toList());
+        return students.stream().filter(s -> nameCount.get(s.getName().toLowerCase()) > 1).sorted(Comparator.comparing(Model -> Model.getName())).collect(toList());
     }
 
 
-    public void updateAssignments(String assignments , Long id) {
+    public AssignmentsList updateAssignments(String assignments , long studentId) {
 
-       Model student = Repo.findById(id).orElseThrow(()->new StudentNotFoundException("Student not found with this id"+ id));
+       AssignmentsList student = AssignmentRepo.findById(studentId).orElseThrow();
             student.setAssignments(assignments);
 
-        Repo.save(student);
+       return AssignmentRepo.save(student);
+    }
+
+    public void deleteAssignment(Long id) {
+        AssignmentRepo.deleteById(id);
+    }
+
+    public List<AssignmentsList> getAssignments(String status) {
+       if( status.equals("all"))
+           return AssignmentRepo.findAll();
+
+        return AssignmentRepo.findByStatus(status);
+
+    }
+    public Map<String, Object> getStudentAssignmentSummary(Long studentId) {
+        List<AssignmentsList> all = AssignmentRepo.findByStudentId(studentId);
+        long completed   = all.stream().filter(a -> "completed".equals(a.getStatus())).count();
+        long incompleted = all.stream().filter(a -> "incompleted".equals(a.getStatus())).count();
+        long pending     = all.stream().filter(a -> "pending".equals(a.getStatus())).count();
+        Map<String, Object> map = new HashMap<>();
+        map.put("studentId", studentId);
+        map.put("total", all.size());
+        map.put("completed", completed);
+        map.put("incompleted", incompleted);
+        map.put("pending", pending);
+        return map;
+    }
+    public List<Map<String, Object>> getStudentAssignmentReport() {
+        List<Model> students = Repo.findAll();
+        List<AssignmentsList> allAssignments = AssignmentRepo.findAll();
+
+        return students.stream().map(s -> {
+            List<AssignmentsList> studentAssignments = allAssignments.stream()
+                    .filter(a -> a.getStudentId() != null && a.getStudentId().equals(s.getId()))
+                    .collect(Collectors.toList());
+
+            long completed   = studentAssignments.stream().filter(a -> "completed".equals(a.getStatus())).count();
+            long incompleted = studentAssignments.stream().filter(a -> "incompleted".equals(a.getStatus())).count();
+            long pending     = studentAssignments.stream().filter(a -> "pending".equals(a.getStatus())).count();
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("studentId",   s.getId());
+            map.put("studentName", s.getName());
+            map.put("section",     s.getSection());
+            map.put("total",       studentAssignments.size());
+            map.put("completed",   completed);
+            map.put("incompleted", incompleted);
+            map.put("pending",     pending);
+            return map;
+        }).collect(Collectors.toList());
     }
 }

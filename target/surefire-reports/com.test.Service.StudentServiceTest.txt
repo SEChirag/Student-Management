@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.test.Service.StudentServiceTest
+-------------------------------------------------------------------------------
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.523 s -- in com.test.Service.StudentServiceTest

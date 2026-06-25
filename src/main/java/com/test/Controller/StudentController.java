@@ -1,5 +1,6 @@
 package com.test.Controller;
 
+import com.test.Entity.AssignmentsList;
 import com.test.Entity.Model;
 import com.test.Entity.User;
 import com.test.Repository.UseRepository;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
@@ -70,20 +72,20 @@ public class StudentController {
         return service.getStudents(page, size);
     }
 
-    @PostMapping("/assignments")
-    public Model addAssignments(@RequestBody Model assignments) {
-        return service.addAssignments(assignments);
+    @GetMapping("/assignments")
+    public List<AssignmentsList> addAssignments() {
+        return service.addAssignments();
     }
 
-    @PatchMapping("/updateAssignments/{id}")
-    public String updateAssignments(@RequestParam String assignments , @PathVariable long id) {
-        service.updateAssignments(assignments , id);
-        return "Assignment updated for Student id "+id;
+    @PatchMapping("/updateAssignments/{studentId}")
+    public AssignmentsList updateAssignments(@RequestParam String assignments , @PathVariable long studentId) {
+      return service.updateAssignments(assignments , studentId);
+
     }
 
-    @GetMapping("/assignments/{status}")
-    public List<Model> getallAssignment(@PathVariable String status) {
-        return service.getallAssignment(status);
+    @GetMapping("/assignments/list/{status}")
+    public List<AssignmentsList> getAssignments(@PathVariable String status) {
+        return service.getAssignments(status);
     }
 
     @GetMapping("/allStatus/{status}")
@@ -100,4 +102,19 @@ public class StudentController {
     public void deleteBySameName() {
         service.deleteBySameName();
     }
+
+    @DeleteMapping("DeleteAssignment/{id}")
+    public  void deleteAssignment(@PathVariable Long id) {
+        service.deleteAssignment(id);
+    }
+    @GetMapping("/assignments/summary/{studentId}")
+    public Map<String, Object> getSummary(@PathVariable Long studentId) {
+        return service.getStudentAssignmentSummary(studentId);
+    }
+    @GetMapping("/assignments/report")
+    public List<Map<String, Object>> getStudentAssignmentReport() {
+        return service.getStudentAssignmentReport();
+    }
+
+
 }
