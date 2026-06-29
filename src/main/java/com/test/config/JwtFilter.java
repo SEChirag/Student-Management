@@ -1,6 +1,5 @@
 package com.test.config;
 
-import com.test.Entity.User;
 import com.test.Repository.UseRepository;
 import com.test.util.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -24,29 +23,41 @@ public class JwtFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private UseRepository repo;
+    private UseRepository userRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        try {
+            String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
 
-            String token = authHeader.substring(7);
+                if (jwtUtil.validateToken(token)) {
+                    String username = jwtUtil.extractUsername(token);
 
-            if (jwtUtil.validateToken(token)) {
-
-                String username = jwtUtil.extractUsername(token);
-
-                User user = repo.findByUsername(username).orElseThrow();
-
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null, List.of(new SimpleGrantedAuthority(user.getRole())));
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                    // AFTER
+                    var userOpt = userRepository.findByUsername(username);
+                    System.out.println("DEBUG user found: " + userOpt.isPresent());
+                    userOpt.ifPresent(user -> {
+                        System.out.println("DEBUG role from DB: " + user.getRole());
+                        var authority = new SimpleGrantedAuthority("ROLE_" + user.getRole());
+                        var authToken = new UsernamePasswordAuthenticationToken(
+                                username, null, List.of(authority)
+                        );
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    });
+                }
             }
+        } catch (Exception e) {
+            System.err.println("JWT Filter error: " + e.getMessage()); // you'll see this in logs
         }
 
         filterChain.doFilter(request, response);
     }
+
 }

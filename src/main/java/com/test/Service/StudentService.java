@@ -72,7 +72,25 @@ public class StudentService {
     }
 
     public AssignmentsList addAssignments(AssignmentsList assignmentsList) {
-        return AssignmentRepo.save(assignmentsList);
+        AssignmentsList saved = AssignmentRepo.save(assignmentsList);
+
+        List<Model> students;
+        if("ALL".equalsIgnoreCase(saved.getSection())){
+            students =Repo.findAll();
+        }else {
+            students = Repo.findBySection(saved.getSection());
+        }
+        List<StudentAssignments> records = students.stream().map(student -> {
+            StudentAssignments sa = new StudentAssignments();
+            sa.setStudentId(student.getId());
+            sa.setAssignmentId(saved.getId());
+            sa.setStatus("pending");
+            return sa;
+        }).collect(Collectors.toList());
+
+        StudentAssignmentRepo.saveAll(records);
+
+return saved;
     }
 
 
@@ -103,6 +121,7 @@ public class StudentService {
             record.setStudentId(studentId);
             record.setAssignmentId(assignmentId);
             record.setStatus(status);
+
 
        return StudentAssignmentRepo.save(record);
     }

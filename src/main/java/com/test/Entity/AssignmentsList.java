@@ -21,8 +21,8 @@ public class AssignmentsList {
     private String Description;
     private LocalDateTime dueDate;
     private String status;
-    private Long studentId;
-
+    private String section;
+private Long studentId;
 
 
 }

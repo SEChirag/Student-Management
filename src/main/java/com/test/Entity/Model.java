@@ -20,10 +20,14 @@ public class Model {
     private long marks;
     private String section;
     private String result;
+    private String status;
+
+    @Column(unique = true)
+    private String rollNumber;
     @Getter
     @Setter
     private String assignments;
-    private String status;
+
 
     @ManyToOne
     @Getter

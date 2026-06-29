@@ -19,17 +19,17 @@ import java.util.Map;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/API")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class StudentController {
     private final StudentService service;
     private UseRepository useRepository;
-    private repository repository;
+    private repository Repo;
     private JwtUtil jwtUtil;
 
     public StudentController(StudentService service, JwtUtil jwtUtil, repository repo, UseRepository useRepository) {
         this.service = service;
         this.jwtUtil = jwtUtil;
-        this.repository = repository;
+        this.Repo = repo;
         this.useRepository = useRepository;
     }
 
@@ -53,9 +53,17 @@ public class StudentController {
         return service.addStudent(model);
     }
 
-    @PutMapping("/update")
-    public List<Model> updateStudent(@RequestBody List<Model> model) {
-        return service.updateStudent(model);
+    @PutMapping("/update/{id}")
+    public Model updateStudent(@PathVariable long id, @RequestBody Model model) {
+        Model existing = service.getbyid(id);
+        existing.setName(model.getName());
+        existing.setMarks(model.getMarks());
+        existing.setSection(model.getSection());
+        existing.setResult(model.getResult());
+        existing.setStatus(model.getStatus());
+        if(model.getUsername() != null) existing.setUsername(model.getUsername());
+        if(model.getRollNumber() != null) existing.setRollNumber(model.getRollNumber());
+        return service.addStudent(existing);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -124,5 +132,6 @@ public class StudentController {
 @GetMapping("/StuentAssignment/all")
     public List<StudentAssignments> getAllStudentAssignments(){
         return service.getAllStudentAssignments();
-}
+    }
+
 }

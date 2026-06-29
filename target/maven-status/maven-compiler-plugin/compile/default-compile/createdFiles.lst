@@ -1,11 +1,15 @@
 com\test\Controller\StudentController.class
 com\test\Controller\UserController.class
+com\test\Repository\AssignmentRepo.class
+com\test\Entity\AssignmentsList.class
 com\test\AuthController\AuthControl.class
 com\test\Entity\LoginRequest.class
+com\test\DataInit.class
 com\test\Repository\repository.class
 com\test\Service\StudentService.class
 com\test\config\JwtFilter.class
 com\test\Exceptions\GlobalExceptionHandler.class
+com\test\Entity\StudentAssignments.class
 com\test\Entity\Model.class
 com\test\config\SecurityConfig.class
 com\test\Repository\UseRepository.class
@@ -13,3 +17,4 @@ com\test\Exceptions\StudentNotFoundException.class
 com\test\util\JwtUtil.class
 com\test\Main.class
 com\test\Entity\User.class
+com\test\Repository\StudentAssignmentRepo.class

@@ -12,4 +12,5 @@ public interface AssignmentRepo extends JpaRepository<AssignmentsList, Long> {
     List<AssignmentsList> findByStatus(String status);
     List<AssignmentsList> findByStudentId(Long studentId);
     List<AssignmentsList> findByStudentIdAndStatus(Long studentId, String status);
+    List<AssignmentsList> findBySectionIn(List<String> section);
 }

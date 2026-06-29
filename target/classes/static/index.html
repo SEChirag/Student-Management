@@ -27,7 +27,7 @@
         body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;transition:background var(--transition),color var(--transition);}
 
         /* ─── LOGIN ─── */
-        #loginPage{height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+      #loginPage{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--bg);}
         .login-card{width:380px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 32px;box-shadow:0 40px 80px rgba(0,0,0,0.5);animation:slideUp .5s cubic-bezier(.16,1,.3,1) both;}
         @keyframes slideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
         .login-logo{text-align:center;margin-bottom:20px;}
@@ -370,7 +370,7 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
 
 <!-- ════ LOGIN ════ -->
 <div id="loginPage">
-    <div class="login-card">
+    <div class="login-card" id="loginCard">
         <div class="login-logo">
             <div class="logo-icon">🎓</div>
         </div>
@@ -383,6 +383,26 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
         <!--        <p class="login-hint">Demo: <code>admin</code> / <code>1234</code></p>-->
         <button class="login-btn" id="loginBtn" onclick="login()">Sign In →</button>
         <p id="loginError"></p>
+    </div>
+    <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted)">
+        No account? <span onclick="showRegister()" style="color:var(--cyan);cursor:pointer;font-weight:600">Register →</span>
+    </p>
+    <div class="login-card" id="registerCard" style="display:none">
+        <h1>Register</h1>
+        <p class="login-sub">Awaits Super Admin approval</p>
+        <div class="inp-group"><label>Username</label><input type="text" id="regUsername" placeholder="yourname"></div>
+        <div class="inp-group"><label>Password</label><input type="password" id="regPassword" placeholder="••••••••"></div>
+        <div class="inp-group"><label>Role</label>
+            <select id="regRole" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--text)">
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </div>
+        <button class="login-btn" onclick="register()">Submit for Approval →</button>
+        <p id="regMsg" style="text-align:center;font-size:13px;margin-top:12px;min-height:16px;color:var(--cyan)"></p>
+        <p style="text-align:center;margin-top:10px;font-size:13px;color:var(--muted)">
+            <span onclick="showLogin()" style="color:var(--cyan);cursor:pointer;font-weight:600">← Back to Login</span>
+        </p>
     </div>
 </div>
 
@@ -406,6 +426,12 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
                 <button class="nav-btn active" onclick="showSection('dashSection',this)">
                     <div class="nav-icon">⊞</div>
                     Dashboard
+                </button>
+
+                <button class="nav-btn" id="pendingNavBtn" style="display:none" onclick="showSection('pendingSection',this)">
+                    <div class="nav-icon">🔔</div>
+                    Pending Approvals
+                    <span class="nav-badge" id="pendingCount">0</span>
                 </button>
             </div>
 
@@ -434,7 +460,7 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
             <!-- ACADEMICS -->
             <div class="nav-section">
                 <div class="nav-label">Academics</div>
-                <button class="nav-btn" onclick="showSection('assignmentSection',this)">
+                <button class="nav-btn" onclick="showSection('assignmentsPage',this)">
                     <div class="nav-icon">📝</div>
                     Assignments
                     <span class="nav-badge" id="assignCount">0</span>
@@ -475,6 +501,9 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
             </div>
 
             <div class="sb-footer">
+                <button class="nav-btn" onclick="showSection('profileSection',this)">
+                    <div class="nav-icon">👤</div>My Profile
+                </button>
                 <button class="theme-toggle" onclick="toggleTheme()">
                     <div class="nav-icon">☀️</div>
                     <span id="themeLabel">Light mode</span>
@@ -567,7 +596,7 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
                                     </div>
                                 </button>
                                 <button class="qa-btn"
-                                        onclick="showSection('assignmentSection', document.querySelectorAll('.nav-btn')[4])">
+                                        onclick="showSection('assignmentsPage', document.querySelectorAll('.nav-btn')[4])">
                                     <div class="qa-btn-icon">📝</div>
                                     <div>
                                         <div class="qa-btn-title">New assignment</div>
@@ -603,6 +632,43 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
                     </div>
                 </div>
 
+
+            <div class="section" id="pendingSection">
+                <div class="page-card">
+                    <div class="page-card-hdr">
+                        <div class="pch-icon pch-yellow">🔔</div>
+                        <div><h3>Pending Approvals</h3><p>Approve or reject new accounts</p></div>
+                    </div>
+                    <button class="btn btn-outline" onclick="loadPending()" style="margin-bottom:14px">↻ Refresh</button>
+                    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;" id="userStats"></div>
+                    <table>
+                        <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Actions</th></tr></thead>
+                        <tbody id="pendingTable">
+                        <tr><td colspan="4"><div class="empty"><div class="eico">🔔</div><p>No pending users</p></div></td></tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top:24px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+                            <div style="font-size:13px;font-weight:600;color:var(--text)">All Registered Users</div>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                                <button class="sort-btn active" id="roleTab-all"   onclick="setRoleTab('all')">All</button>
+                                <button class="sort-btn"        id="roleTab-USER"  onclick="setRoleTab('USER')" style="color:var(--cyan)">Users</button>
+                                <button class="sort-btn"        id="roleTab-ADMIN" onclick="setRoleTab('ADMIN')" style="color:var(--purple)">Admins</button>
+                                <select id="statusFilterTab" onchange="renderAllUsersTable()" style="width:auto;padding:4px 10px;font-size:12px;">
+                                    <option value="all">All Status</option>
+                                    <option value="APPROVED">Approved</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="REJECTED">Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+                        <table>
+                            <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                            <tbody id="allUsersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
                 <!-- ── ADD STUDENT ── -->
                 <div class="section" id="addSection">
                     <div class="page-card">
@@ -709,11 +775,12 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
+                                <th>Roll No</th>
                                 <th>Marks</th>
                                 <th>Grade</th>
                                 <th>Section</th>
                                 <th>Results</th>
-                                <th>Status
+                                <th>Status</th>
                                 <th>Operations</th>
                             </tr>
                             </thead>
@@ -873,9 +940,8 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
                         </div>
                     </div>
                 </div>
-
                 <!-- ── ASSIGNMENTS ── -->
-                <div class="section" id="assignmentSection">
+                <div class="section" id="assignmentsPage">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-green">📝</div>
@@ -893,6 +959,8 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
                             <div class="fg"><label>Due Date</label><input type="date" id="assignmentDue"></div>
                             <div class="fg"><label>Subject / Class</label><input type="text" id="assignmentSubject"
                                                                                  placeholder="e.g. Mathematics"></div>
+                            <div class="fg"><label>Section *</label><input type="text" id="assignmentSectionInput" placeholder="e.g. A or ALL"></div>
+
                         </div>
                         <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px;">
                             <button class="btn btn-primary" onclick="addAssignment()">➕ Add Assignment</button>
@@ -916,7 +984,7 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
                         <table>
                             <thead>
                             <tr>
-                                <th>ID</th><th>Assignments</th><th>Subjects</th><th>Description</th><th>Due Date</th><th>Actions</th>
+                                <th>ID</th><th>Assignments</th><th>Subjects</th><th>Description</th><th>Due Date</th><th>Section</th><th>Actions</th>
                             </tr>
                             </thead>
                             <tbody id="assignmentTable">
@@ -929,8 +997,8 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
                             </tr>
                             </tbody>
                         </table>
-                    </div>
 
+                    </div>
                 </div>
 
             <!-- ── COMPLETION TRACKER ── -->
@@ -941,26 +1009,36 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
                             <div><h3>Completion Tracker</h3>
                                 <p>Track which students completed which assignments</p></div>
                         </div>
-                        <div class="completion-stats" id="completionStats">
-                            <div class="cstat cstat-done">0 <span>Completed</span></div>
-                            <div class="cstat cstat-pend">0 <span>Pending</span></div>
-                            <div class="cstat cstat-miss">0 <span>Missed</span></div>
+                        <div id="completionStats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+                            <div style="padding:16px 20px;background:rgba(34,211,122,.06);border:1px solid rgba(34,211,122,.15);border-radius:12px;">
+                                <div style="font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">COMPLETED</div>
+                                <div id="statDone" style="font-size:32px;font-weight:800;color:var(--green);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
+                            </div>
+                            <div style="padding:16px 20px;background:rgba(255,228,77,.06);border:1px solid rgba(255,228,77,.15);border-radius:12px;">
+                                <div style="font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">PENDING</div>
+                                <div id="statPend" style="font-size:32px;font-weight:800;color:var(--yellow);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
+                            </div>
+                            <div style="padding:16px 20px;background:rgba(255,45,120,.06);border:1px solid rgba(255,45,120,.15);border-radius:12px;">
+                                <div style="font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">MISSED</div>
+                                <div id="statMissed" style="font-size:32px;font-weight:800;color:var(--pink);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
+                            </div>
                         </div>
-                        <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
-                            <input type="text" id="compStudentSearch" placeholder="🔍 Filter by student…"
-                                   oninput="renderCompletionTable()" style="max-width:190px;">
-                            <select id="compAssignFilter" onchange="renderCompletionTable()">
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+                            <div id="sectionTabs" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+                            <div style="width:1px;height:24px;background:var(--border);margin:0 4px;"></div>
+                            <div id="statusTabs" style="display:flex;gap:6px;">
+                                <button class="assign-tab active" id="stab-all" onclick="setStatusTab('all')">All</button>
+                                <button class="assign-tab" id="stab-done" onclick="setStatusTab('done')" style="color:var(--green);border-color:rgba(34,211,122,.3)">Completed</button>
+                                <button class="assign-tab" id="stab-pending" onclick="setStatusTab('pending')" style="color:var(--yellow);border-color:rgba(255,228,77,.3)">Pending</button>
+                                <button class="assign-tab" id="stab-missed" onclick="setStatusTab('missed')" style="color:var(--pink);border-color:rgba(255,45,120,.3)">Missed</button>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="refreshCompletion()" style="margin-left:auto;">↻ Refresh</button>
+                            <!-- keep these hidden for JS compatibility -->
+                            <input type="text" id="compStudentSearch" style="display:none;" oninput="renderCompletionTable()">
+                            <select id="compAssignFilter" style="display:none;" onchange="renderCompletionTable()">
                                 <option value="all">All Assignments</option>
                             </select>
-                            <select id="compStatusFilter" onchange="renderCompletionTable()">
-                                <option value="all">All Statuses</option>
-                                <option value="done">Completed</option>
-                                <option value="pending">Pending</option>
-                                <option value="missed">Missed</option>
-                            </select>
-                            <button class="btn btn-outline btn-sm" onclick="refreshCompletion()">↻ Refresh</button>
                         </div>
-                        <div class="assign-filter-tabs" id="compAssignTabs"></div>
                         <div style="overflow-x:auto;">
                             <table id="completionTable">
                                 <thead id="completionHead"></thead>
@@ -1039,12 +1117,103 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
                             </tr>
                             </tbody>
                         </table>
+                    </div>
                 </div>
-
+                <!-- ── MY PROFILE ── -->
+                <div class="section" id="profileSection">
+                    <div class="page-card">
+                        <div class="page-card-hdr">
+                            <div class="pch-icon pch-purple">👤</div>
+                            <div><h3>My Profile</h3><p>Your account details</p></div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;">
+                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
+                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Username</div>
+                                <div id="adminProfUsername" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                            </div>
+                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
+                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Role</div>
+                                <div id="adminProfRole" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                            </div>
+                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
+                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Status</div>
+                                <div id="adminProfStatus" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                            </div>
+                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
+                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Logged In As</div>
+                                <div id="adminProfName" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                            </div>
+                        </div>
+                        <p id="adminProfMsg" style="margin-top:12px;font-size:13px;color:var(--muted);min-height:16px;"></p>
+                    </div>
+                </div>
             </div><!-- /content-area -->
         </div><!-- /main -->
     </div><!-- /app -->
 </div><!-- /mainPage -->
+
+    <!-- ASSIGNMENT DETAIL DRAWER -->
+    <div id="assignDrawerOverlay" onclick="closeAssignDrawer()" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:900;display:none;"></div>
+<div id="assignDrawer" style="
+  position:fixed;top:50%;left:50%;width:480px;max-width:95vw;max-height:85vh;
+background:var(--surface);border:1px solid var(--border);border-radius:18px;
+z-index:901;transform:translate(-50%,-60%);opacity:0;pointer-events:none;
+transition:transform 0.32s cubic-bezier(.16,1,.3,1),opacity 0.28s ease;
+display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,0.6);">
+
+        <!-- Header -->
+        <div style="padding:20px 22px 16px;border-bottom:1px solid var(--border);flex-shrink:0;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+                <div>
+                    <div style="font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px;">Assignment Detail</div>
+                    <div id="drawerTitle" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:700;line-height:1.2;"></div>
+                    <div id="drawerMeta" style="font-size:12px;color:var(--muted);margin-top:4px;"></div>
+                </div>
+                <button onclick="closeAssignDrawer()" style="flex-shrink:0;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.07);border:none;color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+            </div>
+
+            <!-- Progress bar -->
+            <div style="margin-top:14px;">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px;">
+                    <span>Completion rate</span>
+                    <span id="drawerPct" style="font-weight:700;color:var(--cyan)">0%</span>
+                </div>
+                <div style="height:6px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;">
+                    <div id="drawerPctBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),#00c9a0);border-radius:100px;transition:width 0.8s cubic-bezier(.4,0,.2,1);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stat pills -->
+        <div style="padding:14px 22px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;">
+            <div style="flex:1;padding:10px;background:rgba(34,211,122,.08);border:1px solid rgba(34,211,122,.2);border-radius:10px;text-align:center;">
+                <div id="drawerDone" style="font-size:22px;font-weight:800;color:var(--green);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:1px;">Completed</div>
+            </div>
+            <div style="flex:1;padding:10px;background:rgba(255,228,77,.08);border:1px solid rgba(255,228,77,.2);border-radius:10px;text-align:center;">
+                <div id="drawerPend" style="font-size:22px;font-weight:800;color:var(--yellow);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:1px;">Pending</div>
+            </div>
+            <div style="flex:1;padding:10px;background:rgba(255,45,120,.08);border:1px solid rgba(255,45,120,.2);border-radius:10px;text-align:center;">
+                <div id="drawerInc" style="font-size:22px;font-weight:800;color:var(--pink);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:1px;">Incompleted</div>
+            </div>
+            <div style="flex:1;padding:10px;background:rgba(177,76,255,.08);border:1px solid rgba(177,76,255,.2);border-radius:10px;text-align:center;">
+                <div id="drawerTotal" style="font-size:22px;font-weight:800;color:var(--purple);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:1px;">Total</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div style="padding:12px 22px 0;display:flex;gap:6px;flex-shrink:0;">
+            <button onclick="switchDrawerTab('completed')" id="dtab-completed" class="assign-tab active">✓ Completed</button>
+            <button onclick="switchDrawerTab('pending')"   id="dtab-pending"   class="assign-tab">⏳ Pending</button>
+            <button onclick="switchDrawerTab('incompleted')" id="dtab-incompleted" class="assign-tab">✕ Incompleted</button>
+        </div>
+
+        <!-- Student list -->
+        <div id="drawerStudentList" style="flex:1;overflow-y:auto;padding:12px 22px 22px;display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
 
 <!-- EDIT STUDENT MODAL -->
 <div class="modal-ov" id="editModal">
@@ -1125,8 +1294,25 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
     let bChart, dChart, dashDChart;
     let currentSort   = 'id';
     let lightMode     = false;
-    let authToken = localStorage.getItem('jwt') || null;
-    let loggedInUser = localStorage.getItem('loggedInUser') || 'User';
+let authToken = null;
+let loggedInUser = localStorage.getItem('loggedInUser') || 'Admin';
+let loggedInRole = localStorage.getItem('userRole') || 'ADMIN';
+try {
+  const stored = localStorage.getItem('jwt');
+  if(stored) {
+    const payload = JSON.parse(atob(stored.split('.')[1]));
+    if(Date.now() < payload.exp * 1000) {
+      authToken = stored;
+      loggedInUser = localStorage.getItem('loggedInUser') || 'User';
+    } else {
+      localStorage.removeItem('jwt');
+      localStorage.removeItem('loggedInUser');
+    }
+  }
+} catch(e) {
+  localStorage.removeItem('jwt');
+  localStorage.removeItem('loggedInUser');
+}
     let backendOnline = false;
     let dupGroups     = [];
 
@@ -1148,7 +1334,68 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
       if (authToken) h['Authorization'] = 'Bearer ' + authToken;
       return h;
     }
+async function loadPending(){
+  // Load pending users
+  try{
+    const res = await fetch(`${AUTH_BASE}/pending`, {headers:authHeaders()});
+    if(res.ok){
+      const users = await res.json();
+      document.getElementById('pendingCount').textContent = users.length;
+      const tb = document.getElementById('pendingTable');
+      if(!users.length){
+        tb.innerHTML=`<tr><td colspan="4"><div class="empty"><div class="eico">🔔</div><p>No pending users</p></div></td></tr>`;
+      } else {
+        tb.innerHTML = users.map(u=>`<tr>
+          <td><strong>#${u.id}</strong></td>
+          <td><strong>${u.username}</strong></td>
+          <td><span class="badge gc">${u.role}</span></td>
+          <td style="display:flex;gap:6px">
+            <button class="btn btn-green btn-sm" onclick="approveUser(${u.id})">✓ Approve</button>
+            <button class="btn btn-danger btn-sm" onclick="rejectUser(${u.id})">✕ Reject</button>
+          </td>
+        </tr>`).join('');
+      }
+    }
+  }catch(e){ showToast('Failed to load pending users','warn'); }
 
+  // Load all users stats + table
+  try{
+    const res2 = await fetch(`${AUTH_BASE}/users`, {headers:authHeaders()});
+    if(res2.ok){
+      const all = await res2.json();
+      const admins   = all.filter(u=>u.role==='ADMIN').length;
+      const users    = all.filter(u=>u.role==='USER').length;
+      const approved = all.filter(u=>u.status==='APPROVED').length;
+      const pending2 = all.filter(u=>u.status==='PENDING').length;
+      const rejected = all.filter(u=>u.status==='REJECTED').length;
+
+      document.getElementById('userStats').innerHTML = `
+        <div style="padding:12px 18px;background:rgba(177,76,255,.08);border:1px solid rgba(177,76,255,.2);border-radius:11px;">
+          <div style="font-size:22px;font-weight:800;color:var(--purple)">${admins}</div>
+          <div style="font-size:11px;color:var(--muted)">Admins</div>
+        </div>
+        <div style="padding:12px 18px;background:rgba(0,245,212,.08);border:1px solid rgba(0,245,212,.2);border-radius:11px;">
+          <div style="font-size:22px;font-weight:800;color:var(--cyan)">${users}</div>
+          <div style="font-size:11px;color:var(--muted)">Users</div>
+        </div>
+        <div style="padding:12px 18px;background:rgba(34,211,122,.08);border:1px solid rgba(34,211,122,.2);border-radius:11px;">
+          <div style="font-size:22px;font-weight:800;color:var(--green)">${approved}</div>
+          <div style="font-size:11px;color:var(--muted)">Approved</div>
+        </div>
+        <div style="padding:12px 18px;background:rgba(255,228,77,.08);border:1px solid rgba(255,228,77,.2);border-radius:11px;">
+          <div style="font-size:22px;font-weight:800;color:var(--yellow)">${pending2}</div>
+          <div style="font-size:11px;color:var(--muted)">Pending</div>
+        </div>
+        <div style="padding:12px 18px;background:rgba(255,45,120,.08);border:1px solid rgba(255,45,120,.2);border-radius:11px;">
+          <div style="font-size:22px;font-weight:800;color:var(--pink)">${rejected}</div>
+          <div style="font-size:11px;color:var(--muted)">Rejected</div>
+        </div>`;
+allUsersCache = all;
+      renderAllUsersTable();
+
+    }
+  }catch(e){}
+}
     /* ── GRADE UTILS ── */
     function getGrade(m){ m=parseInt(m); if(m>=90)return'A+'; if(m>=80)return'A'; if(m>=70)return'B'; if(m>=60)return'C'; if(m>=33)return'D'; return'F'; }
     function gradeCls(g){ return({A:'ga','A+':'ga',B:'gb',C:'gc',D:'gd',F:'gf'}[g]||'gf'); }
@@ -1163,7 +1410,7 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
       const now = new Date();
       document.getElementById('topbarDate').textContent = now.toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
       const h = now.getHours();
-      const greet = h<12?'Good morning':'h<17'?'Good afternoon':'Good evening';
+
       const name = loggedInUser.charAt(0).toUpperCase() + loggedInUser.slice(1);
       document.getElementById('topbarGreeting').textContent = (h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', '+name+' 👋';
     }
@@ -1196,10 +1443,13 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
       const pill=document.getElementById('connPill');
       const txt=document.getElementById('connText');
       pill.className='conn-pill'+(online?'':' offline');
-      txt.textContent=online?'Backend connected':'Offline — demo';
+      txt.textContent=online?'connected':'Connected';
     }
-    async function checkBackend(){
-      if(!authToken){setConnStatus(false);return;}
+async function checkBackend(){
+  if(authToken && loggedInUser === 'superadmin'){
+    document.getElementById('pendingNavBtn').style.display='flex';
+    loadPending();
+  }
       try{
         const res=await fetch(`${USER_URL}/profile`,{headers:authHeaders(),signal:AbortSignal.timeout(3000)});
         setConnStatus(res.ok);
@@ -1224,11 +1474,20 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
       try{
         const res=await fetch(`${AUTH_BASE}/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p}),signal:AbortSignal.timeout(5000)});
         const text=await res.text();
-        if(res.ok&&text&&!text.toLowerCase().includes('invalid')&&!text.toLowerCase().includes('not found')){
-          authToken=text.trim(); localStorage.setItem('jwt',authToken);
-          loggedInUser = u;
-          localStorage.setItem('loggedInUser', u);
-           enterDashboard(false); return;
+    if(res.ok&&text&&!text.toLowerCase().includes('invalid')&&!text.toLowerCase().includes('not found')){
+    authToken = text;
+    localStorage.setItem('jwt', text);
+    loggedInUser = u;
+    localStorage.setItem('loggedInUser', u);
+    const payload = JSON.parse(atob(authToken.split('.')[1]));
+const userRole = payload.role || 'ADMIN';
+localStorage.setItem('userRole', userRole);
+if(userRole === 'USER') {
+  enterStudentFlow();
+} else {
+  enterDashboard(false);
+}
+return;
         }
         throw new Error('invalid_credentials');
       }catch(e){
@@ -1241,10 +1500,97 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
          loggedInUser = u;
          localStorage.setItem('loggedInUser', u)
         authToken=null; localStorage.removeItem('jwt'); enterDashboard(true); return; }
+        if(e.message==='Invalid credential'){
+        }
 <!--        err.innerText='⚠️ Could not reach server. Try demo: admin / 1234';-->
       }finally{ btn.disabled=false; btn.innerText='Sign In →'; }
     }
+    async function loadMyProfile() {
+    const msg = document.getElementById('profMsg');
+    try {
+        const res = await fetch('http://localhost:8081/student/my-profile', {
+            headers: authHeaders()
+        });
+        if (!res.ok) throw new Error('Not found');
+        const profile = await res.json();
 
+        document.getElementById('profFullName').textContent   = profile.fullName   || '—';
+        document.getElementById('profUsername').textContent   = profile.username   || '—';
+        document.getElementById('profRollNumber').textContent = profile.rollNumber || '—';
+        document.getElementById('profSection').textContent    = profile.section    || '—';
+
+        // Keep localStorage in sync
+        localStorage.setItem('studentProfile', JSON.stringify(profile));
+        msg.textContent = '';
+    } catch(e) {
+        // Fallback to localStorage if API fails
+        const cached = localStorage.getItem('studentProfile');
+        if (cached) {
+            const p = JSON.parse(cached);
+            document.getElementById('profFullName').textContent   = p.fullName   || '—';
+            document.getElementById('profUsername').textContent   = p.username   || '—';
+            document.getElementById('profRollNumber').textContent = p.rollNumber || '—';
+            document.getElementById('profSection').textContent    = p.section    || '—';
+        }
+        msg.style.color = 'var(--pink)';
+        msg.textContent = '⚠ Could not refresh from server';
+    }
+}
+let allUsersCache = [];
+let activeRoleTab = 'all';
+
+function setRoleTab(role) {
+    activeRoleTab = role;
+    document.querySelectorAll('[id^="roleTab-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById('roleTab-' + role).classList.add('active');
+    renderAllUsersTable();
+}
+
+function renderAllUsersTable() {
+    const statusFilter = document.getElementById('statusFilterTab')?.value || 'all';
+
+    const filtered = allUsersCache.filter(u => {
+        if (activeRoleTab !== 'all' && u.role !== activeRoleTab) return false;
+        if (statusFilter !== 'all' && u.status !== statusFilter) return false;
+        return true;
+    });
+
+    const tb = document.getElementById('allUsersTable');
+    if (!filtered.length) {
+        tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="eico">👥</div>
+            <p>No users found for this filter</p></div></td></tr>`;
+        return;
+    }
+
+    tb.innerHTML = filtered.map(u => `<tr>
+        <td><strong>#${u.id}</strong></td>
+        <td><strong>${u.username}</strong></td>
+        <td><span class="badge gc">${u.role}</span></td>
+        <td><span class="badge ${u.status==='APPROVED'?'bp':u.status==='REJECTED'?'bf':'gc'}">${u.status}</span></td>
+        <td style="display:flex;gap:6px;">
+            ${u.status!=='APPROVED'?`<button class="btn btn-green btn-sm" onclick="approveUser(${u.id})">✓ Approve</button>`:''}
+            ${u.status!=='REJECTED'?`<button class="btn btn-danger btn-sm" onclick="rejectUser(${u.id})">✕ Reject</button>`:''}
+        </td>
+    </tr>`).join('');
+}
+async function loadAdminProfile() {
+    try {
+        const res = await fetch(`${AUTH_BASE}/me`, { headers: authHeaders() });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        document.getElementById('adminProfUsername').textContent = data.username || '—';
+        document.getElementById('adminProfRole').textContent     = data.role     || '—';
+        document.getElementById('adminProfStatus').textContent   = data.status   || '—';
+        document.getElementById('adminProfName').textContent     = loggedInUser  || '—';
+        document.getElementById('adminProfMsg').textContent      = '';
+    } catch(e) {
+        // fallback to localStorage
+        document.getElementById('adminProfUsername').textContent = loggedInUser || '—';
+        document.getElementById('adminProfRole').textContent     = loggedInRole || '—';
+        document.getElementById('adminProfMsg').style.color      = 'var(--pink)';
+        document.getElementById('adminProfMsg').textContent      = '⚠ Could not refresh from server';
+    }
+}
     function enterDashboard(isDemo){
   document.getElementById('loginPage').style.display='none';
   document.getElementById('mainPage').style.display='block';
@@ -1256,7 +1602,12 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
   addLog('Admin logged in'+(isDemo?' (demo)':''));
   if(isDemo) showToast('Offline demo mode','warn');
   checkBackend();
-
+if(loggedInUser === 'superadmin') {
+  document.querySelector('.app').style.display = 'none';
+  document.getElementById('superAdminPage').style.display = 'flex';
+  loadSuperAdminPage();
+  return;
+}
   // LOAD COMPLETION MAP ON STARTUP
   fetch(`${BASE_URL}/StuentAssignment/all`, {headers:authHeaders()})
     .then(r => r.json())
@@ -1269,13 +1620,217 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
     })
     .catch(()=>{});
 }
-    function logout(){
-      localStorage.removeItem('jwt'); authToken=null;
-      addLog('Logged out');
-      setTimeout(()=>location.reload(),200);
-    }
+async function enterStudentFlow() {
+  document.getElementById('loginPage').style.display = 'none';
 
-    (function resumeSession(){ if(authToken) enterDashboard(false); })();
+  try {
+    // Always fetch fresh profile from server
+    const res = await fetch(`${AUTH_BASE}/profile/${loggedInUser}`, {headers: authHeaders()});
+    if(res.ok) {
+      const profile = await res.json();
+      localStorage.setItem('studentProfile', JSON.stringify(profile));
+
+      // Also fetch fresh marks and sync to localStorage
+      try {
+        const marksRes = await fetch('http://localhost:8081/student/my-marks', {headers: authHeaders()});
+        if(marksRes.ok) {
+          const marks = await marksRes.json();
+          localStorage.setItem('studentMarks', JSON.stringify(marks));
+        } else {
+          localStorage.removeItem('studentMarks');
+        }
+      } catch(e) { localStorage.removeItem('studentMarks'); }
+
+      enterStudentPortal(profile);
+    } else {
+      // No profile yet — check localStorage as fallback
+      const cached = localStorage.getItem('studentProfile');
+      if(cached) {
+        // Profile exists locally but not on server — clear and re-setup
+        localStorage.removeItem('studentProfile');
+      }
+      showProfileSetup();
+    }
+  } catch(e) {
+    // Network error — use cached profile if available
+    const cached = localStorage.getItem('studentProfile');
+    if(cached) {
+      enterStudentPortal(JSON.parse(cached));
+    } else {
+      showProfileSetup();
+    }
+  }
+}
+function showProfileSetup() {
+  document.getElementById('profileSetupPage').style.display = 'flex';
+}
+
+async function submitProfile() {
+  const fullName   = document.getElementById('psFullName').value.trim();
+  const rollNumber = document.getElementById('psRollNumber').value.trim();
+  const section    = document.getElementById('psSection').value.trim().toUpperCase();
+  const msg        = document.getElementById('psMsg');
+
+  if(!fullName || !rollNumber || !section) {
+    msg.style.color = 'var(--pink)'; msg.textContent = 'All fields required'; return;
+  }
+
+  try {
+    const res = await fetch(`${AUTH_BASE}/profile`, {
+      method: 'POST',
+      headers: authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify({ username: loggedInUser, fullName, rollNumber, section })
+    });
+    if(!res.ok) throw new Error();
+    const profile = await res.json();
+    localStorage.setItem('studentProfile', JSON.stringify(profile));
+    document.getElementById('profileSetupPage').style.display = 'none';
+    enterStudentPortal(profile);
+  } catch(e) {
+    msg.style.color = 'var(--pink)'; msg.textContent = '⚠ Failed to save. Try again.';
+  }
+}
+
+async function enterStudentPortal(profile) {
+  document.getElementById('profileSetupPage').style.display = 'none';
+  document.getElementById('studentPortalPage').style.display = 'block';
+
+  // Set greeting
+  const h = new Date().getHours();
+  document.getElementById('spGreeting').textContent =
+    (h<12?'Good morning':h<17?'Good afternoon':'Good evening') + ', ' + profile.fullName + ' 👋';
+  document.getElementById('spSub').textContent =
+    `Section ${profile.section} · Roll No. ${profile.rollNumber}`;
+    document.getElementById('spDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+document.getElementById('spSectionBadge').textContent = 'Section ' + profile.section;
+
+  // Load data
+  await loadStudentAssignments(profile);
+  await loadStudentMarks(profile);
+}
+
+async function loadStudentAssignments(profile) {
+  try {
+    const res = await fetch(`http://localhost:8081/student/my-assignments`, {headers: authHeaders()});
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+
+    // Normalize
+    const assigns = data.map(a => ({
+      id: a.id,
+      title: a.assignments || a.title,
+      subject: a.subjects || a.subject || '—',
+      due: a.dueDate ? a.dueDate.split('T')[0] : null,
+      section: a.section || '—'
+    }));
+
+    // Load my completion statuses
+    const compRes = await fetch(`http://localhost:8081/student/my-completion`, {headers: authHeaders()});
+    const compRecords = compRes.ok ? await compRes.json() : [];
+    const myMap = {};
+    compRecords.forEach(r => myMap[r.assignmentId] = r.status);
+
+    renderStudentAssignments(assigns, myMap);
+  } catch(e) {
+    document.getElementById('spAssignList').innerHTML =
+      `<div class="empty"><div class="eico">📝</div><p>Could not load assignments</p></div>`;
+  }
+}
+
+function renderStudentAssignments(assigns, myMap) {
+  let done=0, pending=0, missed=0;
+  assigns.forEach(a => {
+    const s = myMap[a.id] || 'pending';
+    if(s==='completed') done++;
+    else if(s==='incompleted') missed++;
+    else pending++;
+  });
+
+  document.getElementById('spDone').textContent   = done;
+  document.getElementById('spPending').textContent = pending;
+  document.getElementById('spMissed').textContent  = missed;
+
+  if(!assigns.length) {
+    document.getElementById('spAssignList').innerHTML =
+      `<div class="empty"><div class="eico">📝</div><p>No assignments yet</p></div>`;
+    return;
+  }
+
+  document.getElementById('spAssignList').innerHTML = assigns.map(a => {
+    const status  = myMap[a.id] || 'pending';
+    const icon    = status==='completed'?'✓':status==='incompleted'?'✕':'⏳';
+    const color   = status==='completed'?'var(--green)':status==='incompleted'?'var(--pink)':'var(--yellow)';
+    const bg      = status==='completed'?'rgba(34,211,122,.08)':status==='incompleted'?'rgba(255,45,120,.08)':'rgba(255,228,77,.06)';
+    const border  = status==='completed'?'rgba(34,211,122,.2)':status==='incompleted'?'rgba(255,45,120,.2)':'rgba(255,228,77,.15)';
+    const overdue = isOverdue(a.due);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;
+        padding:12px 16px;background:${bg};border:1px solid ${border};border-radius:11px;
+        cursor:pointer;transition:all .2s;" onclick="studentToggle(${a.id},this)"
+        data-assign-id="${a.id}" data-status="${status}">
+      <div>
+        <div style="font-size:13px;font-weight:600;">${a.title}
+          ${overdue?'<span style="font-size:10px;color:var(--pink);margin-left:6px">⚠ Overdue</span>':''}
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">
+          ${a.subject} · ${a.due ? new Date(a.due).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : 'No due date'}
+        </div>
+      </div>
+      <div style="width:30px;height:30px;border-radius:8px;background:${color};
+          display:flex;align-items:center;justify-content:center;font-size:14px;
+          font-weight:700;color:#000;flex-shrink:0;">${icon}</div>
+    </div>`;
+  }).join('');
+}
+
+async function studentToggle(assignId, el) {
+  const cur  = el.dataset.status || 'pending';
+  const next = cur==='pending'?'completed':cur==='completed'?'incompleted':'pending';
+  try {
+    await fetch(`http://localhost:8081/student/toggle/${assignId}?status=${next}`, {
+      method: 'PATCH', headers: authHeaders()
+    });
+    // Reload
+    const profile = JSON.parse(localStorage.getItem('studentProfile'));
+    await loadStudentAssignments(profile);
+  } catch(e) { showToast('Update failed','warn'); }
+}
+
+async function loadStudentMarks(profile) {
+  try {
+    // Always fetch fresh from server — never use stale cache
+    const res = await fetch('http://localhost:8081/student/my-marks', {headers: authHeaders()});
+    if(!res.ok) {
+      document.getElementById('spMarks').textContent  = '0/100';
+      document.getElementById('spGrade').textContent  = 'F';
+       document.getElementById('spGrade').style.color  = gradeColor('F');
+      document.getElementById('spResult').textContent = 'Pending';
+      document.getElementById('spResult').className   = 'badge gc';
+      return;
+    }
+    const s = await res.json();
+
+    // Update localStorage with fresh data
+    localStorage.setItem('studentMarks', JSON.stringify(s));
+
+    const g = getGrade(s.marks);
+    document.getElementById('spMarks').textContent  = s.marks + '/100';
+    document.getElementById('spGrade').textContent  = g;
+    document.getElementById('spGrade').style.color  = gradeColor(g);
+    document.getElementById('spResult').textContent = s.result || '—';
+    document.getElementById('spResult').className   = 'badge ' + ((s.result||'').toLowerCase()==='pass'?'bp':'bf');
+  } catch(e) {
+    document.getElementById('spMarks').textContent = '—';
+  }
+}
+  function logout(){
+  localStorage.removeItem('jwt');
+  localStorage.removeItem('userRole');
+  localStorage.removeItem('studentProfile');
+  localStorage.removeItem('studentMarks');
+  authToken=null;
+  addLog('Logged out');
+  setTimeout(()=>location.reload(),200);
+}
 
     /* ── SECTION ROUTING ── */
     function _showSection(id,btn){
@@ -1292,9 +1847,11 @@ td{font-size:13px;font-weight:400;line-height:1.5;}
       if(id==='topSection')        getStudents().then(renderTop);
       if(id==='completionSection') refreshCompletion();
       if(id==='gradeSection')      buildScaleGrid();
-      if(id==='assignmentSection') loadAssignments();
+      if(id==='assignmentsPage') loadAssignments();
       if(id==='reportSection') loadAssignmentReport();
       if(id==='dupSection')        findDuplicates();
+      if(id==='pendingSection') loadPending();
+       if(id==='profileSection')    loadAdminProfile();
     }
 
     /* ── DASHBOARD HOME ── */
@@ -1343,7 +1900,8 @@ async function loadAssignments(){
       title: a.assignments || a.title,
       description: a.description,
       subject: a.subjects || a.subject || '—',
-      due: a.dueDate ? a.dueDate.split('T')[0] : null
+      due: a.dueDate ? a.dueDate.split('T')[0] : null,
+       section: a.section || '—'
     }));
   }catch(e){
     // keep existing local assignments
@@ -1357,10 +1915,12 @@ function renderAssignments(){
   const search = (document.getElementById('assignSearch')?.value||'').toLowerCase();
   const statusF = document.getElementById('assignStatusFilter')?.value||'all';
 
-  let filtered = assignments.filter(a=>{
+  const loggedSection = null; // for admin: show all
+let filtered = assignments.filter(a=>{
     if(search && !a.title.toLowerCase().includes(search)) return false;
+    if(loggedSection && a.section !== 'ALL' && a.section !== loggedSection) return false;
     return true;
-  });
+});
 
   const tb = document.getElementById('assignmentTable');
   if(!filtered.length){
@@ -1372,10 +1932,11 @@ function renderAssignments(){
     const overdue = isOverdue(a.due);
     return `<tr>
       <td><strong>#${a.id}</strong></td>
-      <td><strong>${a.title}</strong>${overdue?'<span class="overdue-flag">⚠ Overdue</span>':''}</td>
+     <td><strong style="cursor:pointer;color:var(--cyan)" onclick="showAssignmentDetail(${a.id})">${a.title}</strong>${overdue?'<span class="overdue-flag">⚠ Overdue</span>':''}</td>
       <td>${a.subject||'—'}</td>
       <td style="font-size:12px;color:var(--muted)">${a.description||'—'}</td>
       <td>${a.due ? new Date(a.due).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
+      <td>${a.section || '—'}</td>
       <td>
         <button class="btn btn-edit btn-sm" onclick="openAssignEdit(${a.id})">✎ Edit</button>
         <button class="btn btn-danger btn-sm" onclick="deleteAssignment(${a.id})">🗑</button>
@@ -1422,34 +1983,38 @@ function renderStudentAssignmentTable(data){
       }
     }
     function editAutoRes(){ const m=parseInt(document.getElementById('editMarks').value); if(!isNaN(m)) document.getElementById('editResult').value=m>=33?'pass':'fail'; }
-    function clearForm(){ ['name','marks','section','subject','Status'].forEach(id=>document.getElementById(id).value=''); document.getElementById('result').value=''; document.getElementById('gradePreview').innerHTML='Grade preview here'; }
+    function clearForm(){ ['name','marks','section','subject','rollNumber','Status'].forEach(id=>document.getElementById(id).value=''); document.getElementById('result').value=''; document.getElementById('gradePreview').innerHTML='Grade preview here'; }
 
     /* ── ADD STUDENT ── */
-    async function addStudent(){
-      const name=document.getElementById('name').value.trim();
-      const marks=document.getElementById('marks').value;
-      const section=document.getElementById('section').value.trim();
-      const status=document.getElementById('Status').value.trim();
-      const subject=document.getElementById('subject').value.trim();
-      let result=document.getElementById('result').value;
-      if(!name||!marks||!section){ showToast('Fill all required fields','warn'); return; }
-      if(!result) result=parseInt(marks)>=33?'pass':'fail';
-      const payload={name,marks:parseInt(marks),section,result,status:status||'Active',subject:subject||''};
-      try{
-        const res=await fetch(`${BASE_URL}/add`,{method:'POST',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify(payload)});
-        if(!res.ok) throw new Error();
-        const saved=await res.json();
-        showToast(`${saved.name||name} added!`);
-        addLog(`Added: ${saved.name||name}`);
-        clearForm(); getStudents();
-      }catch(e){
-        const newId=allStudents.length?Math.max(...allStudents.map(s=>s.id))+1:1;
-        allStudents.push({id:newId,...payload});
-        showToast(`${name} added (demo)!`);
-        addLog(`Added: ${name}`);
-        clearForm(); updateCount();
-      }
-    }
+   async function addStudent(){
+  const name=document.getElementById('name').value.trim();
+  const marks=document.getElementById('marks').value;
+  const section=document.getElementById('section').value.trim();
+  const status=document.getElementById('Status').value.trim();
+  const subject=document.getElementById('subject').value.trim();
+  const rollNumber=document.getElementById('rollNumber').value.trim(); // ← ADD
+  let result=document.getElementById('result').value;
+if(!name||!marks||!section||!document.getElementById('rollNumber').value.trim()){
+    showToast('Fill all required fields including Roll Number','warn'); return;
+}
+  if(!result) result=parseInt(marks)>=33?'pass':'fail';
+const username = document.getElementById('username_student')?.value.trim() || null;
+const payload = {name, marks:parseInt(marks), section, result, status:status||'Active', subject:subject||'', rollNumber:rollNumber||null, username};
+  try{
+    const res=await fetch(`${BASE_URL}/add`,{method:'POST',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error();
+    const saved=await res.json();
+    showToast(`${saved.name||name} added!`);
+    addLog(`Added: ${saved.name||name}`);
+    clearForm(); getStudents();
+  }catch(e){
+    const newId=allStudents.length?Math.max(...allStudents.map(s=>s.id))+1:1;
+    allStudents.push({id:newId,...payload});
+    showToast(`${name} added (demo)!`);
+    addLog(`Added: ${name}`);
+    clearForm(); updateCount();
+  }
+}
 
     /* ── GET STUDENTS ── */
     async function getStudents(){
@@ -1492,15 +2057,6 @@ async function filterByStatus(status){
   }catch(e){ showToast('Filter failed','warn'); }
 }
 
-
-async function updateAssignmentStatus(studentId, status){
-  try{
-    const res = await fetch(`${BASE_URL}/updateAssignments/${studentId}?assignmentId=${assignId}&status=${next}`, {
-    method: 'PATCH', headers: authHeaders()
-});
-    if(!res.ok) throw new Error();
-  }catch(e){ showToast('Updated locally','warn'); }
-}
 async function filterAssignments(){
   const status = document.getElementById('assignStatusFilter').value || 'all';
   try{
@@ -1565,12 +2121,12 @@ function renderTable(data) {
   }
   document.getElementById('studentTable').innerHTML = data.map(s => {
     const g = getGrade(s.marks);
-  
-    return `<tr>
+return `<tr>
   <td><span style="color:var(--muted);font-size:11px">#</span><strong>${s.id}</strong></td>
   <td><strong>${s.name||'—'}</strong></td>
+  <td><span style="color:var(--muted);font-size:12px">${s.rollNumber||'—'}</span></td>
   <td><strong>${s.marks}</strong></td>
-  <td><span class="badge ${gradeCls(g)}">${g}</span></td>
+<td><span class="badge ${gradeCls(g)}">${g}</span></td>
   <td>${s.section}</td>
 <td><span class="badge ${(s.result||'').toLowerCase()==='pass'?'bp':'bf'}">${s.result||'—'}</span></td>
   <td><span class="badge ${(s.status||'').toLowerCase()==='active'?'bp':'bf'}">${s.status||'—'}</span></td>
@@ -1657,10 +2213,10 @@ async function saveEdit(){
 
   if(!name||!marks||!section){ showToast('Fill all fields','warn'); return; }
 
-  const payload = [{id, name, marks:parseInt(marks), section, result, status}];
-
+const existing = allStudents.find(s => s.id === id);
+const payload = [{id, name, marks:parseInt(marks), section, result, status, username: existing?.username || null , rollNumber : existing?.rollNumber || null}];
   try{
-    const res=await fetch(`${BASE_URL}/update`,{method:'PUT',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify(payload)});
+  const res=await fetch(`${BASE_URL}/update/${id}`,{method:'PUT',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify({name, marks:parseInt(marks), section, result, status})});
     if(!res.ok) throw new Error();
     showToast('Student updated!'); getStudents();
   }catch(e){
@@ -1798,14 +2354,15 @@ async function saveEdit(){
       const title=document.getElementById('assignmentTitle').value.trim();
       const description=document.getElementById('assignmentDescription').value.trim();
       const subject=document.getElementById('assignmentSubject').value.trim();
-      const due=document.getElementById('assignmentDue').value;
-      if(!title||!description){ showToast('Fill Title and Description','warn'); return; }
-      const localAssign={id:assignments.length?Math.max(...assignments.map(a=>a.id))+1:1,title,description,subject:subject||'—',due:due||null};
+     const due=document.getElementById('assignmentDue').value;
+const section=document.getElementById('assignmentSectionInput').value.trim().toUpperCase();
+if(!title||!description||!section){ showToast('Fill Title, Description and Section','warn'); return; }
+      const localAssign={id:assignments.length?Math.max(...assignments.map(a=>a.id))+1:1,title,description,subject:subject||'—',due:due||null,section:section||'—'};
       try{
-        const res=await fetch(`${BASE_URL}/Addassignments`,{method:'POST',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify({assignments:title, subjects:subject, description:description, dueDate: due ? due+'T00:00:00' : null})});
+        const res=await fetch(`${BASE_URL}/Addassignments`,{method:'POST',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify({assignments:title, subjects:subject, description:description, dueDate: due ? due+'T00:00:00' : null, section:section})});
         if(!res.ok) throw new Error();
         const server=await res.json();
-        assignments.push({id:server.id||localAssign.id,title:server.title||title,description:server.description||description,subject:server.subject||subject||'—',due:server.due||due||null});
+        assignments.push({id:server.id||localAssign.id,title:server.assignments||server.title||title,description:server.description||description,subject:server.subjects||server.subject||subject||'—',due:server.dueDate ? server.dueDate.split('T')[0] : due||null, section:server.section||section||'—'});
         showToast('Assignment added!');
       }catch(e){ assignments.push(localAssign); showToast('Assignment added (demo)!'); }
       addLog(`Assignment: ${title}`);
@@ -1813,6 +2370,7 @@ async function saveEdit(){
       document.getElementById('assignmentDescription').value='';
       document.getElementById('assignmentSubject').value='';
       document.getElementById('assignmentDue').value='';
+document.getElementById('assignmentSectionInput').value='';
       renderAssignments();
     }
 
@@ -1906,40 +2464,166 @@ async function toggleCompletion(studentId, assignId){
     await loadAssignmentReport();
     renderCompletionTable();
 }
-    function getCompletionStats(){
-      let done=0,pending=0,missed=0;
-      allStudents.forEach(s=>{ assignments.forEach(a=>{ const status=(completionMap[s.id]||{})[a.id]||'pending'; if(status==='done') done++; else if(status==='incompleted') missed++; else pending++; }); });
-      return{done,pending,missed};
-    }
+  function getCompletionStats(){
+  let done=0,pending=0,missed=0;
+  allStudents.forEach(s=>{
+    assignments.forEach(a=>{
+      if(a.section !== 'ALL' && a.section !== s.section) return;
+      const status=(completionMap[s.id]||{})[a.id]||'pending';
+      if(status==='completed') done++;
+      else if(status==='incompleted') missed++;
+      else pending++;
+    });
+  });
+  return{done,pending,missed};
+}
 async function refreshCompletion(){
-  await getStudents();
-  await loadAssignments();
+    await getStudents();
+    await loadAssignments();
 
-  // LOAD SAVED STATUSES FROM BACKEND
+    try{
+        const res = await fetch(`${BASE_URL}/StuentAssignment/all`, {headers:authHeaders()});
+        if(res.ok){
+            const records = await res.json();
+            completionMap = {};
+            records.forEach(r => {
+                if(!completionMap[r.studentId]) completionMap[r.studentId] = {};
+                completionMap[r.studentId][r.assignmentId] = r.status;
+            });
+        }
+    }catch(e){}
+
+    // Build section tabs
+    const secs = ['all', ...[...new Set(allStudents.map(s=>s.section))].sort()];
+    const tabContainer = document.getElementById('sectionTabs');
+    tabContainer.innerHTML = secs.map(sec => `
+        <button class="assign-tab sec-tab ${sec===activeSectionTab?'active':''}"
+                id="sectab-${sec}" onclick="setSectionTab('${sec}')"
+                style="${sec!=='all'?'color:var(--purple);border-color:rgba(177,76,255,.3)':''}">
+            ${sec==='all'?'All sections':'Section '+sec}
+        </button>`).join('');
+
+    // Assignment dropdown (keep for compatibility)
+    const sel = document.getElementById('compAssignFilter');
+    if(sel){
+        sel.innerHTML='<option value="all">All Assignments</option>';
+        assignments.forEach(a=>{
+            const o = document.createElement('option');
+            o.value = a.id; o.textContent = a.title;
+            sel.appendChild(o);
+        });
+    }
+
+    renderCompletionTable();
+}
+let activeSectionTab = 'all';
+let activeStatusTab  = 'all';
+
+function setSectionTab(sec){
+    activeSectionTab = sec;
+    document.querySelectorAll('.sec-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('sectab-'+sec).classList.add('active');
+    renderCompletionTable();
+}
+
+function setStatusTab(status){
+    activeStatusTab = status;
+    document.querySelectorAll('#statusTabs .assign-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('stab-'+status).classList.add('active');
+    renderCompletionTable();
+}
+async function refreshCompletionMap(){
   try{
-    const res = await fetch(`${BASE_URL}/studentAssignments/all`, {headers:authHeaders()});
+    const res = await fetch(`${BASE_URL}/studentAssignments/all`, {headers:authHeaders()})
     if(res.ok){
       const records = await res.json();
-      completionMap = {}; // reset then rebuild
+      completionMap = {};
       records.forEach(r => {
         if(!completionMap[r.studentId]) completionMap[r.studentId] = {};
         completionMap[r.studentId][r.assignmentId] = r.status;
       });
     }
-  }catch(e){ console.log('Could not load completion map'); }
+  }catch(e){}
+}
+let drawerAssignId = null;
+let drawerActiveTab = 'completed';
+let drawerData = { completed:[], pending:[], incompleted:[] };
 
-  const sel = document.getElementById('compAssignFilter');
-  if(sel){
-    sel.innerHTML='<option value="all">All Assignments</option>';
-    assignments.forEach(a=>{
-      const o = document.createElement('option');
-      o.value = a.id;
-      o.textContent = a.title;
-      sel.appendChild(o);
-    });
+function showAssignmentDetail(assignId){
+  const assign = assignments.find(a => a.id === assignId);
+  if(!assign) return;
+  drawerAssignId = assignId;
+  drawerData = { completed:[], pending:[], incompleted:[] };
+
+  const assignSection = assign.section || 'ALL';
+  const relevantStudents = assignSection === 'ALL'
+    ? allStudents
+    : allStudents.filter(s => s.section === assignSection);
+
+  relevantStudents.forEach(s => {
+    const status = (completionMap[s.id]||{})[assignId]||'pending';
+    if(status==='completed') drawerData.completed.push(s);
+    else if(status==='incompleted') drawerData.incompleted.push(s);
+    else drawerData.pending.push(s);
+  });
+
+<!--  const total = relevantStudents.length;-->
+
+  const total = allStudents.length;
+  const pct = total ? Math.round(drawerData.completed.length/total*100) : 0;
+
+  document.getElementById('drawerTitle').textContent = assign.title;
+  document.getElementById('drawerMeta').textContent  = `${assign.subject||'—'} · Due: ${assign.due ? new Date(assign.due).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—'}`;
+  document.getElementById('drawerDone').textContent  = drawerData.completed.length;
+  document.getElementById('drawerPend').textContent  = drawerData.pending.length;
+  document.getElementById('drawerInc').textContent   = drawerData.incompleted.length;
+  document.getElementById('drawerTotal').textContent = total;
+  document.getElementById('drawerPct').textContent   = pct+'%';
+
+  // open drawer first, then animate bar
+// open drawer first, then animate bar
+  document.getElementById('assignDrawerOverlay').style.display = 'block';
+  document.getElementById('assignDrawer').style.pointerEvents = 'auto';
+  document.getElementById('assignDrawer').style.transform = 'translate(-50%,-50%)';
+  document.getElementById('assignDrawer').style.opacity = '1';
+   setTimeout(()=>{ document.getElementById('drawerPctBar').style.width = pct+'%'; }, 50);
+
+  switchDrawerTab('completed');
+}
+
+function switchDrawerTab(tab){
+  drawerActiveTab = tab;
+  ['completed','pending','incompleted'].forEach(t=>{
+    document.getElementById('dtab-'+t).classList.toggle('active', t===tab);
+  });
+  const list = document.getElementById('drawerStudentList');
+  const students = drawerData[tab];
+  const cfg = {
+    completed:  { cls:'bp', icon:'✓', color:'var(--green)',  empty:'No students completed yet' },
+    pending:    { cls:'gc', icon:'⏳', color:'var(--yellow)', empty:'No students pending' },
+    incompleted:{ cls:'bf', icon:'✕', color:'var(--pink)',   empty:'No incompleted students' }
+  }[tab];
+
+  if(!students.length){
+    list.innerHTML=`<div class="empty"><div class="eico">${cfg.icon}</div><p>${cfg.empty}</p></div>`;
+    return;
   }
-
-  renderCompletionTable();
+  list.innerHTML = students.map((s,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;animation:fadeUp .2s ease ${i*0.03}s both;">
+      <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;">${i+1}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">${s.name}</div>
+        <div style="font-size:11px;color:var(--muted);">Section ${s.section} · #${s.id}</div>
+      </div>
+      <span class="badge ${cfg.cls}">${cfg.icon}</span>
+    </div>`).join('');
+}
+function closeAssignDrawer(){
+  document.getElementById('assignDrawer').style.pointerEvents = 'none';
+  document.getElementById('assignDrawer').style.transform = 'translate(-50%,-60%)';
+  document.getElementById('assignDrawer').style.opacity = '0';
+  document.getElementById('assignDrawerOverlay').style.display = 'none';
+  document.getElementById('drawerPctBar').style.width = '0%';
 }
 function renderCompletionBody(data){
   const stats = { done: data.length, pending: 0, missed: 0 };
@@ -1972,35 +2656,109 @@ function renderCompletionBody(data){
     </tr>`;
   }).join('');
 }
-    function renderCompletionTable(){
-      const studentSearch=(document.getElementById('compStudentSearch')?.value||'').toLowerCase();
-      const assignFilter=document.getElementById('compAssignFilter')?.value||'all';
-      const statusFilter=document.getElementById('compStatusFilter')?.value||'all';
-      const filteredStudents=allStudents.filter(s=>s.name.toLowerCase().includes(studentSearch));
-      const filteredAssigns=assignFilter==='all'?assignments:assignments.filter(a=>String(a.id)===String(assignFilter));
-      const stats=getCompletionStats();
-      document.getElementById('completionStats').innerHTML=`
-        <div class="cstat cstat-done">${stats.done} <span>Completed</span></div>
-        <div class="cstat cstat-pend">${stats.pending} <span>Pending</span></div>
-        <div class="cstat cstat-miss">${stats.missed} <span>Missed</span></div>`;
-      if(!filteredStudents.length||!filteredAssigns.length){
-        document.getElementById('completionHead').innerHTML='';
-        document.getElementById('completionBody').innerHTML=`<tr><td colspan="3"><div class="empty"><div class="eico">✅</div><p>${allStudents.length===0?'No students found.':assignments.length===0?'No assignments found.':'No results match.'}</p></div></td></tr>`;
+function filterStudentsByAssignment(){ applyFilters(); }
+
+
+  function renderCompletionTable(){
+    const studentSearch = (document.getElementById('compStudentSearch')?.value||'').toLowerCase();
+    const assignFilter  = document.getElementById('compAssignFilter')?.value||'all';
+
+    // Filter students by active section tab
+    let filteredStudents = activeSectionTab === 'all'
+        ? allStudents
+        : allStudents.filter(s => s.section === activeSectionTab);
+
+    if(studentSearch) filteredStudents = filteredStudents.filter(s => s.name.toLowerCase().includes(studentSearch));
+
+    const activeAssigns = assignFilter === 'all'
+        ? assignments
+        : assignments.filter(a => String(a.id) === String(assignFilter));
+
+    // Recount stats for visible students only
+    let done=0, pending=0, missed=0;
+    filteredStudents.forEach(s => {
+        activeAssigns.forEach(a => {
+            if(a.section !== 'ALL' && a.section !== s.section) return;
+            const st = (completionMap[s.id]||{})[a.id]||'pending';
+            if(st==='completed') done++;
+            else if(st==='incompleted') missed++;
+            else pending++;
+        });
+    });
+    document.getElementById('statDone').textContent   = done;
+    document.getElementById('statPend').textContent   = pending;
+    document.getElementById('statMissed').textContent = missed;
+
+    const container = document.getElementById('completionBody');
+    container.innerHTML = '';
+    document.getElementById('completionHead').innerHTML = '';
+
+    if(!filteredStudents.length || !activeAssigns.length){
+        container.innerHTML = `<tr><td colspan="3"><div class="empty"><div class="eico">✅</div>
+            <p>${!allStudents.length?'No students.':!assignments.length?'No assignments.':'No results.'}</p>
+            </div></td></tr>`;
         return;
-      }
-      document.getElementById('completionHead').innerHTML=`<tr><th style="min-width:130px">Student</th>${filteredAssigns.map(a=>`<th style="min-width:100px;max-width:130px"><div style="font-size:10px">${a.title}</div>${a.due?`<div style="font-size:9px;color:${isOverdue(a.due)?'var(--pink)':'var(--muted)'}">${isOverdue(a.due)?'⚠ ':''}${new Date(a.due).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div>`:''}</th>`).join('')}<th>Progress</th></tr>`;
-      const rows=filteredStudents.map(s=>{
-        const g=getGrade(s.marks); let doneCount=0; const totalCount=filteredAssigns.length;
-        const cells=filteredAssigns.map(a=>{ const status=(completionMap[s.id]||{})[a.id]||'pending'; if(status==='completed') doneCount++; if(statusFilter!=='all'&&status!==statusFilter) return null; const icon=status==='completed'?'✓':status==='incompleted'?'✕':'⏳'; const cls=status==='completed'?'done':status==='incompleted'?'missed':'pending';
-        return`<td style="text-align:center"><button class="comp-toggle ${cls}" onclick="toggleCompletion(${s.id},${a.id})">${icon}</button></td>`; });
-        if(statusFilter!=='all'&&cells.every(c=>c===null)) return'';
-        const pct=totalCount?Math.round(doneCount/totalCount*100):0;
-        const pctColor=pct===100?'var(--green)':pct>=50?'var(--yellow)':'var(--pink)';
-        return`<tr><td><div style="font-weight:600;font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--muted)">Sec ${s.section} · <span class="badge ${gradeCls(g)}" style="font-size:9px;padding:2px 5px">${g}</span></div></td>${cells.map(c=>c===null?`<td style="text-align:center"><span style="color:var(--muted);font-size:12px">—</span></td>`:c).join('')}<td><div style="display:flex;align-items:center;gap:7px;"><div style="flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:100px;min-width:44px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${pctColor};border-radius:100px;"></div></div><span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:${pctColor}">${pct}%</span></div></td></tr>`;
-      }).filter(Boolean);
-      document.getElementById('completionBody').innerHTML=rows.join('')||`<tr><td colspan="${filteredAssigns.length+2}"><div class="empty"><div class="eico">🔍</div><p>No students match</p></div></td></tr>`;
     }
 
+    filteredStudents.forEach(s => {
+        const sectionAssigns = activeAssigns.filter(a => a.section==='ALL' || a.section===s.section);
+        if(!sectionAssigns.length) return;
+
+        let doneCount = 0;
+        const assignCells = sectionAssigns.map(a => {
+            const status = (completionMap[s.id]||{})[a.id]||'pending';
+            // Filter by status tab
+            if(activeStatusTab !== 'all'){
+                const map = {done:'completed', pending:'pending', missed:'incompleted'};
+                if(status !== map[activeStatusTab]) return null;
+            }
+            if(status==='completed') doneCount++;
+            const isOverdueA = isOverdue(a.due);
+            const icon  = status==='completed'?'✓':status==='incompleted'?'✕':'⏳';
+            const color = status==='completed'?'var(--green)':status==='incompleted'?'var(--pink)':'var(--yellow)';
+            const bg    = status==='completed'?'rgba(34,211,122,.08)':status==='incompleted'?'rgba(255,45,120,.08)':'rgba(255,228,77,.06)';
+            const border= status==='completed'?'rgba(34,211,122,.2)':status==='incompleted'?'rgba(255,45,120,.2)':'rgba(255,228,77,.15)';
+            const cls   = status==='completed'?'bp':status==='incompleted'?'bf':'gc';
+            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:${bg};border:1px solid ${border};border-radius:9px;cursor:pointer;transition:all .18s;" onclick="toggleCompletion(${s.id},${a.id})" title="Click to toggle">
+                <div>
+                    <div style="font-size:12px;font-weight:600;color:var(--text);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.title}</div>
+                    <div style="font-size:10px;color:${isOverdueA?'var(--pink)':'var(--muted)'};margin-top:2px;">${a.due?new Date(a.due).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'No due date'}${isOverdueA?' ⚠':''}</div>
+                </div>
+                <div style="width:26px;height:26px;border-radius:7px;background:${color};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0;">${icon}</div>
+            </div>`;
+        }).filter(Boolean);
+
+        if(activeStatusTab !== 'all' && assignCells.length === 0) return;
+
+        const g = getGrade(s.marks);
+        const total = sectionAssigns.length;
+        const pct = total ? Math.round(doneCount/total*100) : 0;
+        const pctColor = pct===100?'var(--green)':pct>=50?'var(--yellow)':'var(--pink)';
+
+        container.innerHTML += `<tr><td colspan="100" style="padding:4px 0;border:none;">
+            <div style="background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:14px 16px;transition:border-color .18s;" onmouseenter="this.style.borderColor='rgba(255,255,255,.15)'" onmouseleave="this.style.borderColor='var(--border)'">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                    <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,rgba(177,76,255,.2),rgba(0,245,212,.1));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--purple);font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;">${s.name.charAt(0).toUpperCase()}</div>
+                    <div style="flex:1;">
+                        <div style="font-size:13px;font-weight:600;color:var(--text);">${s.name}</div>
+                        <div style="font-size:11px;color:var(--muted);margin-top:1px;">Section ${s.section} · <span class="badge ${gradeCls(g)}" style="font-size:9px;padding:2px 6px">${g}</span></div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                        <div style="width:80px;height:5px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;">
+                            <div style="height:100%;width:${pct}%;background:${pctColor};border-radius:100px;"></div>
+                        </div>
+                        <span style="font-size:11px;font-weight:700;color:${pctColor};font-family:'Plus Jakarta Sans',sans-serif;min-width:28px;">${pct}%</span>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:7px;">
+                    ${assignCells.join('')}
+                </div>
+            </div>
+        </td></tr>`;
+    });
+
+    if(container.innerHTML === '') container.innerHTML = `<tr><td colspan="3"><div class="empty"><div class="eico">✅</div><p>No results for this filter</p></div></td></tr>`;
+}
     /* ── DUPLICATES ── */
     async function findDuplicates(){
       const tb=document.getElementById('dupTable');
@@ -2042,6 +2800,429 @@ function renderCompletionBody(data){
     document.getElementById('confirmActionBtn').addEventListener('click',async()=>{ if(_confirmCb) await _confirmCb(); closeConfirmModal(); });
 
     buildScaleGrid();
+document.addEventListener('DOMContentLoaded', function(){
+  if(authToken) {
+    loggedInRole = localStorage.getItem('userRole') || 'ADMIN';
+    if(loggedInRole === 'USER') enterStudentFlow();
+    else enterDashboard(false);
+  }
+});
+
+    // ── AUTH / REGISTRATION ──
+    function showRegister(){
+      document.getElementById('loginCard').style.display='none';
+      document.getElementById('registerCard').style.display='block';
+    }
+    function showLogin(){
+      document.getElementById('loginCard').style.display='block';
+      document.getElementById('registerCard').style.display='none';
+    }
+    async function register(){
+      const u = document.getElementById('regUsername').value.trim();
+      const p = document.getElementById('regPassword').value;
+      const r = document.getElementById('regRole').value;
+      const msg = document.getElementById('regMsg');
+      if(!u||!p){ msg.style.color='var(--pink)'; msg.textContent='Fill all fields'; return; }
+      try{
+        const res = await fetch(`${AUTH_BASE}/register`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p,role:r})});
+        const text = await res.text();
+        if(res.ok){ msg.style.color='var(--cyan)'; msg.textContent='✓ Submitted! Wait for Super Admin approval.'; }
+        else { msg.style.color='var(--pink)'; msg.textContent='⚠ '+text; }
+      }catch(e){ msg.style.color='var(--pink)'; msg.textContent='⚠ Server unreachable'; }
+    }
+    async function approveUser(id){
+      const res = await fetch(`${AUTH_BASE}/approve/${id}`,{method:'PATCH',headers:authHeaders()});
+      if(res.ok){ showToast('User approved!'); loadPending(); }
+    }
+    async function rejectUser(id){
+      const res = await fetch(`${AUTH_BASE}/reject/${id}`,{method:'PATCH',headers:authHeaders()});
+      if(res.ok){ showToast('User rejected','warn'); loadPending(); }
+    }
+
+function spShowSection(id, btn) {
+    document.querySelectorAll('#studentPortalPage .section')
+        .forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('#studentPortalPage .nav-btn')
+        .forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(btn) btn.classList.add('active');
+
+    if(id === 'spGradesSection') {
+        document.getElementById('spGrade2').textContent  = document.getElementById('spGrade').textContent;
+        document.getElementById('spGrade2').style.color  = document.getElementById('spGrade').style.color;
+        document.getElementById('spMarks2').textContent  = document.getElementById('spMarks').textContent;
+        document.getElementById('spResult2').textContent = document.getElementById('spResult').textContent;
+        document.getElementById('spResult2').className   = document.getElementById('spResult').className;
+    }
+
+    if(id === 'spProfileSection') {
+        loadMyProfile();
+    }
+}
+    async function loadSuperAdminPage(){
+  // Load pending
+  try{
+    const res = await fetch(`${AUTH_BASE}/pending`, {headers:authHeaders()});
+    if(res.ok){
+      const users = await res.json();
+      document.getElementById('pendingCount').textContent = users.length;
+      const tb = document.getElementById('saPendingTable');
+      if(!users.length){
+        tb.innerHTML=`<tr><td colspan="4"><div class="empty"><div class="eico">🔔</div><p>No pending users</p></div></td></tr>`;
+      } else {
+        tb.innerHTML = users.map(u=>`<tr>
+          <td><strong>#${u.id}</strong></td>
+          <td><strong>${u.username}</strong></td>
+          <td><span class="badge gc">${u.role}</span></td>
+          <td style="display:flex;gap:6px;">
+            <button class="btn btn-green btn-sm" onclick="saApprove(${u.id})">✓ Approve</button>
+            <button class="btn btn-danger btn-sm" onclick="saReject(${u.id})">✕ Reject</button>
+          </td>
+        </tr>`).join('');
+      }
+    }
+  }catch(e){ showToast('Failed to load pending','warn'); }
+
+  // Load all users + stats
+  try{
+    const res2 = await fetch(`${AUTH_BASE}/users`, {headers:authHeaders()});
+    if(res2.ok){
+      const all = await res2.json();
+      const admins   = all.filter(u=>u.role==='ADMIN').length;
+      const users    = all.filter(u=>u.role==='USER').length;
+      const approved = all.filter(u=>u.status==='APPROVED').length;
+      const pending  = all.filter(u=>u.status==='PENDING').length;
+      const rejected = all.filter(u=>u.status==='REJECTED').length;
+
+      document.getElementById('saUserStats').innerHTML = `
+        <div style="padding:12px 18px;background:rgba(177,76,255,.08);border:1px solid rgba(177,76,255,.2);border-radius:11px;">
+          <div style="font-size:22px;font-weight:800;color:var(--purple)">${admins}</div>
+          <div style="font-size:11px;color:var(--muted)">Admins</div>
+        </div>
+        <div style="padding:12px 18px;background:rgba(0,245,212,.08);border:1px solid rgba(0,245,212,.2);border-radius:11px;">
+          <div style="font-size:22px;font-weight:800;color:var(--cyan)">${users}</div>
+          <div style="font-size:11px;color:var(--muted)">Users</div>
+        </div>
+        <div style="padding:12px 18px;background:rgba(34,211,122,.08);border:1px solid rgba(34,211,122,.2);border-radius:11px;">
+          <div style="font-size:22px;font-weight:800;color:var(--green)">${approved}</div>
+          <div style="font-size:11px;color:var(--muted)">Approved</div>
+        </div>
+        <div style="padding:12px 18px;background:rgba(255,228,77,.08);border:1px solid rgba(255,228,77,.2);border-radius:11px;">
+          <div style="font-size:22px;font-weight:800;color:var(--yellow)">${pending}</div>
+          <div style="font-size:11px;color:var(--muted)">Pending</div>
+        </div>
+        <div style="padding:12px 18px;background:rgba(255,45,120,.08);border:1px solid rgba(255,45,120,.2);border-radius:11px;">
+          <div style="font-size:22px;font-weight:800;color:var(--pink)">${rejected}</div>
+          <div style="font-size:11px;color:var(--muted)">Rejected</div>
+        </div>`;
+
+     saUsersCache = all;
+      renderSaUsersTable();
+    }
+  }catch(e){}
+}
+
+async function saApprove(id){
+  const res = await fetch(`${AUTH_BASE}/approve/${id}`, {method:'PATCH', headers:authHeaders()});
+  if(res.ok){ showToast('User approved!'); loadSuperAdminPage(); }
+  else showToast('Failed to approve','error');
+}
+
+async function saReject(id){
+  const res = await fetch(`${AUTH_BASE}/reject/${id}`, {method:'PATCH', headers:authHeaders()});
+  if(res.ok){ showToast('User rejected','warn'); loadSuperAdminPage(); }
+  else showToast('Failed to reject','error');
+}
+    let saUsersCache = [];
+let saActiveRoleTab = 'all';
+
+function setSaRoleTab(role) {
+    saActiveRoleTab = role;
+    document.querySelectorAll('[id^="saRoleTab-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById('saRoleTab-' + role).classList.add('active');
+    renderSaUsersTable();
+}
+
+function renderSaUsersTable() {
+    const statusFilter = document.getElementById('saStatusFilter')?.value || 'all';
+
+    const filtered = saUsersCache.filter(u => {
+        if (saActiveRoleTab !== 'all' && u.role !== saActiveRoleTab) return false;
+        if (statusFilter !== 'all' && u.status !== statusFilter) return false;
+        return true;
+    });
+
+    const tb = document.getElementById('saAllUsersTable');
+    if (!filtered.length) {
+        tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="eico">👥</div>
+            <p>No users found for this filter</p></div></td></tr>`;
+        return;
+    }
+
+    tb.innerHTML = filtered.map(u => `<tr>
+        <td><strong>#${u.id}</strong></td>
+        <td><strong>${u.username}</strong></td>
+        <td><span class="badge gc">${u.role}</span></td>
+        <td><span class="badge ${u.status==='APPROVED'?'bp':u.status==='REJECTED'?'bf':'gc'}">${u.status}</span></td>
+        <td style="display:flex;gap:6px;">
+            ${u.status!=='APPROVED'?`<button class="btn btn-green btn-sm" onclick="saApprove(${u.id})">✓ Approve</button>`:''}
+            ${u.status!=='REJECTED'?`<button class="btn btn-danger btn-sm" onclick="saReject(${u.id})">✕ Reject</button>`:''}
+        </td>
+    </tr>`).join('');
+}
 </script>
+<!-- ════ PROFILE SETUP PAGE ════ -->
+<div id="profileSetupPage" style="display:none;height:100vh;align-items:center;
+    justify-content:center;background:var(--bg);flex-direction:column;gap:12px;">
+    <div class="login-card" style="width:420px;">
+        <div class="login-logo"><div class="logo-icon">🎓</div></div>
+        <h1 style="text-align:center;margin-bottom:4px;">Set Up Your Profile</h1>
+        <p class="login-sub">One-time setup before accessing your portal</p>
+        <div class="inp-group"><label>Full Name</label>
+            <input type="text" id="psFullName" placeholder="e.g. Aryan Sharma"></div>
+        <div class="inp-group"><label>Roll Number</label>
+            <input type="text" id="psRollNumber" placeholder="e.g. 2024CS001"></div>
+        <div class="inp-group"><label>Section</label>
+            <input type="text" id="psSection" placeholder="e.g. A"
+                   onkeydown="if(event.key==='Enter')submitProfile()"></div>
+        <button class="login-btn" onclick="submitProfile()">Save & Continue →</button>
+        <p id="psMsg" style="text-align:center;font-size:13px;margin-top:10px;min-height:16px;"></p>
+        <p style="text-align:center;margin-top:10px;font-size:13px;color:var(--muted)">
+            <span onclick="logout()" style="color:var(--pink);cursor:pointer;font-weight:600">← Logout</span>
+        </p>
+    </div>
+</div>
+
+<!-- ════ STUDENT PORTAL ════ -->
+<div id="studentPortalPage" style="display:none;">
+    <div class="app">
+        <!-- Student Sidebar -->
+        <div class="sidebar">
+            <div class="sb-brand">
+                <div class="sb-logo">🎓</div>
+                <div class="sb-info">
+                    <div class="sb-name">My Portal</div>
+                    <div class="sb-sub" id="spSectionBadge">Student</div>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-label">My Academics</div>
+                <button class="nav-btn active" onclick="spShowSection('spHomeSection',this)">
+                    <div class="nav-icon">⊞</div>Home
+                </button>
+                <button class="nav-btn" onclick="spShowSection('spAssignSection',this)">
+                    <div class="nav-icon">📝</div>My Assignments
+                </button>
+                <button class="nav-btn" onclick="spShowSection('spGradesSection',this)">
+                    <div class="nav-icon">🎯</div>My Grades
+                </button>
+            </div>
+            <div class="sb-footer">
+                <button class="nav-btn" onclick="spShowSection('spProfileSection',this)">
+                    <div class="nav-icon">👤</div>My Profile
+                </button>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <div class="nav-icon">☀️</div>
+                    <span>Light mode</span>
+                </button>
+                <button class="theme-toggle" onclick="logout()" style="color:var(--pink);margin-top:4px;">
+                    <div class="nav-icon">→</div>Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Student Main -->
+        <div class="main">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <div class="topbar-date" id="spDate"></div>
+                    <h1 id="spGreeting">Welcome 👋</h1>
+                </div>
+                <div class="topbar-right">
+                    <div class="conn-pill">
+                        <div class="conn-dot"></div><span id="spSub">Student Portal</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+
+                <!-- Home -->
+                <div class="section active" id="spHomeSection">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;">
+                        <div class="stat-card">
+                            <div class="sc-top"><div class="sc-icon" style="background:rgba(34,211,122,.12)">✓</div>
+                                <div class="sc-label">Completed</div></div>
+                            <div class="sc-num" id="spDone" style="color:var(--green)">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="sc-top"><div class="sc-icon" style="background:rgba(255,228,77,.1)">⏳</div>
+                                <div class="sc-label">Pending</div></div>
+                            <div class="sc-num" id="spPending" style="color:var(--yellow)">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="sc-top"><div class="sc-icon" style="background:rgba(255,45,120,.1)">✕</div>
+                                <div class="sc-label">Missed</div></div>
+                            <div class="sc-num" id="spMissed" style="color:var(--pink)">0</div>
+                        </div>
+                    </div>
+                    <!-- Grade card -->
+                    <div class="page-card" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+                        <div style="text-align:center;min-width:80px;">
+                            <div id="spGrade" class="grade-big" style="font-size:52px;">—</div>
+                            <div style="font-size:11px;color:var(--muted);margin-top:4px;">My Grade</div>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;"
+                                 id="spMarks">—</div>
+                            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Marks</div>
+                            <div style="margin-top:10px;">
+                                <span id="spResult" class="badge bp">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assignments -->
+                <div class="section" id="spAssignSection">
+                    <div class="page-card">
+                        <div class="page-card-hdr">
+                            <div class="pch-icon pch-green">📝</div>
+                            <div><h3>My Assignments</h3>
+                                <p>Click any assignment to toggle your status</p></div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:8px;" id="spAssignList">
+                            <div class="empty"><div class="eico">📝</div><p>Loading…</p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grades -->
+                <div class="section" id="spGradesSection">
+                    <div class="page-card">
+                        <div class="page-card-hdr">
+                            <div class="pch-icon pch-yellow">🎯</div>
+                            <div><h3>My Grades</h3><p>Your academic performance</p></div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:12px 0;">
+                            <div style="text-align:center;">
+                                <div id="spGrade2" class="grade-big" style="font-size:64px;">—</div>
+                            </div>
+                            <div>
+                                <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">Score</div>
+                                <div style="font-size:32px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;"
+                                     id="spMarks2">—</div>
+                                <div style="margin-top:8px;"><span id="spResult2" class="badge bp">—</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Profile -->
+                <div class="section" id="spProfileSection">
+                    <div class="page-card">
+                        <div class="page-card-hdr">
+                            <div class="pch-icon pch-purple">👤</div>
+                            <div><h3>My Profile</h3><p>Your registered details</p></div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;">
+                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
+                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Full Name</div>
+                                <div id="profFullName" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                            </div>
+                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
+                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Username</div>
+                                <div id="profUsername" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                            </div>
+                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
+                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Roll Number</div>
+                                <div id="profRollNumber" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                            </div>
+                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
+                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Section</div>
+                                <div id="profSection" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                            </div>
+                        </div>
+                        <p id="profMsg" style="margin-top:12px;font-size:13px;color:var(--muted);min-height:16px;"></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ════ SUPER ADMIN PAGE ════ -->
+<div id="superAdminPage" style="display:none;min-height:100vh;background:var(--bg);flex-direction:column;">
+
+    <!-- Topbar -->
+    <div style="background:var(--surface);border-bottom:1px solid var(--border);
+      padding:14px 24px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:38px;height:38px;background:linear-gradient(135deg,#2563eb,#7c3aed);
+          border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🎓</div>
+            <div>
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;">Super Admin</div>
+                <div style="font-size:11px;color:var(--muted);">User Approval Panel</div>
+            </div>
+        </div>
+        <button class="tb-btn" onclick="logout()"><span class="tb-btn-icon">→</span> Logout</button>
+    </div>
+
+    <!-- Content -->
+    <div style="padding:24px;max-width:900px;margin:0 auto;width:100%;">
+
+        <!-- Stats row -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;" id="saUserStats"></div>
+
+        <!-- Pending Approvals -->
+        <div class="page-card" style="margin-bottom:16px;">
+            <div class="page-card-hdr">
+                <div class="pch-icon pch-yellow">🔔</div>
+                <div>
+                    <h3>Pending Approvals</h3>
+                    <p>Approve or reject new account requests</p>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="loadSuperAdminPage()"
+                        style="margin-left:auto;">↻ Refresh</button>
+            </div>
+            <table>
+                <thead>
+                <tr><th>ID</th><th>Username</th><th>Role</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="saPendingTable">
+                <tr><td colspan="4">
+                    <div class="empty"><div class="eico">🔔</div><p>No pending users</p></div>
+                </td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- All Users -->
+        <!-- All Users -->
+        <div class="page-card">
+            <div class="page-card-hdr">
+                <div class="pch-icon pch-purple">👥</div>
+                <div><h3>All Users</h3><p>Manage registered accounts</p></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+                <button class="sort-btn active" id="saRoleTab-all"   onclick="setSaRoleTab('all')">All</button>
+                <button class="sort-btn"        id="saRoleTab-USER"  onclick="setSaRoleTab('USER')" style="color:var(--cyan)">Users</button>
+                <button class="sort-btn"        id="saRoleTab-ADMIN" onclick="setSaRoleTab('ADMIN')" style="color:var(--purple)">Admins</button>
+                <select id="saStatusFilter" onchange="renderSaUsersTable()" style="width:auto;padding:4px 10px;font-size:12px;">
+                    <option value="all">All Status</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="REJECTED">Rejected</option>
+                </select>
+            </div>
+            <table>
+                <thead>
+                <tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="saAllUsersTable"></tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
 </body>
 </html>
