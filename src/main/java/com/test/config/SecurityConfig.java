@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login","/auth/register").permitAll()
                         .requestMatchers("/auth/me", "/auth/profile").permitAll()
-                        .requestMatchers("/student/**").hasRole("USER")
+                        .requestMatchers("/student/**").hasAnyRole("USER" , "ADMIN")
                         .requestMatchers("/API/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/auth/pending", "/auth/approve/**", "/auth/reject/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/auth/users").hasRole("SUPER_ADMIN")

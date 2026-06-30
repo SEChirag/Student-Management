@@ -36,7 +36,8 @@ public class AuthControl {
             return ResponseEntity.badRequest().body("Username is already in use");
         }
         String role = user.getRole();
-        if (role != null) role = role.replace("ROLE_", "").toUpperCase();
+        if (role != null)
+            role = role.replace("ROLE_", "").toUpperCase();
 
         if (!"ADMIN".equals(role) && !"USER".equals(role)) {
             return ResponseEntity.badRequest().body("Role must be ADMIN or USER");

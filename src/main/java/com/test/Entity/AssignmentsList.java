@@ -15,14 +15,14 @@ import java.time.LocalDateTime;
 public class AssignmentsList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  long id;
-    private  String assignments;
+    private long id;
+    private String assignments;
     private String subjects;
     private String Description;
     private LocalDateTime dueDate;
     private String status;
     private String section;
-private Long studentId;
+    private Long studentId;
 
 
 }

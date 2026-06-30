@@ -32,11 +32,11 @@ public class StudentService {
     private final StudentAssignmentRepo StudentAssignmentRepo;
 
 
-    public StudentService(repository Repo , JwtUtil jwtUtil,AssignmentRepo AssignmentRepo , StudentAssignmentRepo StudentAssignmentRepo) {
+    public StudentService(repository Repo, JwtUtil jwtUtil, AssignmentRepo AssignmentRepo, StudentAssignmentRepo StudentAssignmentRepo) {
         this.Repo = Repo;
-        this.jwtUtil=jwtUtil;
-        this.AssignmentRepo=AssignmentRepo;
-        this.StudentAssignmentRepo=StudentAssignmentRepo;
+        this.jwtUtil = jwtUtil;
+        this.AssignmentRepo = AssignmentRepo;
+        this.StudentAssignmentRepo = StudentAssignmentRepo;
     }
 
     public List<Model> getAllStudents() {
@@ -75,9 +75,9 @@ public class StudentService {
         AssignmentsList saved = AssignmentRepo.save(assignmentsList);
 
         List<Model> students;
-        if("ALL".equalsIgnoreCase(saved.getSection())){
-            students =Repo.findAll();
-        }else {
+        if ("ALL".equalsIgnoreCase(saved.getSection())) {
+            students = Repo.findAll();
+        } else {
             students = Repo.findBySection(saved.getSection());
         }
         List<StudentAssignments> records = students.stream().map(student -> {
@@ -90,9 +90,8 @@ public class StudentService {
 
         StudentAssignmentRepo.saveAll(records);
 
-return saved;
+        return saved;
     }
-
 
 
     public List<Model> getAllStatus(String status) {
@@ -115,15 +114,15 @@ return saved;
     }
 
 
-    public StudentAssignments updateAssignments(Long assignmentId , Long studentId,String status) {
+    public StudentAssignments updateAssignments(Long assignmentId, Long studentId, String status) {
 
-       StudentAssignments record = StudentAssignmentRepo.findByStudentIdAndAssignmentId(studentId ,assignmentId).orElse(new StudentAssignments());
-            record.setStudentId(studentId);
-            record.setAssignmentId(assignmentId);
-            record.setStatus(status);
+        StudentAssignments record = StudentAssignmentRepo.findByStudentIdAndAssignmentId(studentId, assignmentId).orElse(new StudentAssignments());
+        record.setStudentId(studentId);
+        record.setAssignmentId(assignmentId);
+        record.setStatus(status);
 
 
-       return StudentAssignmentRepo.save(record);
+        return StudentAssignmentRepo.save(record);
     }
 
     public void deleteAssignment(Long id) {
@@ -131,17 +130,18 @@ return saved;
     }
 
     public List<AssignmentsList> getAssignments(String status) {
-       if( status.equals("all"))
-           return AssignmentRepo.findAll();
+        if (status.equals("all"))
+            return AssignmentRepo.findAll();
 
         return AssignmentRepo.findByStatus(status);
 
     }
+
     public Map<String, Object> getStudentAssignmentSummary(Long studentId) {
         List<AssignmentsList> all = AssignmentRepo.findByStudentId(studentId);
-        long completed   = all.stream().filter(a -> "completed".equals(a.getStatus())).count();
+        long completed = all.stream().filter(a -> "completed".equals(a.getStatus())).count();
         long incompleted = all.stream().filter(a -> "incompleted".equals(a.getStatus())).count();
-        long pending     = all.stream().filter(a -> "pending".equals(a.getStatus())).count();
+        long pending = all.stream().filter(a -> "pending".equals(a.getStatus())).count();
         Map<String, Object> map = new HashMap<>();
         map.put("studentId", studentId);
         map.put("total", all.size());
@@ -150,6 +150,7 @@ return saved;
         map.put("pending", pending);
         return map;
     }
+
     public List<Map<String, Object>> getStudentAssignmentReport() {
         List<Model> students = Repo.findAll();
         long totalStudent = AssignmentRepo.count();
@@ -160,18 +161,18 @@ return saved;
                     .filter(a -> a.getStudentId() != null && a.getStudentId().equals(s.getId()))
                     .collect(Collectors.toList());
 
-            long completed   = studentAssignments.stream().filter(a -> "completed".equals(a.getStatus())).count();
+            long completed = studentAssignments.stream().filter(a -> "completed".equals(a.getStatus())).count();
             long incompleted = studentAssignments.stream().filter(a -> "incompleted".equals(a.getStatus())).count();
-            long pending     = totalStudent - completed - incompleted;
+            long pending = totalStudent - completed - incompleted;
 
             Map<String, Object> map = new HashMap<>();
-            map.put("studentId",   s.getId());
+            map.put("studentId", s.getId());
             map.put("studentName", s.getName());
-            map.put("section",     s.getSection());
-            map.put("total",       studentAssignments.size());
-            map.put("completed",   completed);
+            map.put("section", s.getSection());
+            map.put("total", studentAssignments.size());
+            map.put("completed", completed);
             map.put("incompleted", incompleted);
-            map.put("pending",     pending);
+            map.put("pending", pending);
             return map;
         }).collect(Collectors.toList());
     }

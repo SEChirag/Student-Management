@@ -1,20 +1,20 @@
 package com.test.Controller;
 
-import com.test.Entity.AssignmentsList;
-import com.test.Entity.Model;
-import com.test.Entity.StudentAssignments;
-import com.test.Entity.User;
+import com.test.Entity.*;
+import com.test.Repository.AdminProfileRepository;
 import com.test.Repository.UseRepository;
 import com.test.Repository.repository;
 import com.test.Service.StudentService;
 import com.test.util.JwtUtil;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @CrossOrigin("*")
 @RestController
@@ -25,12 +25,14 @@ public class StudentController {
     private UseRepository useRepository;
     private repository Repo;
     private JwtUtil jwtUtil;
+    private AdminProfileRepository adminProfileRepository;
 
-    public StudentController(StudentService service, JwtUtil jwtUtil, repository repo, UseRepository useRepository) {
+    public StudentController(StudentService service, JwtUtil jwtUtil, repository repo, UseRepository useRepository, AdminProfileRepository adminProfileRepository) {
         this.service = service;
         this.jwtUtil = jwtUtil;
         this.Repo = repo;
         this.useRepository = useRepository;
+        this.adminProfileRepository = adminProfileRepository;
     }
 
     @GetMapping("/all")
@@ -61,8 +63,8 @@ public class StudentController {
         existing.setSection(model.getSection());
         existing.setResult(model.getResult());
         existing.setStatus(model.getStatus());
-        if(model.getUsername() != null) existing.setUsername(model.getUsername());
-        if(model.getRollNumber() != null) existing.setRollNumber(model.getRollNumber());
+        if (model.getUsername() != null) existing.setUsername(model.getUsername());
+        if (model.getRollNumber() != null) existing.setRollNumber(model.getRollNumber());
         return service.addStudent(existing);
     }
 
@@ -87,8 +89,8 @@ public class StudentController {
     }
 
     @PatchMapping("/updateAssignments/{studentId}")
-    public StudentAssignments updateAssignments(@PathVariable long studentId ,@RequestParam long assignmentId ,@RequestParam String status) {
-      return service.updateAssignments(assignmentId , studentId ,status);
+    public StudentAssignments updateAssignments(@PathVariable long studentId, @RequestParam long assignmentId, @RequestParam String status) {
+        return service.updateAssignments(assignmentId, studentId, status);
 
     }
 
@@ -113,25 +115,48 @@ public class StudentController {
     }
 
     @DeleteMapping("DeleteAssignment/{id}")
-    public  void deleteAssignment(@PathVariable Long id) {
+    public void deleteAssignment(@PathVariable Long id) {
         service.deleteAssignment(id);
     }
+
     @GetMapping("/assignments/summary/{studentId}")
     public Map<String, Object> getSummary(@PathVariable Long studentId) {
         return service.getStudentAssignmentSummary(studentId);
     }
+
     @GetMapping("/assignments/report")
     public List<Map<String, Object>> getStudentAssignmentReport() {
         return service.getStudentAssignmentReport();
     }
 
-@GetMapping("/assignments")
-    public List<AssignmentsList> getAllassignments(){
-       return service.getAllassignments();
-}
-@GetMapping("/StuentAssignment/all")
-    public List<StudentAssignments> getAllStudentAssignments(){
+    @GetMapping("/assignments")
+    public List<AssignmentsList> getAllassignments() {
+        return service.getAllassignments();
+    }
+
+    @GetMapping("/StuentAssignment/all")
+    public List<StudentAssignments> getAllStudentAssignments() {
         return service.getAllStudentAssignments();
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<AdminProfile> getProfile(Authentication auth) {
+        System.out.println("Logged user = " + auth.getName());
+
+        Optional<AdminProfile> profile =
+                adminProfileRepository.findByUsername(auth.getName());
+
+        System.out.println("Profile found = " + profile.isPresent());
+        AdminProfile add = new AdminProfile();
+        add.setUsername(add.getUsername());
+        add.setDepartment("IT");
+        add.setRole("ADMIN");
+        add.setStatus("ACTIVE");
+
+        return profile
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
+
+

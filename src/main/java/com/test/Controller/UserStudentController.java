@@ -21,13 +21,17 @@ import java.util.stream.Collectors;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/student")
-@PreAuthorize("hasRole('USER')")
+@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 public class UserStudentController {
 
-    @Autowired private AssignmentRepo assignmentRepo;
-    @Autowired private StudentAssignmentRepo studentAssignmentRepo;
-    @Autowired private repository studentRepo;
-    @Autowired private StudentProfileRepository profileRepo;
+    @Autowired
+    private AssignmentRepo assignmentRepo;
+    @Autowired
+    private StudentAssignmentRepo studentAssignmentRepo;
+    @Autowired
+    private repository studentRepo;
+    @Autowired
+    private StudentProfileRepository profileRepo;
 
     private StudentProfile getProfile(String username) {
         return profileRepo.findByUsername(username).orElse(null);
@@ -90,7 +94,7 @@ public class UserStudentController {
 
         Optional<Model> student = studentRepo.findByRollNumber(profile.getRollNumber());
         System.out.println("DEBUG student found: " + student.isPresent());
-        if(student.isPresent()) {
+        if (student.isPresent()) {
             System.out.println("DEBUG student marks: " + student.get().getMarks());
         }
 
@@ -100,7 +104,15 @@ public class UserStudentController {
 
     @GetMapping("/my-profile")
     public ResponseEntity<?> myProfile(Authentication auth) {
-        return profileRepo.findByUsername(auth.getName())
+
+        System.out.println("Logged user = " + auth.getName());
+
+        Optional<StudentProfile> profile =
+                profileRepo.findByUsername(auth.getName());
+
+        System.out.println("Profile found = " + profile.isPresent());
+
+        return profile
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
