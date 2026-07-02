@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/API/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/auth/pending", "/auth/approve/**", "/auth/reject/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/auth/users").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/favicon.ico/**").hasRole("ADMIN")
                         .requestMatchers("/", "/index.html", "/css/**", "/js/**").permitAll()
                         .anyRequest().authenticated()
 

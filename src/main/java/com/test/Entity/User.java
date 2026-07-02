@@ -18,6 +18,7 @@ public class User {
     private String password;
     private String status;
     private String role;
+    private String rollNumber;
 
 
 }

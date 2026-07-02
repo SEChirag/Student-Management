@@ -40,9 +40,9 @@ public class StudentController {
         return service.getAllStudents();
     }
 
-    @GetMapping("/{id}")
-    public Model getbyid(@PathVariable Long id) {
-        return service.getbyid(id);
+    @GetMapping("/name")
+    public Model getbyname(@RequestParam String name) {
+        return service.getbyname(name);
     }
 
     @PostMapping("/add")
@@ -55,14 +55,17 @@ public class StudentController {
         return service.addStudent(model);
     }
 
-    @PutMapping("/update/{id}")
-    public Model updateStudent(@PathVariable long id, @RequestBody Model model) {
-        Model existing = service.getbyid(id);
+    @PutMapping("/update/{name}")
+    public Model updateStudent(@PathVariable String name, @RequestBody Model model) {
+        Model existing = service.getbyname(name);
         existing.setName(model.getName());
         existing.setMarks(model.getMarks());
         existing.setSection(model.getSection());
         existing.setResult(model.getResult());
         existing.setStatus(model.getStatus());
+        existing.setAssignments(model.getAssignments());
+        existing.setUser(model.getUser());
+        System.out.println(model.getAssignments());
         if (model.getUsername() != null) existing.setUsername(model.getUsername());
         if (model.getRollNumber() != null) existing.setRollNumber(model.getRollNumber());
         return service.addStudent(existing);
@@ -149,9 +152,9 @@ public class StudentController {
         System.out.println("Profile found = " + profile.isPresent());
         AdminProfile add = new AdminProfile();
         add.setUsername(add.getUsername());
-        add.setDepartment("IT");
-        add.setRole("ADMIN");
-        add.setStatus("ACTIVE");
+        add.setDepartment(add.getDepartment());
+        add.setRole(add.getRole());
+        add.setStatus(add.getStatus());
 
         return profile
                 .map(ResponseEntity::ok)

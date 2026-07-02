@@ -22,6 +22,7 @@ public class Model {
     private String result;
     private String status;
 
+
     @Column(unique = true)
     private String rollNumber;
     @Getter

@@ -16,14 +16,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-
 @Service
 public class StudentService {
     private final repository Repo;
@@ -43,8 +39,8 @@ public class StudentService {
         return Repo.findAll();
     }
 
-    public Model getbyid(Long id) {
-        return Repo.findById(id).orElseThrow(() -> new StudentNotFoundException("Id not found->" + id));
+    public Model getbyname(String name) {
+        return Repo.findByName(name);
     }
 
     public Model addStudent(Model model) {
