@@ -62,25 +62,25 @@ public class UserStudentController {
         );
     }
 
-    @PatchMapping("/toggle/{assignmentId}")
-    public ResponseEntity<?> toggle(@PathVariable Long assignmentId,
-                                    @RequestParam String status,
-                                    Authentication auth) {
-        StudentProfile profile = getProfile(auth.getName());
-        if (profile == null) return ResponseEntity.status(404).body("Profile not set up");
-
-        return studentRepo.findByUsername(auth.getName())
-                .map(student -> {
-                    StudentAssignments sa = studentAssignmentRepo
-                            .findByStudentIdAndAssignmentId(student.getId(), assignmentId)
-                            .orElse(new StudentAssignments());
-                    sa.setStudentId(student.getId());
-                    sa.setAssignmentId(assignmentId);
-                    sa.setStatus(status);
-                    return ResponseEntity.ok(studentAssignmentRepo.save(sa));
-                })
-                .orElse(ResponseEntity.status(404).build());
-    }
+//    @PatchMapping("/toggle/{assignmentId}")
+//    public ResponseEntity<?> toggle(@PathVariable Long assignmentId,
+//                                    @RequestParam String status,
+//                                    Authentication auth) {
+//        StudentProfile profile = getProfile(auth.getName());
+//        if (profile == null) return ResponseEntity.status(404).body("Profile not set up");
+//
+//        return studentRepo.findByUsername(auth.getName())
+//                .map(student -> {
+//                    StudentAssignments sa = studentAssignmentRepo
+//                            .findByStudentIdAndAssignmentId(student.getId(), assignmentId)
+//                            .orElse(new StudentAssignments());
+//                    sa.setStudentId(student.getId());
+//                    sa.setAssignmentId(assignmentId);
+//                    sa.setStatus(status);
+//                    return ResponseEntity.ok(studentAssignmentRepo.save(sa));
+//                })
+//                .orElse(ResponseEntity.status(404).build());
+//    }
 
     @GetMapping("/my-marks")
     public ResponseEntity<?> myMarks(Authentication auth) {
