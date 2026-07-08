@@ -293,6 +293,7 @@ function renderAllUsersTable() {
         </td>
     </tr>`).join('');
 }
+
 /* ── STUDENT PROFILE (USER role) ── */
 async function loadMyProfile() {
     const msg = document.getElementById('profMsg');
@@ -328,18 +329,51 @@ async function loadMyProfile() {
 async function loadAdminProfile() {
     try {
         const res = await fetch(`${BASE_URL}/profile`, { headers: authHeaders() });
+        if (res.status === 404) {
+            // No AdminProfile row created yet — show blank state, let them save one
+            document.getElementById('adminProfUsername').textContent = loggedInUser || '—';
+            document.getElementById('adminProfRole').textContent     = loggedInRole || '—';
+            document.getElementById('adminProfStatus').textContent   = '—';
+            document.getElementById('adminProfName').textContent     = loggedInUser  || '—';
+            document.getElementById('adminProfDeptInput').value      = '';
+            document.getElementById('adminProfMsg').style.color      = 'var(--warn)';
+            document.getElementById('adminProfMsg').textContent      = 'No profile yet — set your department and save';
+            return;
+        }
         if (!res.ok) throw new Error();
         const data = await res.json();
         document.getElementById('adminProfUsername').textContent = data.username || '—';
         document.getElementById('adminProfRole').textContent     = data.role     || '—';
         document.getElementById('adminProfStatus').textContent   = data.status   || '—';
         document.getElementById('adminProfName').textContent     = loggedInUser  || '—';
+        document.getElementById('adminProfDeptInput').value      = data.department || '';
         document.getElementById('adminProfMsg').textContent      = '';
     } catch(e) {
         document.getElementById('adminProfUsername').textContent = loggedInUser || '—';
         document.getElementById('adminProfRole').textContent     = loggedInRole || '—';
         document.getElementById('adminProfMsg').style.color      = 'var(--pink)';
         document.getElementById('adminProfMsg').textContent      = '⚠ Could not refresh from server';
+    }
+}
+
+async function saveAdminProfile() {
+    const department = document.getElementById('adminProfDeptInput').value.trim();
+    const msg = document.getElementById('adminProfMsg');
+    if (!department) {
+        msg.style.color = 'var(--pink)'; msg.textContent = 'Department cannot be empty'; return;
+    }
+    try {
+        const res = await fetch(`${AUTH_BASE}/profile`, {
+            method: 'POST',
+            headers: authHeaders({'Content-Type':'application/json'}),
+            body: JSON.stringify({ username: loggedInUser, section: department })
+        });
+        if (!res.ok) throw new Error();
+        showToast('Department saved!');
+        addLog('Updated admin profile');
+        loadAdminProfile();
+    } catch(e) {
+        msg.style.color = 'var(--pink)'; msg.textContent = '⚠ Failed to save. Try again.';
     }
 }
 
@@ -514,7 +548,7 @@ function renderStudentAssignments(assigns, myMap) {
     const color   = status==='completed'?'var(--green)':status==='incompleted'?'var(--pink)':'var(--yellow)';
     const bg      = status==='completed'?'rgba(34,211,122,.08)':status==='incompleted'?'rgba(255,45,120,.08)':'rgba(255,228,77,.06)';
     const border  = status==='completed'?'rgba(34,211,122,.2)':status==='incompleted'?'rgba(255,45,120,.2)':'rgba(255,228,77,.15)';
-    const overdue = isOverdue(a.due);
+   const overdue = isOverdue(a.due) && status !== 'completed';
     return `<div style="display:flex;align-items:center;justify-content:space-between;
         padding:12px 16px;background:${bg};border:1px solid ${border};border-radius:11px;
         cursor:pointer;transition:all .2s;" onclick="studentToggle(${a.id},this)"
@@ -1350,6 +1384,44 @@ async function updateAssignment(id, status){
       if(idx>-1){ assignments[idx]={...assignments[idx],title:title||assignments[idx].title,description:desc,subject:subject||'—',due:due||null}; addLog(`Edited assignment #${id}`); showToast('Assignment updated!'); closeAssignModal(); renderAssignments(); }
     }
 
+async function loadResultModal(type){
+      const titles = { pass:'✓ Passed Students', fail:'✕ Failed Students', all:'👥 All Students', active:'⚡ Active Students' };
+      document.getElementById('resultModalTitle').textContent = titles[type] || 'Students';
+      document.getElementById('resultModalTable').innerHTML = `<tr><td colspan="7"><div class="empty"><div class="eico">⏳</div><p>Loading…</p></div></td></tr>`;
+      document.getElementById('resultModal').classList.add('open');
+
+      const endpoints = { pass:'pass', fail:'failed', all:'all', active:'Active' };
+      try{
+        const res = await fetch(`${BASE_URL}/${endpoints[type]}`, {headers:authHeaders()});
+        if(!res.ok) throw new Error();
+        renderResultModalTable(await res.json());
+      }catch(e){
+        document.getElementById('resultModalTable').innerHTML = `<tr><td colspan="7"><div class="empty"><div class="eico">⚠</div><p>Failed to load</p></div></td></tr>`;
+      }
+    }
+
+    function renderResultModalTable(data){
+      const tb = document.getElementById('resultModalTable');
+      if(!data.length){
+        tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="eico">📋</div><p>No students found</p></div></td></tr>`;
+        return;
+      }
+      tb.innerHTML = data.map(s=>{
+        const g = getGrade(s.marks);
+        return `<tr>
+          <td><strong>#${s.id}</strong></td>
+          <td><strong>${s.name||'—'}</strong></td>
+          <td>${s.rollNumber||'—'}</td>
+          <td>${s.marks}</td>
+          <td>${s.section}</td>
+         <td><span class="badge ${(s.result||'').toLowerCase()==='pass'?'bp':'bf'}">${(s.result||'—').charAt(0).toUpperCase()+(s.result||'—').slice(1).toLowerCase()}</span></td>
+                   <td><span class="badge ${(s.status||'').toLowerCase()==='active'?'bp':'bf'}">${(s.status||'—').charAt(0).toUpperCase()+(s.status||'—').slice(1).toLowerCase()}</span></td>
+        </tr>`;
+      }).join('');
+    }
+        function closeResultModal(){ document.getElementById('resultModal').classList.remove('open'); }
+        document.getElementById('resultModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeResultModal(); });
+
     /* ── COMPLETION TRACKER ── */
    function cycleStatus(current){
     if(!current||current==='pending') return 'completed';
@@ -1639,13 +1711,14 @@ function filterStudentsByAssignment(){ applyFilters(); }
                 if(status !== map[activeStatusTab]) return null;
             }
             if(status==='completed') doneCount++;
-           const isOverdueA = a.expired || isOverdue(a.due);
+            const isPastDue = a.expired || isOverdue(a.due);
+            const isOverdueA = isPastDue && status !== 'completed';
            const icon  = status==='completed'?'✓':status==='incompleted'?'✕':'⏳';
            const color = status==='completed'?'var(--green)':status==='incompleted'?'var(--pink)':'var(--yellow)';
            const bg    = status==='completed'?'rgba(34,211,122,.08)':status==='incompleted'?'rgba(255,45,120,.08)':'rgba(255,228,77,.06)';
            const border= status==='completed'?'rgba(34,211,122,.2)':status==='incompleted'?'rgba(255,45,120,.2)':'rgba(255,228,77,.15)';
            const cls   = status==='completed'?'bp':status==='incompleted'?'bf':'gc';
-           return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:${bg};border:1px solid ${border};border-radius:9px;cursor:pointer;transition:all .18s;" onclick="${isOverdueA?`showAssignmentDetail(${a.id})`:`toggleCompletion(${s.id},${a.id})`}" title="${isOverdueA?'Expired — click to view results':'Click to toggle'}">
+           return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:${bg};border:1px solid ${border};border-radius:9px;cursor:pointer;transition:all .18s;" onclick="${isPastDue?`showAssignmentDetail(${a.id})`:`toggleCompletion(${s.id},${a.id})`}" title="${isPastDue?'Expired — click to view results':'Click to toggle'}">
                 <div>
                     <div style="font-size:12px;font-weight:600;color:var(--text);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.title}</div>
                     <div style="font-size:10px;color:${isOverdueA?'var(--pink)':'var(--muted)'};margin-top:2px;">${a.due?new Date(a.due).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'No due date'}${isOverdueA?' ⚠':''}</div>

@@ -1,9 +1,7 @@
 package com.test.AuthController;
 
-import com.test.Entity.LoginRequest;
-import com.test.Entity.Model;
-import com.test.Entity.StudentProfile;
-import com.test.Entity.User;
+import com.test.Entity.*;
+import com.test.Repository.AdminProfileRepository;
 import com.test.Repository.StudentProfileRepository;
 import com.test.Repository.UseRepository;
 import com.test.Repository.repository;
@@ -111,14 +109,41 @@ public class AuthControl {
     @Autowired
     private StudentProfileRepository profileRepo;
 
+    @Autowired
+    private AdminProfileRepository adminProfileRepo;
+
     @PostMapping("/profile")
     public ResponseEntity<?> saveProfile(@RequestBody StudentProfile profile) {
+
+        User user = repo.findByUsername(profile.getUsername()).orElse(null);
+        String role = (user != null) ? user.getRole() : "USER";
+
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            AdminProfile adminToSave = adminProfileRepo.findByUsername(profile.getUsername())
+                    .map(existing -> {
+                        existing.setDepartment(profile.getSection());
+                        if (existing.getStatus() == null) existing.setStatus("APPROVED");
+                        if (existing.getRole() == null) existing.setRole("ADMIN");
+                        return existing;
+                    })
+                    .orElseGet(() -> {
+                        AdminProfile a = new AdminProfile();
+                        a.setUsername(profile.getUsername());
+                        a.setDepartment(profile.getSection());
+                        a.setRole("ADMIN");
+                        a.setStatus("APPROVED");
+                        return a;
+                    });
+            AdminProfile savedAdmin = adminProfileRepo.save(adminToSave);
+            return ResponseEntity.ok(savedAdmin);
+        }
+
+
         StudentProfile toSave = profileRepo.findByUsername(profile.getUsername())
                 .map(existing -> {
                     existing.setFullName(profile.getFullName());
                     existing.setRollNumber(profile.getRollNumber());
                     existing.setSection(profile.getSection());
-
                     return existing;
                 })
                 .orElse(profile);
@@ -131,7 +156,7 @@ public class AuthControl {
             studentRepo.save(student);
         });
         studentRepo.findByUsername(profile.getUsername()).ifPresent(student -> {
-            if(student.getRollNumber() == null || student.getRollNumber().isEmpty()) {
+            if (student.getRollNumber() == null || student.getRollNumber().isEmpty()) {
                 student.setRollNumber(profile.getRollNumber());
                 studentRepo.save(student);
             }
@@ -142,7 +167,6 @@ public class AuthControl {
             student.setName(profile.getFullName());
             student.setUsername(profile.getUsername());
             student.setSection(profile.getSection());
-            student.setRollNumber(profile.getRollNumber());
             student.setRollNumber(profile.getRollNumber());
             student.setMarks(0);
             student.setResult("pending");

@@ -145,19 +145,18 @@
                 <div class="section active" id="dashSection">
 
                     <div class="metric-row">
-                        <div class="metric-hero stat-card sc-total">
+                        <div class="metric-hero stat-card sc-total" style="cursor:pointer" onclick="loadResultModal('all')">
                             <div class="sc-top"><div class="sc-icon">👥</div><div class="sc-label">Total students</div></div>
                             <div class="sc-num metric-hero-num" id="dashTotal">0</div>
                             <div class="sc-sub">Synced from backend</div>
                         </div>
-
                         <div class="metric-tiles">
-                            <div class="stat-card sc-passed">
+                            <div class="stat-card sc-passed" style="cursor:pointer" onclick="loadResultModal('pass')">
                                 <div class="sc-top"><div class="sc-icon">✓</div><div class="sc-label">Passed</div></div>
                                 <div class="sc-num" id="dashPassed">0</div>
                                 <div class="sc-highlight sc-highlight-signal" id="dashPassRate"></div>
                             </div>
-                            <div class="stat-card sc-failed">
+                            <div class="stat-card sc-failed" style="cursor:pointer" onclick="loadResultModal('fail')">
                                 <div class="sc-top"><div class="sc-icon">✕</div><div class="sc-label">Failed</div></div>
                                 <div class="sc-num" id="dashFailed">0</div>
                                 <div class="sc-highlight sc-highlight-alert" id="dashFailNote"></div>
@@ -167,7 +166,7 @@
                                 <div class="sc-num" id="dashAvg">0</div>
                                 <div class="sc-sub">out of 100</div>
                             </div>
-                            <div class="stat-card sc-violet">
+                            <div class="stat-card sc-violet" style="cursor:pointer" onclick="loadResultModal('active')">
                                 <div class="sc-top"><div class="sc-icon">⚡</div><div class="sc-label">Active students</div></div>
                                 <div class="sc-num sc-num-violet" id="dashActive">0</div>
                                 <div class="sc-sub" id="dashInactive"></div>
@@ -660,6 +659,14 @@
                                 <div id="adminProfName" class="detail-value">—</div>
                             </div>
                         </div>
+
+                        <div class="fg" style="margin-top:18px;max-width:320px;">
+                            <label>Department</label>
+                            <input type="text" id="adminProfDeptInput" placeholder="e.g. IT">
+                        </div>
+                        <div class="form-actions" style="margin-top:10px;">
+                            <button class="btn btn-primary" onclick="saveAdminProfile()">💾 Save Department</button>
+                        </div>
                         <p id="adminProfMsg" class="muted-note"></p>
                     </div>
                 </div>
@@ -759,6 +766,20 @@
         </div>
     </div>
 </div>
+
+<div class="modal-ov" id="resultModal">
+    <div class="modal" style="width:760px;max-width:95vw;">
+        <div class="mhdr"><h3 id="resultModalTitle">Students</h3><button class="mclose" onclick="closeResultModal()">✕</button></div>
+        <div class="table-shell table-shell-tall table-shell-scrollx">
+            <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Roll No</th><th>Marks</th><th>Section</th><th>Result</th><th>Status</th></tr></thead>
+                <tbody id="resultModalTable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════ PROFILE SETUP ════════════════════════ -->
 
 <!-- ════════════════════════ PROFILE SETUP ════════════════════════ -->
 <div id="profileSetupPage" class="centered-page" style="display:none;">

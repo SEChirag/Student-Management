@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -145,17 +146,7 @@ public class StudentController {
 
     @GetMapping("/profile")
     public ResponseEntity<AdminProfile> getProfile(Authentication auth) {
-        System.out.println("Logged user = " + auth.getName());
-
         Optional<AdminProfile> profile = adminProfileRepository.findByUsername(auth.getName());
-
-        System.out.println("Profile found = " + profile.isPresent());
-        AdminProfile add = new AdminProfile();
-        add.setUsername(add.getUsername());
-        add.setDepartment(add.getDepartment());
-        add.setRole(add.getRole());
-        add.setStatus(add.getStatus());
-
         return profile
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -164,6 +155,21 @@ public class StudentController {
     public List<AssignmentsList> getExpiredAssignments() {
         return service.getExpiredAssignments();
     }
+    @GetMapping("/failed")
+    public List<Model> failedStudents(){
+        return service.failedStudents();
+    }
+    @GetMapping("/pass")
+    public List<Model> passStudents(){
+        return service.passStudents();
+    }
+    @GetMapping("/Active")
+    public List<Model> ActiveStudents(){
+        return service.ActiveStudents();
+    }
+
+
+
 
 }
 

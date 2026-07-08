@@ -227,6 +227,19 @@ public class StudentService {
 
         return saved;
     }
+
+    public List<Model> failedStudents() {
+        return Repo.findAll().stream().filter(student -> student.getMarks() <35).toList();
+
+    }
+
+    public List<Model> passStudents() {
+        return Repo.findAll().stream().filter(student -> student.getMarks()>32).toList();
+    }
+
+    public List<Model> ActiveStudents() {
+        return Repo.findAll().stream().filter(student -> student.getStatus().equalsIgnoreCase("ACTIVE")).toList();
+    }
 }
 
 
