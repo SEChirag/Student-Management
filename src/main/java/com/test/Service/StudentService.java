@@ -1,21 +1,30 @@
 package com.test.Service;
 
 
+
 import com.test.Entity.AssignmentsList;
 import com.test.Entity.Model;
 import com.test.Entity.StudentAssignments;
+import com.test.Entity.User;
+import com.test.Event.StudentAccountCreateEvent;
 import com.test.Exceptions.StudentNotFoundException;
 import com.test.Repository.AssignmentRepo;
 import com.test.Repository.StudentAssignmentRepo;
+import com.test.Repository.UseRepository;
 import com.test.Repository.repository;
 
 
+import com.test.util.CredentialGenerator;
 import com.test.util.JwtUtil;
+import jakarta.transaction.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,15 +36,25 @@ public class StudentService {
     private final AssignmentRepo AssignmentRepo;
     private final StudentAssignmentRepo StudentAssignmentRepo;
 
+    private final UseRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final CredentialGenerator credentialGenerator;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public StudentService(repository Repo, JwtUtil jwtUtil, AssignmentRepo AssignmentRepo, StudentAssignmentRepo StudentAssignmentRepo) {
+    public StudentService(repository Repo, JwtUtil jwtUtil, AssignmentRepo AssignmentRepo, StudentAssignmentRepo StudentAssignmentRepo , UseRepository userRepository,
+                          CredentialGenerator credentialGenerator,ApplicationEventPublisher eventPublisher,PasswordEncoder passwordEncoder) {
         this.Repo = Repo;
         this.jwtUtil = jwtUtil;
         this.AssignmentRepo = AssignmentRepo;
         this.StudentAssignmentRepo = StudentAssignmentRepo;
+        this.userRepository=userRepository;
+        this.passwordEncoder=passwordEncoder;
+        this.credentialGenerator=credentialGenerator;
+        this.eventPublisher=eventPublisher;
     }
 
     public List<Model> getAllStudents() {
+
         return Repo.findAll();
     }
 
@@ -43,10 +62,10 @@ public class StudentService {
         return Repo.findByName(name);
     }
 
-    public Model addStudent(Model model) {
-        return Repo.save(model);
-
-    }
+//    public Model addStudent(Model model) {
+//        return Repo.save(model);
+//
+//    }
 
     public List<Model> updateStudent(List<Model> model) {
         return Repo.saveAll(model);
@@ -78,9 +97,12 @@ public class StudentService {
         }
         List<StudentAssignments> records = students.stream().map(student -> {
             StudentAssignments sa = new StudentAssignments();
-            sa.setStudentId(student.getId());
+            sa.setStudentId(saved.getStudentId());
             sa.setAssignmentId(saved.getId());
-            sa.setStatus("pending");
+            sa.setStatus(saved.getStatus());
+
+
+
             return sa;
         }).collect(Collectors.toList());
 
@@ -175,10 +197,38 @@ public class StudentService {
 
     public List<AssignmentsList> getAllassignments() {
 
-        return AssignmentRepo.findAll();
+        return AssignmentRepo.findByDueDateAfter(LocalDateTime.now());
+    }
+    public List<AssignmentsList> getExpiredAssignments() {
+        return AssignmentRepo.findByDueDateBefore(LocalDateTime.now());
     }
 
     public List<StudentAssignments> getAllStudentAssignments() {
         return StudentAssignmentRepo.findAll();
     }
+    @Transactional
+    public Model addStudent(Model model) {
+        String username = credentialGenerator.generateUsername(model.getName(), model.getRollNumber());
+        String tempPassword = credentialGenerator.generateTempPassword();
+
+        User studentUser = new User();
+        studentUser.setUsername(username);
+        studentUser.setPassword(passwordEncoder.encode(tempPassword));
+        studentUser.setRole("STUDENT");
+        studentUser.setStatus("APPROVED");
+        userRepository.save(studentUser);
+
+        model.setUser(studentUser);
+        model.setUsername(username);
+        Model saved = Repo.save(model);
+
+        eventPublisher.publishEvent(new StudentAccountCreateEvent(saved, tempPassword));
+
+
+        return saved;
+    }
 }
+
+
+
+

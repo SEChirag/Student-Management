@@ -1,11 +1,12 @@
 package com.test.Controller;
 
+
 import com.test.Entity.*;
 import com.test.Repository.AdminProfileRepository;
 import com.test.Repository.UseRepository;
 import com.test.Repository.repository;
 import com.test.Service.StudentService;
-import com.test.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,15 +23,13 @@ import java.util.Optional;
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class StudentController {
     private final StudentService service;
-    private UseRepository useRepository;
-    private repository Repo;
-    private JwtUtil jwtUtil;
-    private AdminProfileRepository adminProfileRepository;
+    private final UseRepository useRepository;
+    private final AdminProfileRepository adminProfileRepository;
+    @Autowired
+    repository Repo;
 
-    public StudentController(StudentService service, JwtUtil jwtUtil, repository repo, UseRepository useRepository, AdminProfileRepository adminProfileRepository) {
+    public StudentController(StudentService service, UseRepository useRepository, AdminProfileRepository adminProfileRepository) {
         this.service = service;
-        this.jwtUtil = jwtUtil;
-        this.Repo = repo;
         this.useRepository = useRepository;
         this.adminProfileRepository = adminProfileRepository;
     }
@@ -51,6 +50,8 @@ public class StudentController {
         String username = authentication.getName();
         User user = useRepository.findByUsername(username).orElseThrow();
         model.setUser(user);
+        model.setUsername(user.getUsername());
+
 
         return service.addStudent(model);
     }
@@ -146,8 +147,7 @@ public class StudentController {
     public ResponseEntity<AdminProfile> getProfile(Authentication auth) {
         System.out.println("Logged user = " + auth.getName());
 
-        Optional<AdminProfile> profile =
-                adminProfileRepository.findByUsername(auth.getName());
+        Optional<AdminProfile> profile = adminProfileRepository.findByUsername(auth.getName());
 
         System.out.println("Profile found = " + profile.isPresent());
         AdminProfile add = new AdminProfile();
@@ -160,6 +160,11 @@ public class StudentController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    @GetMapping("/assignments/expired")
+    public List<AssignmentsList> getExpiredAssignments() {
+        return service.getExpiredAssignments();
+    }
+
 }
 
 

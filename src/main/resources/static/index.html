@@ -3,52 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Institution — Student Dashboard</title>
+    <title>Campus — Student Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 
-<!-- ════ LOGIN ════ -->
+<div class="fx-grid" aria-hidden="true"></div>
+<div class="fx-orb fx-orb-a" aria-hidden="true"></div>
+<div class="fx-orb fx-orb-b" aria-hidden="true"></div>
+
+<!-- ════════════════════════ LOGIN ════════════════════════ -->
 <div id="loginPage">
     <div class="login-card" id="loginCard">
-        <div class="login-logo">
-            <div class="logo-icon">🎓</div>
+        <div class="login-logo"><div class="logo-icon">🎓</div></div>
+        <h1>Campus<span class="title-dot">.</span></h1>
+        <p class="login-sub">Sign in to continue</p>
+        <div class="inp-group"><label>Username</label>
+            <input type="text" id="username" placeholder="admin" autocomplete="off">
         </div>
-        <h1>Institution</h1>
-        <p class="login-sub"> sign in to continue</p>
-        <div class="inp-group"><label>Username</label><input type="text" id="username" placeholder="admin"
-                                                             autocomplete="off"></div>
-        <div class="inp-group"><label>Password</label><input type="password" id="password" placeholder="••••••••"
-                                                             onkeydown="if(event.key==='Enter')login()"></div>
-        <!--        <p class="login-hint">Demo: <code>admin</code> / <code>1234</code></p>-->
-        <button class="login-btn" id="loginBtn" onclick="login()">Sign In →</button>
+        <div class="inp-group"><label>Password</label>
+            <input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+        </div>
+        <button class="login-btn" id="loginBtn" onclick="login()"><span>Sign In</span><span class="btn-arrow">→</span></button>
         <p id="loginError"></p>
     </div>
-    <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted)">
-        No account? <span onclick="showRegister()" style="color:var(--cyan);cursor:pointer;font-weight:600">Register →</span>
+    <p class="auth-switch-line">
+        No account? <span onclick="showRegister()" class="auth-link">Register →</span>
     </p>
+
     <div class="login-card" id="registerCard" style="display:none">
-        <h1>Register</h1>
+        <h1>Register<span class="title-dot">.</span></h1>
         <p class="login-sub">Awaits Super Admin approval</p>
         <div class="inp-group"><label>Username</label><input type="text" id="regUsername" placeholder="yourname"></div>
         <div class="inp-group"><label>Password</label><input type="password" id="regPassword" placeholder="••••••••"></div>
         <div class="inp-group"><label>Role</label>
-            <select id="regRole" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--text)">
+            <select id="regRole">
                 <option value="USER">User</option>
                 <option value="ADMIN">Admin</option>
             </select>
         </div>
-        <button class="login-btn" onclick="register()">Submit for Approval →</button>
-        <p id="regMsg" style="text-align:center;font-size:13px;margin-top:12px;min-height:16px;color:var(--cyan)"></p>
-        <p style="text-align:center;margin-top:10px;font-size:13px;color:var(--muted)">
-            <span onclick="showLogin()" style="color:var(--cyan);cursor:pointer;font-weight:600">← Back to Login</span>
-        </p>
+        <button class="login-btn" onclick="register()"><span>Submit for Approval</span><span class="btn-arrow">→</span></button>
+        <p id="regMsg" class="auth-msg"></p>
+        <p class="auth-switch-line"><span onclick="showLogin()" class="auth-link">← Back to Login</span></p>
     </div>
 </div>
 
-<!-- ════ MAIN ════ -->
+<!-- ════════════════════════ MAIN (Admin) ════════════════════════ -->
 <div id="mainPage">
     <div class="app">
 
@@ -57,80 +61,49 @@
             <div class="sb-brand">
                 <div class="sb-logo">🎓</div>
                 <div class="sb-info">
-                    <div class="sb-name">Institution</div>
-                    <div class="sb-sub">v2.2 Admin</div>
+                    <div class="sb-name">Campus</div>
+                    <div class="sb-sub">v3 · Admin</div>
                 </div>
             </div>
 
-            <!-- OVERVIEW -->
             <div class="nav-section">
                 <div class="nav-label">Overview</div>
                 <button class="nav-btn active" onclick="showSection('dashSection',this)">
-                    <div class="nav-icon">⊞</div>
-                    Dashboard
+                    <div class="nav-icon">⊞</div>Dashboard
                 </button>
-
                 <button class="nav-btn" id="pendingNavBtn" style="display:none" onclick="showSection('pendingSection',this)">
-                    <div class="nav-icon">🔔</div>
-                    Pending Approvals
+                    <div class="nav-icon">🔔</div>Pending Approvals
                     <span class="nav-badge" id="pendingCount">0</span>
                 </button>
             </div>
 
-            <!-- STUDENTS -->
             <div class="nav-section">
                 <div class="nav-label">Students</div>
-                <button class="nav-btn" onclick="showSection('addSection',this)">
-                    <div class="nav-icon">✦</div>
-                    Add student
-                </button>
+                <button class="nav-btn" onclick="showSection('addSection',this)"><div class="nav-icon">✦</div>Add student</button>
                 <button class="nav-btn" onclick="showSection('viewSection',this)">
-                    <div class="nav-icon">👥</div>
-                    All students
+                    <div class="nav-icon">👥</div>All students
                     <span class="nav-badge" id="sideCount">0</span>
                 </button>
-                <button class="nav-btn" onclick="showSection('searchSection',this)">
-                    <div class="nav-icon">🔍</div>
-                    Search
-                </button>
-                <button class="nav-btn" onclick="showSection('reportSection',this)">
-                    <div class="nav-icon">📊</div>
-                    Student Report
-                </button>
+                <button class="nav-btn" onclick="showSection('searchSection',this)"><div class="nav-icon">🔍</div>Search</button>
+                <button class="nav-btn" onclick="showSection('reportSection',this)"><div class="nav-icon">📊</div>Student Report</button>
             </div>
 
-            <!-- ACADEMICS -->
             <div class="nav-section">
                 <div class="nav-label">Academics</div>
                 <button class="nav-btn" onclick="showSection('assignmentsPage',this)">
-                    <div class="nav-icon">📝</div>
-                    Assignments
+                    <div class="nav-icon">📝</div>Assignments
                     <span class="nav-badge" id="assignCount">0</span>
                 </button>
-                <button class="nav-btn" onclick="showSection('completionSection',this)">
-                    <div class="nav-icon">✅</div>
-                    Completion
-                </button>
-                <button class="nav-btn" onclick="showSection('gradeSection',this)">
-                    <div class="nav-icon">🎯</div>
-                    Grade calc
-                </button>
+                <button class="nav-btn" onclick="showSection('completionSection',this)"><div class="nav-icon">✅</div>Completion</button>
+                <button class="nav-btn" onclick="showSection('gradeSection',this)"><div class="nav-icon">🎯</div>Grade calc</button>
             </div>
 
-            <!-- INSIGHTS -->
             <div class="nav-section">
                 <div class="nav-label">Insights</div>
-                <button class="nav-btn" onclick="showSection('analyticsSection',this)">
-                    <div class="nav-icon">◈</div>
-                    Analytics
-                </button>
-                <button class="nav-btn" onclick="showSection('topSection',this)">
-                    <div class="nav-icon">🏆</div>
-                    Top performers
-                </button>
+                <button class="nav-btn" onclick="showSection('analyticsSection',this)"><div class="nav-icon">◈</div>Analytics</button>
+                <button class="nav-btn" onclick="showSection('topSection',this)"><div class="nav-icon">🏆</div>Top performers</button>
                 <button class="nav-btn" onclick="showSection('dupSection',this)">
-                    <div class="nav-icon">⧉</div>
-                    Duplicates
+                    <div class="nav-icon">⧉</div>Duplicates
                     <span class="nav-badge" id="dupCount">0</span>
                 </button>
             </div>
@@ -143,11 +116,9 @@
             </div>
 
             <div class="sb-footer">
-                <button class="nav-btn" onclick="showSection('profileSection',this)">
-                    <div class="nav-icon">👤</div>My Profile
-                </button>
+                <button class="nav-btn" onclick="showSection('profileSection',this)"><div class="nav-icon">👤</div>My Profile</button>
                 <button class="theme-toggle" onclick="toggleTheme()">
-                    <div class="nav-icon">☀️</div>
+                    <span class="theme-switch"><span class="theme-switch-knob">☀️</span></span>
                     <span id="themeLabel">Light mode</span>
                 </button>
             </div>
@@ -155,110 +126,75 @@
 
         <!-- MAIN -->
         <div class="main">
-
-            <!-- TOP BAR -->
             <div class="topbar">
                 <div class="topbar-left">
                     <div class="topbar-date" id="topbarDate"></div>
                     <h1 id="topbarGreeting">Good morning, Admin 👋</h1>
                 </div>
                 <div class="topbar-right">
-                    <div class="conn-pill" id="connPill">
-                        <div class="conn-dot"></div>
-                        <span id="connText">Checking…</span>
-                    </div>
+                    <div class="conn-pill" id="connPill"><div class="conn-dot"></div><span id="connText">Checking…</span></div>
                     <button class="tb-btn" onclick="exportCSV()"><span class="tb-btn-icon">⬇</span> Export</button>
                     <button class="tb-btn" onclick="logout()"><span class="tb-btn-icon">→</span> Logout</button>
                     <div class="topbar-dots">···</div>
                 </div>
             </div>
 
-            <!-- CONTENT -->
             <div class="content-area">
 
-                <!-- ── DASHBOARD HOME ── -->
+                <!-- ══ DASHBOARD HOME ══ -->
                 <div class="section active" id="dashSection">
-                    <!-- Stat cards -->
-                    <div class="dash-grid" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr;">
-                        <div class="stat-card sc-total">
-                            <div class="sc-top">
-                                <div class="sc-icon">👥</div>
-                                <div class="sc-label">Total students</div>
-                            </div>
-                            <div class="sc-num" id="dashTotal">0</div>
-                            <div class="sc-sub">from backend</div>
-                        </div>
-                        <div class="stat-card sc-passed">
-                            <div class="sc-top">
-                                <div class="sc-icon">✓</div>
-                                <div class="sc-label">Passed</div>
-                            </div>
-                            <div class="sc-num" id="dashPassed">0</div>
-                            <div class="sc-highlight" id="dashPassRate" style="color:var(--green)"></div>
-                        </div>
-                        <div class="stat-card sc-failed">
-                            <div class="sc-top">
-                                <div class="sc-icon">✕</div>
-                                <div class="sc-label">Failed</div>
-                            </div>
-                            <div class="sc-num" id="dashFailed">0</div>
-                            <div class="sc-highlight" style="color:var(--pink)" id="dashFailNote"></div>
-                        </div>
-                        <div class="stat-card sc-avg">
-                            <div class="sc-top">
-                                <div class="sc-icon">⭐</div>
-                                <div class="sc-label">Average marks</div>
-                            </div>
-                            <div class="sc-num" id="dashAvg">0</div>
-                            <div class="sc-sub">out of 100</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="sc-top">
-                                <div class="sc-icon" style="background:rgba(177,76,255,.12);">⚡</div>
-                                <div class="sc-label">Active students</div>
-                            </div>
-                            <div class="sc-num" id="dashActive" style="color:var(--purple)">0</div>
-                            <div class="sc-sub" id="dashInactive"></div>
-                        </div>
+
+                    <div class="metric-row">
+                        <div class="metric-hero stat-card sc-total">
+                            <div class="sc-top"><div class="sc-icon">👥</div><div class="sc-label">Total students</div></div>
+                            <div class="sc-num metric-hero-num" id="dashTotal">0</div>
+                            <div class="sc-sub">Synced from backend</div>
                         </div>
 
+                        <div class="metric-tiles">
+                            <div class="stat-card sc-passed">
+                                <div class="sc-top"><div class="sc-icon">✓</div><div class="sc-label">Passed</div></div>
+                                <div class="sc-num" id="dashPassed">0</div>
+                                <div class="sc-highlight sc-highlight-signal" id="dashPassRate"></div>
+                            </div>
+                            <div class="stat-card sc-failed">
+                                <div class="sc-top"><div class="sc-icon">✕</div><div class="sc-label">Failed</div></div>
+                                <div class="sc-num" id="dashFailed">0</div>
+                                <div class="sc-highlight sc-highlight-alert" id="dashFailNote"></div>
+                            </div>
+                            <div class="stat-card sc-avg">
+                                <div class="sc-top"><div class="sc-icon">⭐</div><div class="sc-label">Average marks</div></div>
+                                <div class="sc-num" id="dashAvg">0</div>
+                                <div class="sc-sub">out of 100</div>
+                            </div>
+                            <div class="stat-card sc-violet">
+                                <div class="sc-top"><div class="sc-icon">⚡</div><div class="sc-label">Active students</div></div>
+                                <div class="sc-num sc-num-violet" id="dashActive">0</div>
+                                <div class="sc-sub" id="dashInactive"></div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <!-- Bottom row: Quick actions + Grade dist -->
                     <div class="dash-bottom">
                         <div class="quick-actions-card">
                             <div class="qa-title">Quick actions</div>
                             <div class="qa-sub">Common tasks at a glance</div>
                             <div class="qa-grid">
-                                <button class="qa-btn"
-                                        onclick="showSection('addSection', document.querySelectorAll('.nav-btn')[1])">
+                                <button class="qa-btn" onclick="showSection('addSection', document.querySelectorAll('.nav-btn')[1])">
                                     <div class="qa-btn-icon">✦</div>
-                                    <div>
-                                        <div class="qa-btn-title">Add student</div>
-                                        <div class="qa-btn-sub">New enrollment</div>
-                                    </div>
+                                    <div><div class="qa-btn-title">Add student</div><div class="qa-btn-sub">New enrollment</div></div>
                                 </button>
-                                <button class="qa-btn"
-                                        onclick="showSection('assignmentsPage', document.querySelectorAll('.nav-btn')[4])">
+                                <button class="qa-btn" onclick="showSection('assignmentsPage', document.querySelectorAll('.nav-btn')[4])">
                                     <div class="qa-btn-icon">📝</div>
-                                    <div>
-                                        <div class="qa-btn-title">New assignment</div>
-                                        <div class="qa-btn-sub">Create &amp; assign</div>
-                                    </div>
+                                    <div><div class="qa-btn-title">New assignment</div><div class="qa-btn-sub">Create &amp; assign</div></div>
                                 </button>
-                                <button class="qa-btn"
-                                        onclick="showSection('analyticsSection', document.querySelectorAll('.nav-btn')[7])">
+                                <button class="qa-btn" onclick="showSection('analyticsSection', document.querySelectorAll('.nav-btn')[7])">
                                     <div class="qa-btn-icon">◈</div>
-                                    <div>
-                                        <div class="qa-btn-title">View analytics</div>
-                                        <div class="qa-btn-sub">Charts &amp; stats</div>
-                                    </div>
+                                    <div><div class="qa-btn-title">View analytics</div><div class="qa-btn-sub">Charts &amp; stats</div></div>
                                 </button>
                                 <button class="qa-btn" onclick="exportCSV()">
                                     <div class="qa-btn-icon">⬇</div>
-                                    <div>
-                                        <div class="qa-btn-title">Export CSV</div>
-                                        <div class="qa-btn-sub">Download data</div>
-                                    </div>
+                                    <div><div class="qa-btn-title">Export CSV</div><div class="qa-btn-sub">Download data</div></div>
                                 </button>
                             </div>
                         </div>
@@ -267,99 +203,102 @@
                             <div class="gd-title">Grade distribution</div>
                             <div class="gd-sub">Across all students</div>
                             <div id="dashGradeDist"></div>
-                            <div class="donut-wrap">
-                                <canvas id="dashDonut" width="160" height="160"></canvas>
+                            <div class="donut-wrap"><canvas id="dashDonut" width="160" height="160"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══ PENDING APPROVALS ══ -->
+                <div class="section" id="pendingSection">
+                    <div class="page-card">
+                        <div class="page-card-hdr">
+                            <div class="pch-icon pch-yellow">🔔</div>
+                            <div><h3>Pending Approvals</h3><p>Approve or reject new accounts</p></div>
+                        </div>
+
+                        <div class="data-toolbar">
+                            <div class="data-toolbar-actions">
+                                <button class="btn btn-outline" onclick="loadPending()">↻ Refresh</button>
+                            </div>
+                        </div>
+                        <div class="pill-row" id="userStats"></div>
+
+                        <div class="table-shell">
+                            <table>
+                                <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Actions</th></tr></thead>
+                                <tbody id="pendingTable">
+                                <tr><td colspan="4"><div class="empty"><div class="eico">🔔</div><p>No pending users</p></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="subpanel">
+                            <div class="subpanel-hdr">
+                                <div class="subpanel-title">All Registered Users</div>
+                                <div class="data-toolbar-actions">
+                                    <button class="sort-btn active" id="roleTab-all" onclick="setRoleTab('all')">All</button>
+                                    <button class="sort-btn" id="roleTab-USER" onclick="setRoleTab('USER')">Users</button>
+                                    <button class="sort-btn" id="roleTab-ADMIN" onclick="setRoleTab('ADMIN')">Admins</button>
+                                    <select id="statusFilterTab" onchange="renderAllUsersTable()" class="select-compact">
+                                        <option value="all">All Status</option>
+                                        <option value="APPROVED">Approved</option>
+                                        <option value="PENDING">Pending</option>
+                                        <option value="REJECTED">Rejected</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="table-shell">
+                                <table>
+                                    <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                                    <tbody id="allUsersTable"></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
 
-
-            <div class="section" id="pendingSection">
-                <div class="page-card">
-                    <div class="page-card-hdr">
-                        <div class="pch-icon pch-yellow">🔔</div>
-                        <div><h3>Pending Approvals</h3><p>Approve or reject new accounts</p></div>
-                    </div>
-                    <button class="btn btn-outline" onclick="loadPending()" style="margin-bottom:14px">↻ Refresh</button>
-                    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;" id="userStats"></div>
-                    <table>
-                        <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Actions</th></tr></thead>
-                        <tbody id="pendingTable">
-                        <tr><td colspan="4"><div class="empty"><div class="eico">🔔</div><p>No pending users</p></div></td></tr>
-                        </tbody>
-                    </table>
-                    <div style="margin-top:24px;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-                            <div style="font-size:13px;font-weight:600;color:var(--text)">All Registered Users</div>
-                            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-                                <button class="sort-btn active" id="roleTab-all"   onclick="setRoleTab('all')">All</button>
-                                <button class="sort-btn"        id="roleTab-USER"  onclick="setRoleTab('USER')" style="color:var(--cyan)">Users</button>
-                                <button class="sort-btn"        id="roleTab-ADMIN" onclick="setRoleTab('ADMIN')" style="color:var(--purple)">Admins</button>
-                                <select id="statusFilterTab" onchange="renderAllUsersTable()" style="width:auto;padding:4px 10px;font-size:12px;">
-                                    <option value="all">All Status</option>
-                                    <option value="APPROVED">Approved</option>
-                                    <option value="PENDING">Pending</option>
-                                    <option value="REJECTED">Rejected</option>
-                                </select>
-                            </div>
-                        </div>
-                        <table>
-                            <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
-                            <tbody id="allUsersTable"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-                <!-- ── ADD STUDENT ── -->
+                <!-- ══ ADD STUDENT ══ -->
                 <div class="section" id="addSection">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-cyan">✦</div>
-                            <div><h3>Add Student</h3>
-                                <p>Fill in the details below</p></div>
+                            <div><h3>Add Student</h3><p>Fill in the details below</p></div>
                         </div>
                         <div class="fgrid">
-                        <div class="fg"><label>Full Name *</label><input type="text" id="name" placeholder="e.g. Aryan Sharma"></div>
-                        <div class="fg"><label>Marks (0–100) *</label><input type="number" id="marks" placeholder="e.g. 85" min="0" max="100" oninput="autoResult()"></div>
-                        <div class="fg"><label>Section *</label><input type="text" id="section" placeholder="e.g. A"></div>
-                        <div class="fg"><label>Roll Number *</label><input type="text" id="rollNumber" placeholder="e.g. 2024CS001"></div>
-                        <div class="fg"><label>Link Username (optional)</label><input type="text" id="username_student" placeholder="e.g. student_username"></div>
-                        <div class="fg"><label>Status *</label><input type="text" id="Status" placeholder="e.g. Active"></div>
-                        <div class="fg"><label>Result <span style="color:var(--cyan);font-size:10px">(auto-set)</span></label>
-                            <select id="result">
-                                <option value="">Auto-detect</option>
-                                <option value="pass">Pass ✓</option>
-                                <option value="fail">Fail ✗</option>
-                            </select>
-                        </div>
-                        <div class="fg"><label>Subject / Notes</label><input type="text" id="subject" placeholder="e.g. Mathematics"></div>
-                        <div class="fg" style="align-self:end">
-                            <div id="gradePreview" style="padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;font-size:13px;color:var(--muted);">
-                                Grade preview here
+                            <div class="fg"><label>Full Name *</label><input type="text" id="name" placeholder="e.g. Aryan Sharma"></div>
+                            <div class="fg"><label>Marks (0–100) *</label><input type="number" id="marks" placeholder="e.g. 85" min="0" max="100" oninput="autoResult()"></div>
+                            <div class="fg"><label>Section *</label><input type="text" id="section" placeholder="e.g. A"></div>
+                            <div class="fg"><label>Roll Number *</label><input type="text" id="rollNumber" placeholder="e.g. 2024CS001"></div>
+                            <div class="fg"><label>Link Username (optional)</label><input type="text" id="username_student" placeholder="e.g. student_username"></div><div class="fg"><label>Email *</label><input type="text" id="student_email" placeholder="e.g. student@example.com"></div>
+                            <div class="fg"><label>Status *</label><input type="text" id="Status" placeholder="e.g. Active"></div>
+                            <div class="fg"><label>Result <span class="label-hint">(auto-set)</span></label>
+                                <select id="result">
+                                    <option value="">Auto-detect</option>
+                                    <option value="pass">Pass ✓</option>
+                                    <option value="fail">Fail ✗</option>
+                                </select>
                             </div>
+                            <div class="fg"><label>Subject / Notes</label><input type="text" id="subject" placeholder="e.g. Mathematics"></div>
+                            <div class="fg fg-preview"><div id="gradePreview" class="preview-box">Grade preview here</div></div>
                         </div>
-                    </div>
-                        <div style="display:flex;gap:9px;flex-wrap:wrap;">
+                        <div class="form-actions">
                             <button class="btn btn-primary" onclick="addStudent()">✦ Add Student</button>
                             <button class="btn btn-outline" onclick="clearForm()">↺ Clear</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- ── SEARCH ── -->
+                <!-- ══ SEARCH ══ -->
                 <div class="section" id="searchSection">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-purple">🔍</div>
-                            <div><h3>Search Student</h3>
-                                <p>Find by student name</p></div>
+                            <div><h3>Search Student</h3><p>Find by student name</p></div>
                         </div>
-                        <div style="display:flex;gap:9px;align-items:flex-end;flex-wrap:wrap;">
-                            <div class="fg" style="flex:1;min-width:130px;"><label>Student name</label>
+                        <div class="search-bar">
+                            <div class="fg search-bar-input"><label>Student name</label>
                                 <input type="text" id="searchName" placeholder="Enter student name …"
-                                       oninput="liveSearchStudents()"
-                                       onkeydown="if(event.key==='Enter')searchStudent()">
+                                       oninput="liveSearchStudents()" onkeydown="if(event.key==='Enter')searchStudent()">
                             </div>
                             <button class="btn btn-purple" onclick="searchStudent()">Search →</button>
                         </div>
@@ -367,38 +306,40 @@
                     </div>
                 </div>
 
-                <!-- ── ALL STUDENTS ── -->
+                <!-- ══ ALL STUDENTS ══ -->
                 <div class="section" id="viewSection">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-yellow">⊞</div>
-                            <div><h3>All Students</h3>
-                                <p id="viewSub">Ready</p></div>
+                            <div><h3>All Students</h3><p id="viewSub">Ready</p></div>
                         </div>
-                        <div class="exp-row">
-                            <button class="btn btn-outline" onclick="getStudents()">↻ Refresh</button>
-                            <button class="btn btn-green" onclick="exportCSV()">⬇ Export CSV</button>
-                            <button class="btn btn-purple btn-sm" onclick="exportJSON()">⬇ JSON</button>
-                            <button class="btn btn-danger btn-sm" onclick="confirmDeleteAll()">🗑 Delete All</button>
+
+                        <div class="data-toolbar">
+                            <div class="data-toolbar-actions">
+                                <button class="btn btn-outline" onclick="getStudents()">↻ Refresh</button>
+                                <button class="btn btn-green" onclick="exportCSV()">⬇ Export CSV</button>
+                                <button class="btn btn-purple btn-sm" onclick="exportJSON()">⬇ JSON</button>
+                                <button class="btn btn-danger btn-sm" onclick="confirmDeleteAll()">🗑 Delete All</button>
+                            </div>
+                            <div class="data-toolbar-filters">
+                                <input type="text" id="searchFilter" placeholder="🔍 Search by name…" oninput="applyFilters()">
+                                <select id="resultFilter" onchange="applyFilters()">
+                                    <option value="all">All Results</option>
+                                    <option value="pass">Pass Only</option>
+                                    <option value="fail">Fail Only</option>
+                                </select>
+                                <select id="sectionFilter" onchange="applyFilters()">
+                                    <option value="all">All Sections</option>
+                                </select>
+                                <select id="assignmentFilter" onchange="filterStudentsByAssignment()">
+                                    <option value="">All</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="incompleted">Incompleted</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="filt-row">
-                            <input type="text" id="searchFilter" placeholder="🔍 Search by name…"
-                                   oninput="applyFilters()">
-                            <select id="resultFilter" onchange="applyFilters()">
-                                <option value="all">All Results</option>
-                                <option value="pass">Pass Only</option>
-                                <option value="fail">Fail Only</option>
-                            </select>
-                            <select id="sectionFilter" onchange="applyFilters()">
-                                <option value="all">All Sections</option>
-                            </select>
-                            <select id="assignmentFilter" onchange="filterStudentsByAssignment()">
-                                <option value="">All</option>
-                                <option value="completed">Completed</option>
-                                <option value="incompleted">Incompleted</option>
-                                <option value="pending">Pending</option>
-                            </select>
-                        </div>
+
                         <div class="sort-row">
                             <span class="sort-lbl">Sort:</span>
                             <button class="sort-btn active" id="sortId" onclick="sortBy('id')">ID</button>
@@ -407,472 +348,381 @@
                             <button class="sort-btn" id="sortGrade" onclick="sortBy('grade')">Grade</button>
                             <button class="sort-btn" id="sortAssign" onclick="sortBy('assign')">Completion %</button>
                         </div>
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Roll No</th>
-                                <th>Marks</th>
-                                <th>Grade</th>
-                                <th>Section</th>
-                                <th>Results</th>
-                                <th>Status</th>
-                                <th>Operations</th>
-                            </tr>
-                            </thead>
-                            <tbody id="studentTable">
-                            <tr>
-                                <td colspan="8">
-                                    <div class="empty">
-                                        <div class="eico">📋</div>
-                                        <p>Click Refresh to load</p></div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+
+                        <div class="table-shell table-shell-tall">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>ID</th><th>Name</th><th>Roll No</th><th>Marks</th><th>Grade</th>
+                                    <th>Section</th><th>Results</th><th>Status</th><th>Operations</th>
+                                </tr>
+                                </thead>
+                                <tbody id="studentTable">
+                                <tr><td colspan="8"><div class="empty"><div class="eico">📋</div><p>Click Refresh to load</p></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <!-- ── ANALYTICS ── -->
+                <!-- ══ ANALYTICS ══ -->
                 <div class="section" id="analyticsSection">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-pink">◈</div>
-                            <div><h3>Analytics</h3>
-                                <p>Overview &amp; insights</p></div>
+                            <div><h3>Analytics</h3><p>Overview &amp; insights</p></div>
                         </div>
                         <div class="stats-grid">
-                            <div class="sc2 total">
-                                <div class="snum" id="totalStudents">0</div>
-                                <div class="slbl">Total Students</div>
-                            </div>
-                            <div class="sc2 passed">
-                                <div class="snum" id="passedStudents">0</div>
-                                <div class="slbl">Passed</div>
-                            </div>
-                            <div class="sc2 failed">
-                                <div class="snum" id="failedStudents">0</div>
-                                <div class="slbl">Failed</div>
-                            </div>
-                            <div class="sc2 avg">
-                                <div class="snum" id="avgMarks">0</div>
-                                <div class="slbl">Avg Marks</div>
-                            </div>
+                            <div class="sc2 total"><div class="snum" id="totalStudents">0</div><div class="slbl">Total Students</div></div>
+                            <div class="sc2 passed"><div class="snum" id="passedStudents">0</div><div class="slbl">Passed</div></div>
+                            <div class="sc2 failed"><div class="snum" id="failedStudents">0</div><div class="slbl">Failed</div></div>
+                            <div class="sc2 avg"><div class="snum" id="avgMarks">0</div><div class="slbl">Avg Marks</div></div>
                         </div>
-                        <div class="cwrap" style="margin-bottom:13px;">
+                        <div class="cwrap cwrap-wide">
                             <div class="ctitle">Grade Distribution</div>
                             <div id="gradeDist"></div>
                         </div>
                         <div class="charts-row">
-                            <div class="cwrap">
-                                <div class="ctitle">Pass vs Fail — Bar</div>
-                                <canvas id="barChart" height="140"></canvas>
+                            <div class="cwrap"><div class="ctitle">Pass vs Fail — Bar</div><canvas id="barChart" height="140"></canvas></div>
+                            <div class="cwrap"><div class="ctitle">Pass vs Fail — Donut</div><canvas id="donutChart" height="140"></canvas></div>
+                        </div>
+                        <div class="data-toolbar">
+                            <div class="data-toolbar-filters">
+                                <select id="filterSelect" onchange="filterStudents()">
+                                    <option value="all">All Students</option>
+                                    <option value="pass">Passed Only</option>
+                                    <option value="fail">Failed Only</option>
+                                </select>
                             </div>
-                            <div class="cwrap">
-                                <div class="ctitle">Pass vs Fail — Donut</div>
-                                <canvas id="donutChart" height="140"></canvas>
+                            <div class="data-toolbar-actions">
+                                <button class="btn btn-outline btn-sm" onclick="loadAnalytics()">↻ Refresh</button>
                             </div>
                         </div>
-                        <div class="filt-row">
-                            <select id="filterSelect" onchange="filterStudents()">
-                                <option value="all">All Students</option>
-                                <option value="pass">Passed Only</option>
-                                <option value="fail">Failed Only</option>
-                            </select>
-                            <button class="btn btn-outline btn-sm" onclick="loadAnalytics()">↻ Refresh</button>
+                        <div class="table-shell">
+                            <table>
+                                <thead><tr><th>ID</th><th>Name</th><th>Marks</th><th>Grade</th><th>Section</th><th>Result</th></tr></thead>
+                                <tbody id="filterTable"></tbody>
+                            </table>
                         </div>
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Marks</th>
-                                <th>Grade</th>
-                                <th>Section</th>
-                                <th>Result</th>
-                            </tr>
-                            </thead>
-                            <tbody id="filterTable"></tbody>
-                        </table>
                     </div>
                 </div>
 
-                <!-- ── TOP PERFORMERS ── -->
+                <!-- ══ TOP PERFORMERS ══ -->
                 <div class="section" id="topSection">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-yellow">🏆</div>
-                            <div><h3>Top Performers</h3>
-                                <p>Highest scoring students</p></div>
+                            <div><h3>Top Performers</h3><p>Highest scoring students</p></div>
                         </div>
-                        <div style="display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;">
+                        <div class="data-toolbar-filters" style="margin-bottom:16px;">
                             <select id="topCount" onchange="renderTop()">
                                 <option value="3">Top 3</option>
                                 <option value="5" selected>Top 5</option>
                                 <option value="10">Top 10</option>
                             </select>
-                            <select id="topSection2" onchange="renderTop()">
-                                <option value="all">All Sections</option>
-                            </select>
+                            <select id="topSection2" onchange="renderTop()"><option value="all">All Sections</option></select>
                         </div>
                         <div class="top-list" id="topList"></div>
                     </div>
                 </div>
 
-                <!-- ── GRADE CALCULATOR ── -->
+                <!-- ══ GRADE CALCULATOR ══ -->
                 <div class="section" id="gradeSection">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-green">🎯</div>
-                            <div><h3>Grade Calculator</h3>
-                                <p>Instant grade &amp; result checker</p></div>
+                            <div><h3>Grade Calculator</h3><p>Instant grade &amp; result checker</p></div>
                         </div>
                         <div class="fgrid">
-                            <div class="fg"><label>Student Name (optional)</label><input type="text" id="gcName"
-                                                                                         placeholder="null"></div>
-                            <div class="fg"><label>Marks (0–100)</label><input type="number" id="gcMarks"
-                                                                               placeholder="Enter marks" min="0"
-                                                                               max="100" oninput="calcGrade()"></div>
-                            <div class="fg"><label>Pass Threshold</label><input type="number" id="gcThreshold"
-                                                                                value="33" min="0" max="100"
-                                                                                oninput="calcGrade()"></div>
-                            <div class="fg"><label>Subject</label><input type="text" id="gcSubject"
-                                                                         placeholder="e.g. Physics"></div>
+                            <div class="fg"><label>Student Name (optional)</label><input type="text" id="gcName" placeholder="null"></div>
+                            <div class="fg"><label>Marks (0–100)</label><input type="number" id="gcMarks" placeholder="Enter marks" min="0" max="100" oninput="calcGrade()"></div>
+                            <div class="fg"><label>Pass Threshold</label><input type="number" id="gcThreshold" value="33" min="0" max="100" oninput="calcGrade()"></div>
+                            <div class="fg"><label>Subject</label><input type="text" id="gcSubject" placeholder="e.g. Physics"></div>
                         </div>
                         <div class="grade-display" id="gradeDisplay">
-                            <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+                            <div class="grade-display-row">
                                 <div>
                                     <div class="grade-big" id="gradeLetter">A</div>
                                     <div class="grade-desc" id="gradeDesc"></div>
                                 </div>
-                                <div style="flex:1;min-width:150px;">
-                                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-                                        <span style="font-size:12px;color:var(--muted);">Score</span>
-                                        <span id="gradeScoreTxt"
-                                              style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;"></span>
+                                <div class="grade-bar-col">
+                                    <div class="grade-bar-labels-top">
+                                        <span class="label-hint">Score</span>
+                                        <span id="gradeScoreTxt" class="grade-score-txt"></span>
                                     </div>
-                                    <div class="grade-bar">
-                                        <div class="grade-fill" id="gradeFill"></div>
-                                    </div>
-                                    <div style="display:flex;justify-content:space-between;margin-top:4px;">
-                                        <span style="font-size:10px;color:var(--muted);">0</span>
-                                        <span style="font-size:10px;color:var(--muted);">50</span>
-                                        <span style="font-size:10px;color:var(--muted);">100</span>
-                                    </div>
+                                    <div class="grade-bar"><div class="grade-fill" id="gradeFill"></div></div>
+                                    <div class="grade-bar-labels-bottom"><span>0</span><span>50</span><span>100</span></div>
                                 </div>
-                                <span id="gcBadge" class="badge" style="font-size:13px;padding:6px 15px;"></span>
+                                <span id="gcBadge" class="badge badge-lg"></span>
                             </div>
-                            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
-                                <div id="gcStudentName"
-                                     style="font-family:'Syne',sans-serif;font-size:12px;color:var(--muted);"></div>
-                                <div id="gcFeedback" style="font-size:13px;color:var(--muted);margin-top:3px;"></div>
+                            <div class="grade-display-foot">
+                                <div id="gcStudentName" class="grade-student-name"></div>
+                                <div id="gcFeedback" class="grade-feedback"></div>
                             </div>
                         </div>
-                        <div style="margin-top:18px;">
-                            <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px;">
-                                Grading Scale
-                            </div>
+                        <div class="scale-section">
+                            <div class="scale-heading">Grading Scale</div>
                             <div class="scale-grid" id="scaleGrid"></div>
                         </div>
                     </div>
                 </div>
-                <!-- ── ASSIGNMENTS ── -->
+
+                <!-- ══ ASSIGNMENTS ══ -->
                 <div class="section" id="assignmentsPage">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-green">📝</div>
-                            <div><h3>Assignments</h3>
-                                <p>Add and manage assignments</p></div>
+                            <div><h3>Assignments</h3><p>Add and manage assignments</p></div>
                         </div>
                         <div class="fgrid">
-                            <div class="fg"><label>Assignment Title *</label><input type="text" id="assignmentTitle"
-                                                                                    placeholder="e.g. Chapter 5 Summary"
-                                                                                    onkeydown="if(event.key==='Enter')addAssignment()">
+                            <div class="fg"><label>Assignment Title *</label>
+                                <input type="text" id="assignmentTitle" placeholder="e.g. Chapter 5 Summary" onkeydown="if(event.key==='Enter')addAssignment()">
                             </div>
-                            <div class="fg"><label>Description *</label><input type="text" id="assignmentDescription"
-                                                                               placeholder="e.g. Write a 2-page summary">
-                            </div>
+                            <div class="fg"><label>Description *</label><input type="text" id="assignmentDescription" placeholder="e.g. Write a 2-page summary"></div>
                             <div class="fg"><label>Due Date</label><input type="date" id="assignmentDue"></div>
-                            <div class="fg"><label>Subject / Class</label><input type="text" id="assignmentSubject"
-                                                                                 placeholder="e.g. Mathematics"></div>
+                            <div class="fg"><label>Subject / Class</label><input type="text" id="assignmentSubject" placeholder="e.g. Mathematics"></div>
                             <div class="fg"><label>Section *</label><input type="text" id="assignmentSectionInput" placeholder="e.g. A or ALL"></div>
-
                         </div>
-                        <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px;">
+                        <div class="form-actions form-actions-spaced">
                             <button class="btn btn-primary" onclick="addAssignment()">➕ Add Assignment</button>
                             <button class="btn btn-outline" onclick="loadAssignments()">↻ Refresh</button>
                         </div>
-                        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-                            <div style="padding:10px 16px;background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.18);border-radius:11px;font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--cyan);"
-                                 id="assignTotalNum">
-                                0 <span style="font-size:11px;color:var(--muted);font-weight:500;">Total</span>
-                            </div>
+                        <div class="metric-pill-row">
+                            <div class="metric-pill metric-pill-focus" id="assignTotalNum">0 <span>Total</span></div>
                         </div>
-                        <div class="filt-row">
-                            <input type="text" id="assignSearch" placeholder="🔍 Search assignments…" oninput="renderAssignments()">
-                            <select id="assignStatusFilter" onchange="filterAssignments()">
-                                <option value="all">All</option>
-                                <option value="completed">Completed</option>
-                                <option value="incompleted">Incompleted</option>
-                                <option value="pending">Pending</option>
-                            </select>
-                        </div>
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>ID</th><th>Assignments</th><th>Subjects</th><th>Description</th><th>Due Date</th><th>Section</th><th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody id="assignmentTable">
-                            <tr>
-                                <td colspan="6">
-                                    <div class="empty">
-                                        <div class="eico">📝</div>
-                                        <p>No assignments yet — add one above!</p></div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
 
-                    </div>
-                </div>
+                        <div class="data-toolbar">
+                            <div class="data-toolbar-filters">
+                                <input type="text" id="assignSearch" placeholder="🔍 Search assignments…" oninput="renderAssignments()">
+                                <select id="assignStatusFilter" onchange="filterAssignments()">
+                                    <option value="all">All</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="incompleted">Incompleted</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                            </div>
+                        </div>
 
-            <!-- ── COMPLETION TRACKER ── -->
-            <div class="section" id="completionSection">
-                    <div class="page-card">
-                        <div class="page-card-hdr">
-                            <div class="pch-icon pch-cyan">✅</div>
-                            <div><h3>Completion Tracker</h3>
-                                <p>Track which students completed which assignments</p></div>
+                        <div class="subpanel-hdr">
+                            <div class="subpanel-title">Active Assignments</div>
                         </div>
-                        <div id="completionStats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-                            <div style="padding:16px 20px;background:rgba(34,211,122,.06);border:1px solid rgba(34,211,122,.15);border-radius:12px;">
-                                <div style="font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">COMPLETED</div>
-                                <div id="statDone" style="font-size:32px;font-weight:800;color:var(--green);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
-                            </div>
-                            <div style="padding:16px 20px;background:rgba(255,228,77,.06);border:1px solid rgba(255,228,77,.15);border-radius:12px;">
-                                <div style="font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">PENDING</div>
-                                <div id="statPend" style="font-size:32px;font-weight:800;color:var(--yellow);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
-                            </div>
-                            <div style="padding:16px 20px;background:rgba(255,45,120,.06);border:1px solid rgba(255,45,120,.15);border-radius:12px;">
-                                <div style="font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">MISSED</div>
-                                <div id="statMissed" style="font-size:32px;font-weight:800;color:var(--pink);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
-                            </div>
-                        </div>
-                        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
-                            <div id="sectionTabs" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
-                            <div style="width:1px;height:24px;background:var(--border);margin:0 4px;"></div>
-                            <div id="statusTabs" style="display:flex;gap:6px;">
-                                <button class="assign-tab active" id="stab-all" onclick="setStatusTab('all')">All</button>
-                                <button class="assign-tab" id="stab-done" onclick="setStatusTab('done')" style="color:var(--green);border-color:rgba(34,211,122,.3)">Completed</button>
-                                <button class="assign-tab" id="stab-pending" onclick="setStatusTab('pending')" style="color:var(--yellow);border-color:rgba(255,228,77,.3)">Pending</button>
-                                <button class="assign-tab" id="stab-missed" onclick="setStatusTab('missed')" style="color:var(--pink);border-color:rgba(255,45,120,.3)">Missed</button>
-                            </div>
-                            <button class="btn btn-outline btn-sm" onclick="refreshCompletion()" style="margin-left:auto;">↻ Refresh</button>
-                            <!-- keep these hidden for JS compatibility -->
-                            <input type="text" id="compStudentSearch" style="display:none;" oninput="renderCompletionTable()">
-                            <select id="compAssignFilter" style="display:none;" onchange="renderCompletionTable()">
-                                <option value="all">All Assignments</option>
-                            </select>
-                        </div>
-                        <div style="overflow-x:auto;">
-                            <table id="completionTable">
-                                <thead id="completionHead"></thead>
-                                <tbody id="completionBody">
-                                <tr>
-                                    <td colspan="3">
-                                        <div class="empty">
-                                            <div class="eico">✅</div>
-                                            <p>Add students and assignments to track</p></div>
-                                    </td>
-                                </tr>
+                        <div class="table-shell">
+                            <table>
+                                <thead><tr><th>ID</th><th>Assignments</th><th>Subjects</th><th>Description</th><th>Due Date</th><th>Section</th><th>Actions</th></tr></thead>
+                                <tbody id="assignmentTable">
+                                <tr><td colspan="6"><div class="empty"><div class="eico">📝</div><p>No assignments yet — add one above!</p></div></td></tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div style="margin-top:12px;font-size:12px;color:var(--muted);">
-                            💡 Click the checkbox to toggle: <strong style="color:var(--green)">✓ Done</strong> → <strong
-                                style="color:var(--yellow)">⏳ Pending</strong> → <strong style="color:var(--pink)">✕
-                            Missed</strong>
+
+                        <div class="subpanel">
+                            <div class="subpanel-hdr">
+                                <div class="subpanel-title">Expired Assignments</div>
+                                <div class="data-toolbar-actions">
+                                    <button class="btn btn-outline btn-sm" onclick="loadExpiredAssignments()">↻ Refresh</button>
+                                </div>
+                            </div>
+                            <div class="table-shell">
+                                <table>
+                                    <thead><tr><th>ID</th><th>Assignments</th><th>Subjects</th><th>Due Date</th><th>Section</th></tr></thead>
+                                    <tbody id="expiredAssignmentTable">
+                                    <tr><td colspan="5"><div class="empty"><div class="eico">⏰</div><p>No expired assignments</p></div></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            <div class="section" id="reportSection">
-                <div class="page-card">
-                    <div class="page-card-hdr">
-                        <div class="pch-icon pch-purple">📊</div>
-                        <div><h3>Student Report</h3><p>Per student assignment summary</p></div>
+
+                <!-- ══ COMPLETION TRACKER ══ -->
+                <div class="section" id="completionSection">
+                    <div class="page-card">
+                        <div class="page-card-hdr">
+                            <div class="pch-icon pch-cyan">✅</div>
+                            <div><h3>Completion Tracker</h3><p>Track which students completed which assignments</p></div>
+                        </div>
+
+                        <div class="pill-trio" id="completionStats">
+                            <div class="pill-trio-item pill-trio-signal">
+                                <div class="pill-trio-label">Completed</div>
+                                <div id="statDone" class="pill-trio-num">0</div>
+                            </div>
+                            <div class="pill-trio-item pill-trio-warn">
+                                <div class="pill-trio-label">Pending</div>
+                                <div id="statPend" class="pill-trio-num">0</div>
+                            </div>
+                            <div class="pill-trio-item pill-trio-alert">
+                                <div class="pill-trio-label">Missed</div>
+                                <div id="statMissed" class="pill-trio-num">0</div>
+                            </div>
+                        </div>
+
+                        <div class="data-toolbar">
+                            <div class="data-toolbar-filters" id="sectionTabs"></div>
+                            <div class="toolbar-divider"></div>
+                            <div class="data-toolbar-filters" id="statusTabs">
+                                <button class="assign-tab active" id="stab-all" onclick="setStatusTab('all')">All</button>
+                                <button class="assign-tab tab-signal" id="stab-done" onclick="setStatusTab('done')">Completed</button>
+                                <button class="assign-tab tab-warn" id="stab-pending" onclick="setStatusTab('pending')">Pending</button>
+                                <button class="assign-tab tab-alert" id="stab-missed" onclick="setStatusTab('missed')">Missed</button>
+                            </div>
+                            <div class="data-toolbar-actions" style="margin-left:auto;">
+                                <button class="btn btn-outline btn-sm" onclick="refreshCompletion()">↻ Refresh</button>
+                            </div>
+                            <input type="text" id="compStudentSearch" class="visually-hidden-control" oninput="renderCompletionTable()">
+                            <select id="compAssignFilter" class="visually-hidden-control" onchange="renderCompletionTable()">
+                                <option value="all">All Assignments</option>
+                            </select>
+                        </div>
+
+                        <div class="table-shell table-shell-scrollx">
+                            <table id="completionTable">
+                                <thead id="completionHead"></thead>
+                                <tbody id="completionBody">
+                                <tr><td colspan="3"><div class="empty"><div class="eico">✅</div><p>Add students and assignments to track</p></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="hint-line">
+                            💡 Click the checkbox to toggle: <strong class="hint-signal">✓ Done</strong> → <strong class="hint-warn">⏳ Pending</strong> → <strong class="hint-alert">✕ Missed</strong>
+                        </div>
                     </div>
-                    <button class="btn btn-outline" onclick="loadAssignmentReport()" style="margin-bottom:14px;">↻ Refresh</button>
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>ID</th><th>Student</th><th>Section</th>
-                            <th>Completed</th><th>Pending</th><th>Incompleted</th><th>Total</th>
-                        </tr>
-                        </thead>
-                        <tbody id="assignmentReportTable">
-                        <tr><td colspan="7"><div class="empty"><div class="eico">📊</div><p>Click Refresh to load</p></div></td></tr>
-                        </tbody>
-                    </table>
                 </div>
-            </div>
-                <!-- ── DUPLICATES ── -->
+
+                <!-- ══ STUDENT REPORT ══ -->
+                <div class="section" id="reportSection">
+                    <div class="page-card">
+                        <div class="page-card-hdr">
+                            <div class="pch-icon pch-purple">📊</div>
+                            <div><h3>Student Report</h3><p>Per student assignment summary</p></div>
+                        </div>
+                        <div class="data-toolbar">
+                            <div class="data-toolbar-actions"><button class="btn btn-outline" onclick="loadAssignmentReport()">↻ Refresh</button></div>
+                        </div>
+                        <div class="table-shell">
+                            <table>
+                                <thead><tr><th>ID</th><th>Student</th><th>Section</th><th>Completed</th><th>Pending</th><th>Incompleted</th><th>Total</th></tr></thead>
+                                <tbody id="assignmentReportTable">
+                                <tr><td colspan="7"><div class="empty"><div class="eico">📊</div><p>Click Refresh to load</p></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══ DUPLICATES ══ -->
                 <div class="section" id="dupSection">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-purple">⧉</div>
-                            <div><h3>Duplicate Students</h3>
-                                <p>Find and clean up students sharing the same name</p></div>
+                            <div><h3>Duplicate Students</h3><p>Find and clean up students sharing the same name</p></div>
                         </div>
                         <div class="dup-banner" id="dupBanner">
                             <span class="dtxt" id="dupBannerTxt"></span>
-                            <button class="btn btn-danger btn-sm" onclick="confirmDeleteDupes()">🗑 Delete All
-                                Duplicates
-                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="confirmDeleteDupes()">🗑 Delete All Duplicates</button>
                         </div>
-                        <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px;">
-                            <button class="btn btn-outline" onclick="findDuplicates()">↻ Scan for Duplicates</button>
+                        <div class="data-toolbar">
+                            <div class="data-toolbar-actions"><button class="btn btn-outline" onclick="findDuplicates()">↻ Scan for Duplicates</button></div>
                         </div>
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Marks</th>
-                                <th>Section</th>
-                                <th>Result</th>
-                            </tr>
-                            </thead>
-                            <tbody id="dupTable">
-                            <tr>
-                                <td colspan="5">
-                                    <div class="empty">
-                                        <div class="eico">⧉</div>
-                                        <p>Click "Scan for Duplicates" to check</p></div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        <div class="table-shell">
+                            <table>
+                                <thead><tr><th>ID</th><th>Name</th><th>Marks</th><th>Section</th><th>Result</th></tr></thead>
+                                <tbody id="dupTable">
+                                <tr><td colspan="5"><div class="empty"><div class="eico">⧉</div><p>Click "Scan for Duplicates" to check</p></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <!-- ── MY PROFILE ── -->
+
+                <!-- ══ MY PROFILE (admin) ══ -->
                 <div class="section" id="profileSection">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-purple">👤</div>
                             <div><h3>My Profile</h3><p>Your account details</p></div>
                         </div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;">
-                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
-                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Username</div>
-                                <div id="adminProfUsername" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                        <div class="detail-grid">
+                            <div class="detail-tile">
+                                <div class="detail-label">Username</div>
+                                <div id="adminProfUsername" class="detail-value">—</div>
                             </div>
-                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
-                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Role</div>
-                                <div id="adminProfRole" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                            <div class="detail-tile">
+                                <div class="detail-label">Role</div>
+                                <div id="adminProfRole" class="detail-value">—</div>
                             </div>
-                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
-                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Status</div>
-                                <div id="adminProfStatus" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                            <div class="detail-tile">
+                                <div class="detail-label">Status</div>
+                                <div id="adminProfStatus" class="detail-value">—</div>
                             </div>
-                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
-                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Logged In As</div>
-                                <div id="adminProfName" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
+                            <div class="detail-tile">
+                                <div class="detail-label">Logged In As</div>
+                                <div id="adminProfName" class="detail-value">—</div>
                             </div>
                         </div>
-                        <p id="adminProfMsg" style="margin-top:12px;font-size:13px;color:var(--muted);min-height:16px;"></p>
+                        <p id="adminProfMsg" class="muted-note"></p>
                     </div>
                 </div>
+
             </div><!-- /content-area -->
         </div><!-- /main -->
     </div><!-- /app -->
 </div><!-- /mainPage -->
 
-    <!-- ASSIGNMENT DETAIL DRAWER -->
-    <div id="assignDrawerOverlay" onclick="closeAssignDrawer()" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:900;display:none;"></div>
-<div id="assignDrawer" style="
-  position:fixed;top:50%;left:50%;width:480px;max-width:95vw;max-height:85vh;
-background:var(--surface);border:1px solid var(--border);border-radius:18px;
-z-index:901;transform:translate(-50%,-60%);opacity:0;pointer-events:none;
-transition:transform 0.32s cubic-bezier(.16,1,.3,1),opacity 0.28s ease;
-display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,0.6);">
+<!-- ════════════════════════ ASSIGNMENT DETAIL DRAWER ════════════════════════ -->
+<div id="assignDrawerOverlay" onclick="closeAssignDrawer()" class="drawer-overlay"></div>
+<div id="assignDrawer" class="drawer-panel">
 
-        <!-- Header -->
-        <div style="padding:20px 22px 16px;border-bottom:1px solid var(--border);flex-shrink:0;">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-                <div>
-                    <div style="font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px;">Assignment Detail</div>
-                    <div id="drawerTitle" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:700;line-height:1.2;"></div>
-                    <div id="drawerMeta" style="font-size:12px;color:var(--muted);margin-top:4px;"></div>
-                </div>
-                <button onclick="closeAssignDrawer()" style="flex-shrink:0;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.07);border:none;color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+    <div class="drawer-head">
+        <div class="drawer-head-row">
+            <div>
+                <div class="drawer-eyebrow">Assignment Detail</div>
+                <div id="drawerTitle" class="drawer-title"></div>
+                <div id="drawerMeta" class="drawer-meta"></div>
             </div>
-
-            <!-- Progress bar -->
-            <div style="margin-top:14px;">
-                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px;">
-                    <span>Completion rate</span>
-                    <span id="drawerPct" style="font-weight:700;color:var(--cyan)">0%</span>
-                </div>
-                <div style="height:6px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;">
-                    <div id="drawerPctBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),#00c9a0);border-radius:100px;transition:width 0.8s cubic-bezier(.4,0,.2,1);"></div>
-                </div>
-            </div>
+            <button onclick="closeAssignDrawer()" class="drawer-close">✕</button>
         </div>
-
-        <!-- Stat pills -->
-        <div style="padding:14px 22px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;">
-            <div style="flex:1;padding:10px;background:rgba(34,211,122,.08);border:1px solid rgba(34,211,122,.2);border-radius:10px;text-align:center;">
-                <div id="drawerDone" style="font-size:22px;font-weight:800;color:var(--green);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
-                <div style="font-size:10px;color:var(--muted);margin-top:1px;">Completed</div>
+        <div class="drawer-progress">
+            <div class="drawer-progress-labels">
+                <span>Completion rate</span>
+                <span id="drawerPct" class="drawer-progress-pct">0%</span>
             </div>
-            <div style="flex:1;padding:10px;background:rgba(255,228,77,.08);border:1px solid rgba(255,228,77,.2);border-radius:10px;text-align:center;">
-                <div id="drawerPend" style="font-size:22px;font-weight:800;color:var(--yellow);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
-                <div style="font-size:10px;color:var(--muted);margin-top:1px;">Pending</div>
-            </div>
-            <div style="flex:1;padding:10px;background:rgba(255,45,120,.08);border:1px solid rgba(255,45,120,.2);border-radius:10px;text-align:center;">
-                <div id="drawerInc" style="font-size:22px;font-weight:800;color:var(--pink);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
-                <div style="font-size:10px;color:var(--muted);margin-top:1px;">Incompleted</div>
-            </div>
-            <div style="flex:1;padding:10px;background:rgba(177,76,255,.08);border:1px solid rgba(177,76,255,.2);border-radius:10px;text-align:center;">
-                <div id="drawerTotal" style="font-size:22px;font-weight:800;color:var(--purple);font-family:'Plus Jakarta Sans',sans-serif;">0</div>
-                <div style="font-size:10px;color:var(--muted);margin-top:1px;">Total</div>
-            </div>
+            <div class="drawer-progress-track"><div id="drawerPctBar" class="drawer-progress-fill"></div></div>
         </div>
-
-        <!-- Tabs -->
-        <div style="padding:12px 22px 0;display:flex;gap:6px;flex-shrink:0;">
-            <button onclick="switchDrawerTab('completed')" id="dtab-completed" class="assign-tab active">✓ Completed</button>
-            <button onclick="switchDrawerTab('pending')"   id="dtab-pending"   class="assign-tab">⏳ Pending</button>
-            <button onclick="switchDrawerTab('incompleted')" id="dtab-incompleted" class="assign-tab">✕ Incompleted</button>
-        </div>
-
-        <!-- Student list -->
-        <div id="drawerStudentList" style="flex:1;overflow-y:auto;padding:12px 22px 22px;display:flex;flex-direction:column;gap:6px;"></div>
     </div>
 
-<!-- EDIT STUDENT MODAL -->
+    <div class="drawer-stats">
+        <div class="drawer-stat drawer-stat-signal"><div id="drawerDone" class="drawer-stat-num">0</div><div class="drawer-stat-lbl">Completed</div></div>
+        <div class="drawer-stat drawer-stat-warn"><div id="drawerPend" class="drawer-stat-num">0</div><div class="drawer-stat-lbl">Pending</div></div>
+        <div class="drawer-stat drawer-stat-alert"><div id="drawerInc" class="drawer-stat-num">0</div><div class="drawer-stat-lbl">Incompleted</div></div>
+        <div class="drawer-stat drawer-stat-violet"><div id="drawerTotal" class="drawer-stat-num">0</div><div class="drawer-stat-lbl">Total</div></div>
+    </div>
+
+    <div class="drawer-tabs">
+        <button onclick="switchDrawerTab('completed')" id="dtab-completed" class="assign-tab active">✓ Completed</button>
+        <button onclick="switchDrawerTab('pending')" id="dtab-pending" class="assign-tab">⏳ Pending</button>
+        <button onclick="switchDrawerTab('incompleted')" id="dtab-incompleted" class="assign-tab">✕ Incompleted</button>
+    </div>
+
+    <div id="drawerStudentList" class="drawer-list"></div>
+</div>
+
+<!-- ════════════════════════ MODALS ════════════════════════ -->
 <div class="modal-ov" id="editModal">
+
     <div class="modal">
-        <div class="mhdr"><h3>✎ Edit Student</h3>
-            <button class="mclose" onclick="closeModal()">✕</button>
-        </div>
+        <div class="mhdr"><h3>✎ Edit Student</h3><button class="mclose" onclick="closeModal()">✕</button></div>
         <input type="hidden" id="editId">
         <div class="mgrid">
             <div class="fg"><label>Full Name</label><input type="text" id="editName"></div>
-            <div class="fg"><label>Marks</label><input type="number" id="editMarks" min="0" max="100"
-                                                       oninput="editAutoRes()"></div>
+            <div class="fg"><label>Marks</label><input type="number" id="editMarks" min="0" max="100" oninput="editAutoRes()"></div>
             <div class="fg"><label>Section</label><input type="text" id="editSection"></div>
-            <div class="fg"><label>Result</label><select id="editResult">
-                <option value="pass">Pass ✓</option>
-                <option value="fail">Fail ✗</option>
-            </select></div>
+            <div class="fg"><label>Email</label><input type="text" id="editStudentEmail"></div>
+            <div class="fg"><label>Result</label>
+                <select id="editResult"><option value="pass">Pass ✓</option><option value="fail">Fail ✗</option></select>
+            </div>
             <div class="fg"><label>Status</label>
-                <select id="editStatus">
-                    <option value="Active">Active ✓</option>
-                    <option value="Inactive">Inactive ✗</option>
-                </select>
+                <select id="editStatus"><option value="Active">Active ✓</option><option value="Inactive">Inactive ✗</option></select>
             </div>
         </div>
         <div class="mact">
@@ -882,28 +732,20 @@ display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 80px rgba(0
     </div>
 </div>
 
-<!-- CONFIRM MODAL -->
 <div class="modal-ov" id="confirmModal">
-    <div class="modal" style="width:400px;">
-        <div class="mhdr"><h3 id="confirmTitle">⚠️ Are you sure?</h3>
-            <button class="mclose" onclick="closeConfirmModal()">✕</button>
-        </div>
-        <p id="confirmBody" style="color:var(--muted);font-size:13px;margin-bottom:18px;">This action cannot be
-            undone.</p>
+    <div class="modal modal-narrow">
+        <div class="mhdr"><h3 id="confirmTitle">⚠️ Are you sure?</h3><button class="mclose" onclick="closeConfirmModal()">✕</button></div>
+        <p id="confirmBody" class="modal-body-text">This action cannot be undone.</p>
         <div class="mact">
             <button class="btn btn-outline" onclick="closeConfirmModal()">Cancel</button>
-            <button class="btn btn-danger" id="confirmActionBtn" style="padding:10px 18px;font-size:13px;">Delete
-            </button>
+            <button class="btn btn-danger" id="confirmActionBtn" style="padding:10px 18px;font-size:13px;">Delete</button>
         </div>
     </div>
 </div>
 
-<!-- EDIT ASSIGNMENT MODAL -->
 <div class="modal-ov" id="editAssignModal">
     <div class="modal">
-        <div class="mhdr"><h3>✎ Edit Assignment</h3>
-            <button class="mclose" onclick="closeAssignModal()">✕</button>
-        </div>
+        <div class="mhdr"><h3>✎ Edit Assignment</h3><button class="mclose" onclick="closeAssignModal()">✕</button></div>
         <input type="hidden" id="editAssignId">
         <div class="mgrid">
             <div class="fg"><label>Title</label><input type="text" id="editAssignTitle"></div>
@@ -918,179 +760,124 @@ display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 80px rgba(0
     </div>
 </div>
 
-
-<!-- ════ PROFILE SETUP PAGE ════ -->
-<div id="profileSetupPage" style="display:none;height:100vh;align-items:center;
-    justify-content:center;background:var(--bg);flex-direction:column;gap:12px;">
+<!-- ════════════════════════ PROFILE SETUP ════════════════════════ -->
+<div id="profileSetupPage" class="centered-page" style="display:none;">
     <div class="login-card" style="width:420px;">
         <div class="login-logo"><div class="logo-icon">🎓</div></div>
         <h1 style="text-align:center;margin-bottom:4px;">Set Up Your Profile</h1>
         <p class="login-sub">One-time setup before accessing your portal</p>
-        <div class="inp-group"><label>Full Name</label>
-            <input type="text" id="psFullName" placeholder="e.g. Aryan Sharma"></div>
-        <div class="inp-group"><label>Roll Number</label>
-            <input type="text" id="psRollNumber" placeholder="e.g. 2024CS001"></div>
+        <div class="inp-group"><label>Full Name</label><input type="text" id="psFullName" placeholder="e.g. Aryan Sharma"></div>
+        <div class="inp-group"><label>Roll Number</label><input type="text" id="psRollNumber" placeholder="e.g. 2024CS001"></div>
         <div class="inp-group"><label>Section</label>
-            <input type="text" id="psSection" placeholder="e.g. A"
-                   onkeydown="if(event.key==='Enter')submitProfile()"></div>
+            <input type="text" id="psSection" placeholder="e.g. A" onkeydown="if(event.key==='Enter')submitProfile()">
+        </div>
         <button class="login-btn" onclick="submitProfile()">Save & Continue →</button>
-        <p id="psMsg" style="text-align:center;font-size:13px;margin-top:10px;min-height:16px;"></p>
-        <p style="text-align:center;margin-top:10px;font-size:13px;color:var(--muted)">
-            <span onclick="logout()" style="color:var(--pink);cursor:pointer;font-weight:600">← Logout</span>
-        </p>
+        <p id="psMsg" class="auth-msg"></p>
+        <p class="auth-switch-line"><span onclick="logout()" class="auth-link auth-link-alert">← Logout</span></p>
     </div>
 </div>
 
-<!-- ════ STUDENT PORTAL ════ -->
+<!-- ════════════════════════ STUDENT PORTAL ════════════════════════ -->
 <div id="studentPortalPage" style="display:none;">
     <div class="app">
-        <!-- Student Sidebar -->
         <div class="sidebar">
             <div class="sb-brand">
                 <div class="sb-logo">🎓</div>
-                <div class="sb-info">
-                    <div class="sb-name">My Portal</div>
-                    <div class="sb-sub" id="spSectionBadge">Student</div>
-                </div>
+                <div class="sb-info"><div class="sb-name">My Portal</div><div class="sb-sub" id="spSectionBadge">Student</div></div>
             </div>
             <div class="nav-section">
                 <div class="nav-label">My Academics</div>
-                <button class="nav-btn active" onclick="spShowSection('spHomeSection',this)">
-                    <div class="nav-icon">⊞</div>Home
-                </button>
-                <button class="nav-btn" onclick="spShowSection('spAssignSection',this)">
-                    <div class="nav-icon">📝</div>My Assignments
-                </button>
-                <button class="nav-btn" onclick="spShowSection('spGradesSection',this)">
-                    <div class="nav-icon">🎯</div>My Grades
-                </button>
+                <button class="nav-btn active" onclick="spShowSection('spHomeSection',this)"><div class="nav-icon">⊞</div>Home</button>
+                <button class="nav-btn" onclick="spShowSection('spAssignSection',this)"><div class="nav-icon">📝</div>My Assignments</button>
+                <button class="nav-btn" onclick="spShowSection('spGradesSection',this)"><div class="nav-icon">🎯</div>My Grades</button>
             </div>
             <div class="sb-footer">
-                <button class="nav-btn" onclick="spShowSection('spProfileSection',this)">
-                    <div class="nav-icon">👤</div>My Profile
-                </button>
+                <button class="nav-btn" onclick="spShowSection('spProfileSection',this)"><div class="nav-icon">👤</div>My Profile</button>
                 <button class="theme-toggle" onclick="toggleTheme()">
-                    <div class="nav-icon">☀️</div>
-                    <span>Light mode</span>
+                    <span class="theme-switch"><span class="theme-switch-knob">☀️</span></span><span>Light mode</span>
                 </button>
-                <button class="theme-toggle" onclick="logout()" style="color:var(--pink);margin-top:4px;">
-                    <div class="nav-icon">→</div>Logout
-                </button>
+                <button class="theme-toggle theme-toggle-alert" onclick="logout()"><div class="nav-icon">→</div>Logout</button>
             </div>
         </div>
 
-        <!-- Student Main -->
         <div class="main">
             <div class="topbar">
-                <div class="topbar-left">
-                    <div class="topbar-date" id="spDate"></div>
-                    <h1 id="spGreeting">Welcome 👋</h1>
-                </div>
-                <div class="topbar-right">
-                    <div class="conn-pill">
-                        <div class="conn-dot"></div><span id="spSub">Student Portal</span>
-                    </div>
-                </div>
+                <div class="topbar-left"><div class="topbar-date" id="spDate"></div><h1 id="spGreeting">Welcome 👋</h1></div>
+                <div class="topbar-right"><div class="conn-pill"><div class="conn-dot"></div><span id="spSub">Student Portal</span></div></div>
             </div>
 
             <div class="content-area">
 
-                <!-- Home -->
                 <div class="section active" id="spHomeSection">
-                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;">
+                    <div class="sp-metric-row">
                         <div class="stat-card">
-                            <div class="sc-top"><div class="sc-icon" style="background:rgba(34,211,122,.12)">✓</div>
-                                <div class="sc-label">Completed</div></div>
-                            <div class="sc-num" id="spDone" style="color:var(--green)">0</div>
+                            <div class="sc-top"><div class="sc-icon sc-icon-signal">✓</div><div class="sc-label">Completed</div></div>
+                            <div class="sc-num sc-num-signal" id="spDone">0</div>
                         </div>
                         <div class="stat-card">
-                            <div class="sc-top"><div class="sc-icon" style="background:rgba(255,228,77,.1)">⏳</div>
-                                <div class="sc-label">Pending</div></div>
-                            <div class="sc-num" id="spPending" style="color:var(--yellow)">0</div>
+                            <div class="sc-top"><div class="sc-icon sc-icon-warn">⏳</div><div class="sc-label">Pending</div></div>
+                            <div class="sc-num sc-num-warn" id="spPending">0</div>
                         </div>
                         <div class="stat-card">
-                            <div class="sc-top"><div class="sc-icon" style="background:rgba(255,45,120,.1)">✕</div>
-                                <div class="sc-label">Missed</div></div>
-                            <div class="sc-num" id="spMissed" style="color:var(--pink)">0</div>
+                            <div class="sc-top"><div class="sc-icon sc-icon-alert">✕</div><div class="sc-label">Missed</div></div>
+                            <div class="sc-num sc-num-alert" id="spMissed">0</div>
                         </div>
                     </div>
-                    <!-- Grade card -->
-                    <div class="page-card" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
-                        <div style="text-align:center;min-width:80px;">
-                            <div id="spGrade" class="grade-big" style="font-size:52px;">—</div>
-                            <div style="font-size:11px;color:var(--muted);margin-top:4px;">My Grade</div>
+                    <div class="page-card sp-grade-card">
+                        <div class="sp-grade-badge-col">
+                            <div id="spGrade" class="grade-big">—</div>
+                            <div class="sp-grade-caption">My Grade</div>
                         </div>
-                        <div style="flex:1;">
-                            <div style="font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;"
-                                 id="spMarks">—</div>
-                            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Marks</div>
-                            <div style="margin-top:10px;">
-                                <span id="spResult" class="badge bp">—</span>
-                            </div>
+                        <div class="sp-marks-col">
+                            <div id="spMarks" class="sp-marks-num">—</div>
+                            <div class="sp-marks-caption">Marks</div>
+                            <div class="sp-result-row"><span id="spResult" class="badge bp">—</span></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Assignments -->
                 <div class="section" id="spAssignSection">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-green">📝</div>
-                            <div><h3>My Assignments</h3>
-                                <p>Click any assignment to toggle your status</p></div>
+                            <div><h3>My Assignments</h3><p>Click any assignment to toggle your status</p></div>
                         </div>
-                        <div style="display:flex;flex-direction:column;gap:8px;" id="spAssignList">
+                        <div class="sp-assign-list" id="spAssignList">
                             <div class="empty"><div class="eico">📝</div><p>Loading…</p></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Grades -->
                 <div class="section" id="spGradesSection">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-yellow">🎯</div>
                             <div><h3>My Grades</h3><p>Your academic performance</p></div>
                         </div>
-                        <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:12px 0;">
-                            <div style="text-align:center;">
-                                <div id="spGrade2" class="grade-big" style="font-size:64px;">—</div>
-                            </div>
+                        <div class="sp-grade-detail-row">
+                            <div id="spGrade2" class="grade-big sp-grade-big-lg">—</div>
                             <div>
-                                <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">Score</div>
-                                <div style="font-size:32px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;"
-                                     id="spMarks2">—</div>
-                                <div style="margin-top:8px;"><span id="spResult2" class="badge bp">—</span></div>
+                                <div class="label-hint">Score</div>
+                                <div id="spMarks2" class="sp-marks-num-lg">—</div>
+                                <div class="sp-result-row"><span id="spResult2" class="badge bp">—</span></div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Profile -->
+
                 <div class="section" id="spProfileSection">
                     <div class="page-card">
                         <div class="page-card-hdr">
                             <div class="pch-icon pch-purple">👤</div>
                             <div><h3>My Profile</h3><p>Your registered details</p></div>
                         </div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;">
-                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
-                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Full Name</div>
-                                <div id="profFullName" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
-                            </div>
-                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
-                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Username</div>
-                                <div id="profUsername" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
-                            </div>
-                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
-                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Roll Number</div>
-                                <div id="profRollNumber" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
-                            </div>
-                            <div style="padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;">
-                                <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Section</div>
-                                <div id="profSection" style="font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">—</div>
-                            </div>
+                        <div class="detail-grid">
+                            <div class="detail-tile"><div class="detail-label">Full Name</div><div id="profFullName" class="detail-value">—</div></div>
+                            <div class="detail-tile"><div class="detail-label">Username</div><div id="profUsername" class="detail-value">—</div></div>
+                            <div class="detail-tile"><div class="detail-label">Roll Number</div><div id="profRollNumber" class="detail-value">—</div></div>
+                            <div class="detail-tile"><div class="detail-label">Section</div><div id="profSection" class="detail-value">—</div></div>
                         </div>
-                        <p id="profMsg" style="margin-top:12px;font-size:13px;color:var(--muted);min-height:16px;"></p>
+                        <p id="profMsg" class="muted-note"></p>
                     </div>
                 </div>
 
@@ -1098,80 +885,67 @@ display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 80px rgba(0
         </div>
     </div>
 </div>
-<!-- ════ SUPER ADMIN PAGE ════ -->
-<div id="superAdminPage" style="display:none;min-height:100vh;background:var(--bg);flex-direction:column;">
 
-    <!-- Topbar -->
-    <div style="background:var(--surface);border-bottom:1px solid var(--border);
-      padding:14px 24px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:38px;height:38px;background:linear-gradient(135deg,#2563eb,#7c3aed);
-          border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🎓</div>
+<!-- ════════════════════════ SUPER ADMIN PAGE ════════════════════════ -->
+<div id="superAdminPage" class="super-page" style="display:none;">
+
+    <div class="super-topbar">
+        <div class="super-brand">
+            <div class="super-brand-icon">🎓</div>
             <div>
-                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;">Super Admin</div>
-                <div style="font-size:11px;color:var(--muted);">User Approval Panel</div>
+                <div class="super-brand-name">Super Admin</div>
+                <div class="super-brand-sub">User Approval Panel</div>
             </div>
         </div>
         <button class="tb-btn" onclick="logout()"><span class="tb-btn-icon">→</span> Logout</button>
     </div>
 
-    <!-- Content -->
-    <div style="padding:24px;max-width:900px;margin:0 auto;width:100%;">
+    <div class="super-content">
+        <div class="pill-row" id="saUserStats"></div>
 
-        <!-- Stats row -->
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;" id="saUserStats"></div>
-
-        <!-- Pending Approvals -->
-        <div class="page-card" style="margin-bottom:16px;">
+        <div class="page-card">
             <div class="page-card-hdr">
                 <div class="pch-icon pch-yellow">🔔</div>
-                <div>
-                    <h3>Pending Approvals</h3>
-                    <p>Approve or reject new account requests</p>
-                </div>
-                <button class="btn btn-outline btn-sm" onclick="loadSuperAdminPage()"
-                        style="margin-left:auto;">↻ Refresh</button>
+                <div><h3>Pending Approvals</h3><p>Approve or reject new account requests</p></div>
+                <button class="btn btn-outline btn-sm super-refresh-btn" onclick="loadSuperAdminPage()">↻ Refresh</button>
             </div>
-            <table>
-                <thead>
-                <tr><th>ID</th><th>Username</th><th>Role</th><th>Actions</th></tr>
-                </thead>
-                <tbody id="saPendingTable">
-                <tr><td colspan="4">
-                    <div class="empty"><div class="eico">🔔</div><p>No pending users</p></div>
-                </td></tr>
-                </tbody>
-            </table>
+            <div class="table-shell">
+                <table>
+                    <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Actions</th></tr></thead>
+                    <tbody id="saPendingTable">
+                    <tr><td colspan="4"><div class="empty"><div class="eico">🔔</div><p>No pending users</p></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- All Users -->
-        <!-- All Users -->
         <div class="page-card">
             <div class="page-card-hdr">
                 <div class="pch-icon pch-purple">👥</div>
                 <div><h3>All Users</h3><p>Manage registered accounts</p></div>
             </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
-                <button class="sort-btn active" id="saRoleTab-all"   onclick="setSaRoleTab('all')">All</button>
-                <button class="sort-btn"        id="saRoleTab-USER"  onclick="setSaRoleTab('USER')" style="color:var(--cyan)">Users</button>
-                <button class="sort-btn"        id="saRoleTab-ADMIN" onclick="setSaRoleTab('ADMIN')" style="color:var(--purple)">Admins</button>
-                <select id="saStatusFilter" onchange="renderSaUsersTable()" style="width:auto;padding:4px 10px;font-size:12px;">
+            <div class="data-toolbar-filters" style="margin-bottom:14px;">
+                <button class="sort-btn active" id="saRoleTab-all" onclick="setSaRoleTab('all')">All</button>
+                <button class="sort-btn" id="saRoleTab-USER" onclick="setSaRoleTab('USER')">Users</button>
+                <button class="sort-btn" id="saRoleTab-ADMIN" onclick="setSaRoleTab('ADMIN')">Admins</button>
+                <select id="saStatusFilter" onchange="renderSaUsersTable()" class="select-compact">
                     <option value="all">All Status</option>
                     <option value="APPROVED">Approved</option>
                     <option value="PENDING">Pending</option>
                     <option value="REJECTED">Rejected</option>
                 </select>
             </div>
-            <table>
-                <thead>
-                <tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr>
-                </thead>
-                <tbody id="saAllUsersTable"></tbody>
-            </table>
+            <div class="table-shell">
+                <table>
+                    <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="saAllUsersTable"></tbody>
+                </table>
+            </div>
         </div>
-
     </div>
 </div>
+
 <script src="../js/script.js"></script>
+
 </body>
 </html>

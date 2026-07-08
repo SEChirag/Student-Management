@@ -21,17 +21,21 @@ public class Model {
     private String section;
     private String result;
     private String status;
+    private String assignments;
+
 
 
     @Column(unique = true)
     private String rollNumber;
-    @Getter
-    @Setter
-    private String assignments;
 
 
-    @ManyToOne
     @Getter
     @Setter
+    @OneToOne
+    @JoinColumn(name = "user_id")
     private  User user;
+
+    @Column(nullable = false)
+    private String email;
+
 }

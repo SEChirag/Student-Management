@@ -355,7 +355,7 @@ async function loadAdminProfile() {
   if(isDemo) showToast('Offline demo mode','warn');
   checkBackend();
 if(loggedInUser === 'superadmin') {
-  document.querySelector('.app').style.display = 'none';
+  document.getElementById('mainPage').style.display = 'none';
   document.getElementById('superAdminPage').style.display = 'flex';
   loadSuperAdminPage();
   return;
@@ -534,18 +534,18 @@ function renderStudentAssignments(assigns, myMap) {
   }).join('');
 }
 
-async function studentToggle(assignId, el) {
-  const cur  = el.dataset.status || 'pending';
-  const next = cur==='pending'?'completed':cur==='completed'?'incompleted':'pending';
-  try {
-    await fetch(`http://localhost:8081/student/toggle/${assignId}?status=${next}`, {
-      method: 'PATCH', headers: authHeaders()
-    });
-    // Reload
-    const profile = JSON.parse(localStorage.getItem('studentProfile'));
-    await loadStudentAssignments(profile);
-  } catch(e) { showToast('Update failed','warn'); }
-}
+//async function studentToggle(assignId, el) {
+//  const cur  = el.dataset.status || 'pending';
+//  const next = cur==='pending'?'completed':cur==='completed'?'incompleted':'pending';
+//  try {
+//    await fetch(`http://localhost:8081/student/toggle/${assignId}?status=${next}`, {
+//      method: 'PATCH', headers: authHeaders()
+//    });
+//    // Reload
+//    const profile = JSON.parse(localStorage.getItem('studentProfile'));
+//    await loadStudentAssignments(profile);
+//  } catch(e) { showToast('Update failed','warn'); }
+//}
 
 async function loadStudentMarks(profile) {
   try {
@@ -599,12 +599,13 @@ async function loadStudentMarks(profile) {
       if(id==='topSection')        getStudents().then(renderTop);
       if(id==='completionSection') refreshCompletion();
       if(id==='gradeSection')      buildScaleGrid();
-      if(id==='assignmentsPage') loadAssignments();
       if(id==='reportSection') loadAssignmentReport();
       if(id==='dupSection')        findDuplicates();
       if(id==='pendingSection') loadPending();
        if(id==='profileSection')    loadAdminProfile();
        if(id==='searchSection') getStudents();
+         if(id==='assignmentsPage') { loadAssignments(); loadExpiredAssignments(); }
+
     }
 
     /* ── DASHBOARD HOME ── */
@@ -662,6 +663,44 @@ async function loadAssignments(){
   updateAssignCount();
   renderAssignments();
   loadAssignmentReport();
+}
+let expiredAssignments = []; // ← ADD near top with other globals (e.g. next to `let assignments = [];`)
+
+async function loadExpiredAssignments(){
+  try{
+    const res = await fetch(`${BASE_URL}/assignments/expired`, {headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    expiredAssignments = data.map(a=>({
+      id: a.id,
+      title: a.assignments || a.title,
+      subject: a.subjects || a.subject || '—',
+      due: a.dueDate ? a.dueDate.split('T')[0] : null,
+      section: a.section || '—',
+      expired: true
+    }));
+    renderExpiredAssignments(expiredAssignments);
+  }catch(e){
+    document.getElementById('expiredAssignmentTable').innerHTML =
+      `<tr><td colspan="5"><div class="empty"><div class="eico">⏰</div><p>Failed to load</p></div></td></tr>`;
+  }
+}
+function allTrackedAssignments(){
+  return [...assignments, ...expiredAssignments];
+}
+function renderExpiredAssignments(data){
+  const tb = document.getElementById('expiredAssignmentTable');
+  if(!data.length){
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="eico">⏰</div><p>No expired assignments</p></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = data.map(a => `<tr>
+    <td><strong>#${a.id}</strong></td>
+    <td><strong style="cursor:pointer;color:var(--cyan)" onclick="showAssignmentDetail(${a.id})">${a.title}</strong> <span class="badge bf">Expired</span></td>
+    <td>${a.subject}</td>
+    <td>${a.due ? new Date(a.due).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
+    <td>${a.section}</td>
+  </tr>`).join('');
 }
 
 function renderAssignments(){
@@ -736,7 +775,7 @@ function renderStudentAssignmentTable(data){
       }
     }
     function editAutoRes(){ const m=parseInt(document.getElementById('editMarks').value); if(!isNaN(m)) document.getElementById('editResult').value=m>=33?'pass':'fail'; }
-    function clearForm(){ ['name','marks','section','subject','rollNumber','Status'].forEach(id=>document.getElementById(id).value=''); document.getElementById('result').value=''; document.getElementById('gradePreview').innerHTML='Grade preview here'; }
+    function clearForm(){ ['name','marks','section','subject','rollNumber','Status','student_email'].forEach(id=>document.getElementById(id).value=''); document.getElementById('result').value=''; document.getElementById('gradePreview').innerHTML='Grade preview here'; }
 
     /* ── ADD STUDENT ── */
    async function addStudent(){
@@ -746,13 +785,14 @@ function renderStudentAssignmentTable(data){
   const status=document.getElementById('Status').value.trim();
   const subject=document.getElementById('subject').value.trim();
   const rollNumber=document.getElementById('rollNumber').value.trim(); // ← ADD
+  const email=document.getElementById('student_email').value.trim();
   let result=document.getElementById('result').value;
-if(!name||!marks||!section||!document.getElementById('rollNumber').value.trim()){
+if(!name||!marks||!section||!document.getElementById('rollNumber').value.trim() ||!email){
     showToast('Fill all required fields including Roll Number','warn'); return;
 }
   if(!result) result=parseInt(marks)>=33?'pass':'fail';
 const username = document.getElementById('username_student')?.value.trim() || null;
-const payload = {name, marks:parseInt(marks), section, result, status:status||'Active', subject:subject||'', rollNumber:rollNumber||null, username};
+const payload = {name, marks:parseInt(marks), section, result, status:status||'Active', subject:subject||'', rollNumber:rollNumber||null, username,email};
   try{
     const res=await fetch(`${BASE_URL}/add`,{method:'POST',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify(payload)});
     if(!res.ok) throw new Error();
@@ -820,15 +860,15 @@ async function filterAssignments(){
   }catch(e){ showToast('Failed to filter','warn'); }
 }
     /* ── FILTERS ── */
-    function getStudentAssignSummary(studentId){
-      if(!assignments.length) return{done:0,pending:0,missed:0,total:0,pct:0};
-      const map=completionMap[studentId]||{};
-      let done=0,missed=0;
-      assignments.forEach(a=>{ const st=map[a.id]||'pending'; if(st==='done')done++; else if(st==='missed')missed++; });
-      const total=assignments.length, pending=total-done-missed, pct=total?Math.round(done/total*100):0;
-      return{done,pending,missed,total,pct};
-    }
-
+  function getStudentAssignSummary(studentId){
+        const all = allTrackedAssignments();
+        if(!all.length) return{done:0,pending:0,missed:0,total:0,pct:0};
+        const map=completionMap[studentId]||{};
+        let done=0,missed=0;
+        all.forEach(a=>{const st=map[a.id]||'pending'; if(st==='completed')done++; else if(st==='incompleted')missed++; });
+        const total=all.length, pending=total-done-missed, pct=total?Math.round(done/total*100):0;
+        return{done,pending,missed,total,pct};
+      }
     function applyFilters(){
       const srch=document.getElementById('searchFilter')?.value.toLowerCase()||'';
       const res=document.getElementById('resultFilter')?.value||'all';
@@ -1017,6 +1057,7 @@ function renderSearchResults(students, box) {
       document.getElementById('editName').value=s.name;
       document.getElementById('editMarks').value=s.marks;
       document.getElementById('editSection').value=s.section;
+      document.getElementById('editStudentEmail').value=s.email||'';
       document.getElementById('editResult').value=s.result||'pass';
       document.getElementById('editStatus').value= s.status || 'Active';
       document.getElementById('editModal').classList.add('open');
@@ -1030,6 +1071,7 @@ async function saveEdit() {
   const name = document.getElementById('editName').value.trim();
   const marks = parseInt(document.getElementById('editMarks').value);
   const section = document.getElementById('editSection').value.trim();
+  const email = document.getElementById('editStudentEmail').value.trim();
   const result = document.getElementById('editResult').value;
   const status = document.getElementById('editStatus').value;
 
@@ -1316,16 +1358,34 @@ async function updateAssignment(id, status){
 }
 
 async function toggleCompletion(studentId, assignId){
+    console.log('toggleCompletion called', studentId, assignId);
+    const assign = allTrackedAssignments().find(a => a.id === assignId);
+    console.log('found assign:', assign);
+    if(assign && assign.expired){
+        showToast('Cannot change status — assignment expired','warn');
+        console.log('BLOCKED — expired');
+        return;
+    }
+
+
     if(!completionMap[studentId]) completionMap[studentId]={};
     const cur = completionMap[studentId][assignId]||'pending';
     const next = cycleStatus(cur);
+    const prev = cur;
     completionMap[studentId][assignId] = next;
 
     try{
-        await fetch(`${BASE_URL}/updateAssignments/${studentId}?assignmentId=${assignId}&status=${next}`, {
+        const res = await fetch(`${BASE_URL}/updateAssignments/${studentId}?assignmentId=${assignId}&status=${next}`, {
             method:'PATCH', headers:authHeaders()
         });
-    }catch(e){ showToast('Update failed','warn'); }
+        if(!res.ok){
+            completionMap[studentId][assignId] = prev;
+            showToast('Cannot update — assignment expired','warn');
+        }
+    }catch(e){
+        completionMap[studentId][assignId] = prev;
+        showToast('Update failed','warn');
+    }
 
     await loadAssignmentReport();
     renderCompletionTable();
@@ -1346,7 +1406,7 @@ async function toggleCompletion(studentId, assignId){
 async function refreshCompletion(){
     await getStudents();
     await loadAssignments();
-
+ await loadExpiredAssignments();
     try{
         const res = await fetch(`${BASE_URL}/StuentAssignment/all`, {headers:authHeaders()});
         if(res.ok){
@@ -1416,7 +1476,7 @@ let drawerActiveTab = 'completed';
 let drawerData = { completed:[], pending:[], incompleted:[] };
 
 function showAssignmentDetail(assignId){
-  const assign = assignments.find(a => a.id === assignId);
+  const assign = allTrackedAssignments().find(a => a.id === assignId);
   if(!assign) return;
   drawerAssignId = assignId;
   drawerData = { completed:[], pending:[], incompleted:[] };
@@ -1537,7 +1597,7 @@ function filterStudentsByAssignment(){ applyFilters(); }
     if(studentSearch) filteredStudents = filteredStudents.filter(s => s.name.toLowerCase().includes(studentSearch));
 
     const activeAssigns = assignFilter === 'all'
-        ? assignments
+        ? allTrackedAssignments()
         : assignments.filter(a => String(a.id) === String(assignFilter));
 
     // Recount stats for visible students only
@@ -1579,13 +1639,13 @@ function filterStudentsByAssignment(){ applyFilters(); }
                 if(status !== map[activeStatusTab]) return null;
             }
             if(status==='completed') doneCount++;
-            const isOverdueA = isOverdue(a.due);
-            const icon  = status==='completed'?'✓':status==='incompleted'?'✕':'⏳';
-            const color = status==='completed'?'var(--green)':status==='incompleted'?'var(--pink)':'var(--yellow)';
-            const bg    = status==='completed'?'rgba(34,211,122,.08)':status==='incompleted'?'rgba(255,45,120,.08)':'rgba(255,228,77,.06)';
-            const border= status==='completed'?'rgba(34,211,122,.2)':status==='incompleted'?'rgba(255,45,120,.2)':'rgba(255,228,77,.15)';
-            const cls   = status==='completed'?'bp':status==='incompleted'?'bf':'gc';
-            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:${bg};border:1px solid ${border};border-radius:9px;cursor:pointer;transition:all .18s;" onclick="toggleCompletion(${s.id},${a.id})" title="Click to toggle">
+           const isOverdueA = a.expired || isOverdue(a.due);
+           const icon  = status==='completed'?'✓':status==='incompleted'?'✕':'⏳';
+           const color = status==='completed'?'var(--green)':status==='incompleted'?'var(--pink)':'var(--yellow)';
+           const bg    = status==='completed'?'rgba(34,211,122,.08)':status==='incompleted'?'rgba(255,45,120,.08)':'rgba(255,228,77,.06)';
+           const border= status==='completed'?'rgba(34,211,122,.2)':status==='incompleted'?'rgba(255,45,120,.2)':'rgba(255,228,77,.15)';
+           const cls   = status==='completed'?'bp':status==='incompleted'?'bf':'gc';
+           return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:${bg};border:1px solid ${border};border-radius:9px;cursor:pointer;transition:all .18s;" onclick="${isOverdueA?`showAssignmentDetail(${a.id})`:`toggleCompletion(${s.id},${a.id})`}" title="${isOverdueA?'Expired — click to view results':'Click to toggle'}">
                 <div>
                     <div style="font-size:12px;font-weight:600;color:var(--text);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.title}</div>
                     <div style="font-size:10px;color:${isOverdueA?'var(--pink)':'var(--muted)'};margin-top:2px;">${a.due?new Date(a.due).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'No due date'}${isOverdueA?' ⚠':''}</div>
@@ -1808,6 +1868,219 @@ function setSaRoleTab(role) {
     document.getElementById('saRoleTab-' + role).classList.add('active');
     renderSaUsersTable();
 }
+/* ══════════════════════════════════════════════════════════
+   UI ENHANCEMENTS — purely additive "game HUD" layer.
+   Never redefines functions used by script.js (login, logout,
+   showSection, etc). Only observes the DOM and layers visual
+   feedback on top of whatever script.js already does.
+   ══════════════════════════════════════════════════════════ */
+(function () {
+  "use strict";
+
+  var REDUCE_MOTION = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- helpers ---------- */
+  function on(el, evt, sel, handler) {
+    el.addEventListener(evt, function (e) {
+      var t = e.target.closest(sel);
+      if (t && el.contains(t)) handler(t, e);
+    }, true);
+  }
+
+  /* ---------- 1. RIPPLE ON CLICK ---------- */
+  var RIPPLE_SEL = ".btn,.nav-btn,.qa-btn,.tb-btn,.sort-btn,.assign-tab,.theme-toggle,.login-btn";
+  on(document, "click", RIPPLE_SEL, function (target, e) {
+    if (REDUCE_MOTION) return;
+    var rect = target.getBoundingClientRect();
+    var size = Math.max(rect.width, rect.height) * 1.4;
+    var span = document.createElement("span");
+    span.className = "hud-ripple";
+    span.style.width = span.style.height = size + "px";
+    span.style.left = (e.clientX - rect.left - size / 2) + "px";
+    span.style.top = (e.clientY - rect.top - size / 2) + "px";
+    target.appendChild(span);
+    span.addEventListener("animationend", function () { span.remove(); });
+    window.setTimeout(function () { if (span.parentNode) span.remove(); }, 700);
+  });
+
+  /* ---------- 2. SLIDING ACTIVE-NAV PILL ---------- */
+  function ensurePill(sidebar) {
+    var pill = sidebar.querySelector(":scope > .nav-hud-pill");
+    if (!pill) {
+      pill = document.createElement("div");
+      pill.className = "nav-hud-pill";
+      sidebar.insertBefore(pill, sidebar.firstChild);
+    }
+    return pill;
+  }
+  function movePill(sidebar) {
+    var active = sidebar.querySelector(".nav-btn.active");
+    var pill = ensurePill(sidebar);
+    if (!active) { pill.style.opacity = "0"; return; }
+    var sbRect = sidebar.getBoundingClientRect();
+    var aRect = active.getBoundingClientRect();
+    pill.style.top = (aRect.top - sbRect.top + sidebar.scrollTop) + "px";
+    pill.style.height = aRect.height + "px";
+    pill.style.opacity = "1";
+  }
+  function refreshAllPills() {
+    document.querySelectorAll(".sidebar").forEach(movePill);
+  }
+  document.querySelectorAll(".sidebar").forEach(function (sidebar) {
+    ensurePill(sidebar);
+    var mo = new MutationObserver(function () { movePill(sidebar); });
+    mo.observe(sidebar, { attributes: true, attributeFilter: ["class"], subtree: true });
+    sidebar.addEventListener("scroll", function () { movePill(sidebar); }, { passive: true });
+  });
+  window.addEventListener("resize", refreshAllPills);
+  window.setTimeout(refreshAllPills, 50);
+  window.setTimeout(refreshAllPills, 400); // catch late layout/font shifts
+
+  /* ---------- 3. CARD SPOTLIGHT (pointer-reactive glow) ---------- */
+  var SPOTLIGHT_SEL = ".stat-card,.qa-btn,.top-item";
+  on(document, "pointermove", SPOTLIGHT_SEL, function (target, e) {
+    if (REDUCE_MOTION) return;
+    var r = target.getBoundingClientRect();
+    target.style.setProperty("--mx", (e.clientX - r.left) + "px");
+    target.style.setProperty("--my", (e.clientY - r.top) + "px");
+  });
+
+  /* ---------- 4. THEME MORPH WIPE ---------- */
+  var themeObserveTargets = [document.documentElement, document.body];
+  var lastTheme = null;
+  function currentTheme() {
+    return document.body.getAttribute("data-theme") || document.documentElement.getAttribute("data-theme") || "dark";
+  }
+  lastTheme = currentTheme();
+  document.addEventListener("click", function (e) {
+    var toggle = e.target.closest(".theme-toggle");
+    if (!toggle) return;
+    var r = toggle.getBoundingClientRect();
+    window.__hudThemeOrigin = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }, true);
+  function watchThemeAttr(target) {
+    var mo = new MutationObserver(function () {
+      var t = currentTheme();
+      if (t === lastTheme) return;
+      lastTheme = t;
+      if (REDUCE_MOTION) return;
+      var origin = window.__hudThemeOrigin || { x: window.innerWidth - 40, y: window.innerHeight - 40 };
+      var morph = document.createElement("div");
+      morph.className = "theme-morph";
+      morph.style.setProperty("--tx", origin.x + "px");
+      morph.style.setProperty("--ty", origin.y + "px");
+      morph.style.background = getComputedStyle(document.body).backgroundColor;
+      document.body.appendChild(morph);
+      morph.addEventListener("animationend", function () { morph.remove(); });
+      window.setTimeout(function () { if (morph.parentNode) morph.remove(); }, 800);
+    });
+    mo.observe(target, { attributes: true, attributeFilter: ["data-theme"] });
+  }
+  themeObserveTargets.forEach(watchThemeAttr);
+
+  /* ---------- 5. BOOT-IN SEQUENCE for full-screen pages ---------- */
+  var bootWatched = ["mainPage", "studentPortalPage", "superAdminPage", "profileSetupPage"];
+  bootWatched.forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var wasVisible = false;
+    var mo = new MutationObserver(function () {
+      var visible = getComputedStyle(el).display !== "none";
+      if (visible && !wasVisible && !REDUCE_MOTION) {
+        el.classList.remove("hud-boot");
+        void el.offsetWidth; // restart animation
+        el.classList.add("hud-boot");
+        window.setTimeout(function () { el.classList.remove("hud-boot"); }, 700);
+      }
+      wasVisible = visible;
+    });
+    mo.observe(el, { attributes: true, attributeFilter: ["style", "class"] });
+  });
+
+  /* ---------- 6. CONFETTI on success toasts ---------- */
+  var CONFETTI_COLORS = ["#00f5d4", "#b14cff", "#22d37a", "#ffe44d", "#ff2d78"];
+  function burstConfetti(x, y, count) {
+    if (REDUCE_MOTION) return;
+    count = count || 26;
+    for (var i = 0; i < count; i++) {
+      var p = document.createElement("div");
+      p.className = "hud-confetti-piece";
+      var color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      p.style.background = color;
+      p.style.left = (x + (Math.random() * 120 - 60)) + "px";
+      p.style.top = (y - 10) + "px";
+      var dx = (Math.random() * 160 - 80) + "px";
+      var rot = (Math.random() * 720 - 360) + "deg";
+      p.style.setProperty("--dx", dx);
+      p.style.setProperty("--rot", rot);
+      var duration = 1.1 + Math.random() * 0.9;
+      p.style.animationDuration = duration + "s";
+      p.style.animationTimingFunction = "cubic-bezier(.15,.9,.4,1)";
+      document.body.appendChild(p);
+      (function (piece, d) {
+        window.setTimeout(function () { if (piece.parentNode) piece.remove(); }, d * 1000 + 100);
+      })(p, duration);
+    }
+  }
+  var toastMo = new MutationObserver(function (mutations) {
+    mutations.forEach(function (m) {
+      m.addedNodes.forEach(function (node) {
+        if (!(node.nodeType === 1)) return;
+        var isToast = node.classList && node.classList.contains("toast");
+        if (isToast && !node.classList.contains("error") && !node.classList.contains("warn")) {
+          burstConfetti(window.innerWidth - 90, window.innerHeight - 60, 18);
+        }
+      });
+    });
+  });
+  toastMo.observe(document.body, { childList: true });
+
+  /* ---------- 7. NUMBER BUMP on stat text change ---------- */
+  var NUM_SEL = ".sc-num,.snum,.top-score,#statDone,#statPend,#statMissed,#assignTotalNum";
+  var watchedNums = new WeakSet();
+  document.querySelectorAll(NUM_SEL).forEach(watchNumber);
+
+  var bodyMo = new MutationObserver(function (mutations) {
+    mutations.forEach(function (m) {
+      m.addedNodes.forEach(function (node) {
+        if (node.nodeType !== 1) return;
+        if (node.matches && node.matches(NUM_SEL)) watchNumber(node);
+        if (node.querySelectorAll) node.querySelectorAll(NUM_SEL).forEach(watchNumber);
+      });
+    });
+  });
+  bodyMo.observe(document.body, { childList: true, subtree: true });
+  var watchedNums = new WeakSet();
+  function watchNumber(el) {
+    if (watchedNums.has(el) || REDUCE_MOTION) return;
+    watchedNums.add(el);
+    var mo = new MutationObserver(function () {
+      el.classList.remove("hud-bump");
+      void el.offsetWidth;
+      el.classList.add("hud-bump");
+    });
+    mo.observe(el, { characterData: true, childList: true, subtree: true });
+  }
+
+  /* ---------- 8. AMBIENT ORB PARALLAX ---------- */
+  if (!REDUCE_MOTION) {
+    var orbA = document.querySelector(".fx-orb-a");
+    var orbB = document.querySelector(".fx-orb-b");
+    var ticking = false;
+    window.addEventListener("pointermove", function (e) {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        var px = (e.clientX / window.innerWidth - 0.5);
+        var py = (e.clientY / window.innerHeight - 0.5);
+        if (orbA) orbA.style.transform = "translate(" + (px * 18) + "px," + (py * 18) + "px)";
+        if (orbB) orbB.style.transform = "translate(" + (px * -22) + "px," + (py * -22) + "px)";
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+
+})();
 
 function renderSaUsersTable() {
     const statusFilter = document.getElementById('saStatusFilter')?.value || 'all';

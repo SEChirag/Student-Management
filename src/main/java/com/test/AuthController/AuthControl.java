@@ -79,13 +79,18 @@ public class AuthControl {
     }
     @GetMapping("/users")
     public  ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok(repo.findAll());
+        List<User> users =repo.findAll().stream().filter(user -> !"SUPER_ADMIN".equalsIgnoreCase(user.getRole())).toList();
+        return ResponseEntity.ok(users);
     }
     @PatchMapping("/approve/{id}")
     public ResponseEntity<String> approveUser(@PathVariable long id) {
         User user = repo.findById(id).orElse(null);
-        if(user == null)
+        if (user == null){
             return ResponseEntity.badRequest().body("User not found");
+    }
+        if("SUPER_ADMIN".equalsIgnoreCase(user.getRole())){
+            return ResponseEntity.badRequest().body("SuperAdmin account cant be Approved");
+        }
         user.setStatus("APPROVED");
         repo.save(user);
         return ResponseEntity.ok(user.getUsername() + " Approved successfully");
@@ -93,8 +98,12 @@ public class AuthControl {
     @PatchMapping("/reject/{id}")
     public ResponseEntity<String> rejectUser(@PathVariable long id) {
         User user = repo.findById(id).orElse(null);
-        if(user == null)
+        if(user == null) {
             return ResponseEntity.badRequest().body("User not found");
+        }
+        if("SUPER_ADMIN".equalsIgnoreCase(user.getRole())){
+            return ResponseEntity.badRequest().body("SuperAdmin account cant be rejected");
+        }
         user.setStatus("REJECTED");
         repo.save(user);
         return ResponseEntity.ok(user.getUsername() +"Rejected");
@@ -109,6 +118,7 @@ public class AuthControl {
                     existing.setFullName(profile.getFullName());
                     existing.setRollNumber(profile.getRollNumber());
                     existing.setSection(profile.getSection());
+
                     return existing;
                 })
                 .orElse(profile);
@@ -162,6 +172,7 @@ public class AuthControl {
         if (user == null) return ResponseEntity.status(404).body("Not found");
 
         Map<String, String> info = new HashMap<>();
+
         info.put("username", username);
         info.put("role", role);
         info.put("status", user.getStatus());
