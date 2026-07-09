@@ -85,17 +85,17 @@ public class UserStudentController {
     @GetMapping("/my-marks")
     public ResponseEntity<?> myMarks(Authentication auth) {
         String username = auth.getName();
-        System.out.println("DEBUG my-marks called with username: '" + username + "'");
+      //  System.out.println("DEBUG my-marks called with username: '" + username + "'");
 
         StudentProfile profile = getProfile(username);
-        System.out.println("DEBUG profile found: " + (profile != null));
+      //  System.out.println("DEBUG profile found: " + (profile != null));
 
         if (profile == null) return ResponseEntity.status(404).body("Profile not set up");
 
         Optional<Model> student = studentRepo.findByRollNumber(profile.getRollNumber());
-        System.out.println("DEBUG student found: " + student.isPresent());
+       // System.out.println("DEBUG student found: " + student.isPresent());
         if (student.isPresent()) {
-            System.out.println("DEBUG student marks: " + student.get().getMarks());
+       //     System.out.println("DEBUG student marks: " + student.get().getMarks());
         }
 
         if (student.isEmpty()) return ResponseEntity.status(404).body("Marks not assigned yet");
@@ -105,12 +105,12 @@ public class UserStudentController {
     @GetMapping("/my-profile")
     public ResponseEntity<?> myProfile(Authentication auth) {
 
-        System.out.println("Logged user = " + auth.getName());
+       // System.out.println("Logged user = " + auth.getName());
 
         Optional<StudentProfile> profile =
                 profileRepo.findByUsername(auth.getName());
 
-        System.out.println("Profile found = " + profile.isPresent());
+    //    System.out.println("Profile found = " + profile.isPresent());
 
         return profile
                 .map(ResponseEntity::ok)

@@ -114,14 +114,13 @@
                     <div class="log-item">Dashboard opened<br><span class="log-time">just now</span></div>
                 </div>
             </div>
-
             <div class="sb-footer">
-                <button class="nav-btn" onclick="showSection('profileSection',this)"><div class="nav-icon">👤</div>My Profile</button>
                 <button class="theme-toggle" onclick="toggleTheme()">
                     <span class="theme-switch"><span class="theme-switch-knob">☀️</span></span>
                     <span id="themeLabel">Light mode</span>
                 </button>
             </div>
+
         </div>
 
         <!-- MAIN -->
@@ -133,9 +132,21 @@
                 </div>
                 <div class="topbar-right">
                     <div class="conn-pill" id="connPill"><div class="conn-dot"></div><span id="connText">Checking…</span></div>
-                    <button class="tb-btn" onclick="exportCSV()"><span class="tb-btn-icon">⬇</span> Export</button>
-                    <button class="tb-btn" onclick="logout()"><span class="tb-btn-icon">→</span> Logout</button>
-                    <div class="topbar-dots">···</div>
+
+                    <button class="sync-btn" id="dashSyncBtn" onclick="runSync(this, loadDashboard, 'Synced!')" title="Refresh dashboard">
+                        <span class="sync-ring"></span>
+                        <span class="sync-icon">↻</span>
+                    </button>
+                    <div class="topbar-menu-wrap" id="topbarMenuWrap">
+                        <button class="topbar-dots" onclick="toggleTopbarMenu(event)" title="More options" aria-label="More options">
+                            <span class="topbar-dots-icon"><i></i><i></i><i></i></span>
+                        </button>
+                        <div class="topbar-menu" id="topbarMenu">
+                            <button class="topbar-menu-item" onclick="closeTopbarMenu();showSection('profileSection',null)">👤 My Profile</button>
+                            <div class="topbar-menu-divider"></div>
+                            <button class="topbar-menu-item topbar-menu-item-alert" onclick="closeTopbarMenu();logout()">→ Logout</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -169,7 +180,7 @@
                             <div class="stat-card sc-violet" style="cursor:pointer" onclick="loadResultModal('active')">
                                 <div class="sc-top"><div class="sc-icon">⚡</div><div class="sc-label">Active students</div></div>
                                 <div class="sc-num sc-num-violet" id="dashActive">0</div>
-                                <div class="sc-sub" id="dashInactive"></div>
+                                <div class="sc-sub sc-sub-link" id="dashInactive" onclick="event.stopPropagation(); loadResultModal('inactive')"></div>
                             </div>
                         </div>
                     </div>
@@ -191,9 +202,9 @@
                                     <div class="qa-btn-icon">◈</div>
                                     <div><div class="qa-btn-title">View analytics</div><div class="qa-btn-sub">Charts &amp; stats</div></div>
                                 </button>
-                                <button class="qa-btn" onclick="exportCSV()">
-                                    <div class="qa-btn-icon">⬇</div>
-                                    <div><div class="qa-btn-title">Export CSV</div><div class="qa-btn-sub">Download data</div></div>
+                                <button class="qa-btn" onclick="goToExpiredAssignments()">
+                                    <div class="qa-btn-icon">⏰</div>
+                                    <div><div class="qa-btn-title">Expired assignments</div><div class="qa-btn-sub">Review &amp; update</div></div>
                                 </button>
                             </div>
                         </div>
@@ -217,7 +228,9 @@
 
                         <div class="data-toolbar">
                             <div class="data-toolbar-actions">
-                                <button class="btn btn-outline" onclick="loadPending()">↻ Refresh</button>
+                                <button class="sync-pill" id="syncPending" onclick="runSync(this, loadPending, 'Synced!')">
+                                    <span class="sync-icon">↻</span> Refresh
+                                </button>
                             </div>
                         </div>
                         <div class="pill-row" id="userStats"></div>
@@ -315,7 +328,7 @@
 
                         <div class="data-toolbar">
                             <div class="data-toolbar-actions">
-                                <button class="btn btn-outline" onclick="getStudents()">↻ Refresh</button>
+                                <button class="sync-pill" onclick="runSync(this, getStudents, 'Synced!')"><span class="sync-icon">↻</span> Refresh</button>
                                 <button class="btn btn-green" onclick="exportCSV()">⬇ Export CSV</button>
                                 <button class="btn btn-purple btn-sm" onclick="exportJSON()">⬇ JSON</button>
                                 <button class="btn btn-danger btn-sm" onclick="confirmDeleteAll()">🗑 Delete All</button>
@@ -394,7 +407,7 @@
                                 </select>
                             </div>
                             <div class="data-toolbar-actions">
-                                <button class="btn btn-outline btn-sm" onclick="loadAnalytics()">↻ Refresh</button>
+                                <button class="sync-pill" onclick="runSync(this, loadAnalytics, 'Synced!')"><span class="sync-icon">↻</span> Refresh</button>
                             </div>
                         </div>
                         <div class="table-shell">
@@ -484,7 +497,8 @@
                         </div>
                         <div class="form-actions form-actions-spaced">
                             <button class="btn btn-primary" onclick="addAssignment()">➕ Add Assignment</button>
-                            <button class="btn btn-outline" onclick="loadAssignments()">↻ Refresh</button>
+                            <button class="sync-pill" onclick="runSync(this, loadAssignments, 'Synced!')"><span class="sync-icon">↻</span> Refresh</button>
+                            <button class="btn btn-green" onclick="exportAssignmentsCSV()">⬇ Export CSV</button>
                         </div>
                         <div class="metric-pill-row">
                             <div class="metric-pill metric-pill-focus" id="assignTotalNum">0 <span>Total</span></div>
@@ -518,14 +532,14 @@
                             <div class="subpanel-hdr">
                                 <div class="subpanel-title">Expired Assignments</div>
                                 <div class="data-toolbar-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="loadExpiredAssignments()">↻ Refresh</button>
+                                    <button class="sync-pill" onclick="runSync(this, loadExpiredAssignments, 'Synced!')"><span class="sync-icon">↻</span> Refresh</button>
                                 </div>
                             </div>
                             <div class="table-shell">
                                 <table>
-                                    <thead><tr><th>ID</th><th>Assignments</th><th>Subjects</th><th>Due Date</th><th>Section</th></tr></thead>
+                                    <thead><tr><th>ID</th><th>Assignments</th><th>Subjects</th><th>Due Date</th><th>Section</th><th>Actions</th></tr></thead>
                                     <tbody id="expiredAssignmentTable">
-                                    <tr><td colspan="5"><div class="empty"><div class="eico">⏰</div><p>No expired assignments</p></div></td></tr>
+                                    <tr><td colspan="6"><div class="empty"><div class="eico">⏰</div><p>No expired assignments</p></div></td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -566,7 +580,7 @@
                                 <button class="assign-tab tab-alert" id="stab-missed" onclick="setStatusTab('missed')">Missed</button>
                             </div>
                             <div class="data-toolbar-actions" style="margin-left:auto;">
-                                <button class="btn btn-outline btn-sm" onclick="refreshCompletion()">↻ Refresh</button>
+                                <button class="sync-pill" onclick="runSync(this, refreshCompletion, 'Synced!')"><span class="sync-icon">↻</span> Refresh</button>
                             </div>
                             <input type="text" id="compStudentSearch" class="visually-hidden-control" oninput="renderCompletionTable()">
                             <select id="compAssignFilter" class="visually-hidden-control" onchange="renderCompletionTable()">
@@ -596,7 +610,9 @@
                             <div><h3>Student Report</h3><p>Per student assignment summary</p></div>
                         </div>
                         <div class="data-toolbar">
-                            <div class="data-toolbar-actions"><button class="btn btn-outline" onclick="loadAssignmentReport()">↻ Refresh</button></div>
+                            <div class="data-toolbar-actions">
+                                <button class="sync-pill" onclick="runSync(this, loadAssignmentReport, 'Synced!')"><span class="sync-icon">↻</span> Refresh</button>
+                            </div>
                         </div>
                         <div class="table-shell">
                             <table>
@@ -621,7 +637,9 @@
                             <button class="btn btn-danger btn-sm" onclick="confirmDeleteDupes()">🗑 Delete All Duplicates</button>
                         </div>
                         <div class="data-toolbar">
-                            <div class="data-toolbar-actions"><button class="btn btn-outline" onclick="findDuplicates()">↻ Scan for Duplicates</button></div>
+                            <div class="data-toolbar-actions">
+                                <button class="sync-pill" onclick="runSync(this, findDuplicates, 'Scan complete!')"><span class="sync-icon">↻</span> Scan for Duplicates</button>
+                            </div>
                         </div>
                         <div class="table-shell">
                             <table>
@@ -759,6 +777,7 @@
             <div class="fg"><label>Description</label><input type="text" id="editAssignDesc"></div>
             <div class="fg"><label>Subject</label><input type="text" id="editAssignSubject"></div>
             <div class="fg"><label>Due Date</label><input type="date" id="editAssignDue"></div>
+            <div class="fg"><label>Section</label><input type="text" id="editAssignSection" placeholder="e.g. A or ALL"></div>
         </div>
         <div class="mact">
             <button class="btn btn-outline" onclick="closeAssignModal()">Cancel</button>
@@ -824,7 +843,13 @@
         <div class="main">
             <div class="topbar">
                 <div class="topbar-left"><div class="topbar-date" id="spDate"></div><h1 id="spGreeting">Welcome 👋</h1></div>
-                <div class="topbar-right"><div class="conn-pill"><div class="conn-dot"></div><span id="spSub">Student Portal</span></div></div>
+                <div class="topbar-right">
+                    <div class="conn-pill"><div class="conn-dot"></div><span id="spSub">Student Portal</span></div>
+                    <button class="sync-btn" id="spSyncBtn" onclick="refreshStudentPortal()" title="Sync latest data">
+                        <span class="sync-ring"></span>
+                        <span class="sync-icon">↻</span>
+                    </button>
+                </div>
             </div>
 
             <div class="content-area">
@@ -928,7 +953,7 @@
             <div class="page-card-hdr">
                 <div class="pch-icon pch-yellow">🔔</div>
                 <div><h3>Pending Approvals</h3><p>Approve or reject new account requests</p></div>
-                <button class="btn btn-outline btn-sm super-refresh-btn" onclick="loadSuperAdminPage()">↻ Refresh</button>
+                <button class="sync-pill super-refresh-btn" onclick="runSync(this, loadSuperAdminPage, 'Synced!')"><span class="sync-icon">↻</span> Refresh</button>
             </div>
             <div class="table-shell">
                 <table>

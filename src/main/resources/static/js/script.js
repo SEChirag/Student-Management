@@ -49,6 +49,36 @@ try {
       if (authToken) h['Authorization'] = 'Bearer ' + authToken;
       return h;
     }
+    /* ── Universal sync/refresh animation wrapper ── */
+    async function runSync(btnEl, asyncFn, successMsg){
+      if(!btnEl) { await asyncFn(); return; }
+      btnEl.disabled = true;
+      btnEl.classList.remove('done');
+      btnEl.classList.add('syncing');
+      try{
+        await asyncFn();
+        if(successMsg) showToast(successMsg);
+        btnEl.classList.remove('syncing');
+        btnEl.classList.add('done');
+        setTimeout(()=>btnEl.classList.remove('done'), 500);
+      }catch(e){
+        showToast('Refresh failed','warn');
+        btnEl.classList.remove('syncing');
+      }finally{
+        setTimeout(()=>{ btnEl.disabled=false; }, 300);
+      }
+    }
+
+    async function refreshStudentPortal(){
+      const btn = document.getElementById('spSyncBtn');
+      await runSync(btn, async () => {
+        const cached = localStorage.getItem('studentProfile');
+        const profile = cached ? JSON.parse(cached) : null;
+        if(!profile) throw new Error('no profile');
+        await loadStudentAssignments(profile);
+        await loadStudentMarks(profile);
+      }, 'Synced!');
+    }
 async function loadPending(){
   // Load pending users
   try{
@@ -494,7 +524,6 @@ document.getElementById('spSectionBadge').textContent = 'Section ' + profile.sec
   await loadStudentAssignments(profile);
   await loadStudentMarks(profile);
 }
-
 async function loadStudentAssignments(profile) {
   try {
     const res = await fetch(`http://localhost:8081/student/my-assignments`, {headers: authHeaders()});
@@ -608,6 +637,18 @@ async function loadStudentMarks(profile) {
     document.getElementById('spMarks').textContent = '—';
   }
 }
+/* ── TOPBAR ···  MENU ── */
+    function toggleTopbarMenu(e){
+      e.stopPropagation();
+      document.getElementById('topbarMenu').classList.toggle('open');
+    }
+    function closeTopbarMenu(){
+      document.getElementById('topbarMenu').classList.remove('open');
+    }
+    document.addEventListener('click', function(e){
+      const wrap = document.getElementById('topbarMenuWrap');
+      if(wrap && !wrap.contains(e.target)) closeTopbarMenu();
+    });
   function logout(){
   localStorage.removeItem('jwt');
   localStorage.removeItem('userRole');
@@ -658,7 +699,7 @@ async function loadStudentMarks(profile) {
       document.getElementById('dashFailNote').textContent=failed.length>0?'needs attention':'';
       const active=data.filter(s=>(s.status||'').toLowerCase()==='active').length;
       document.getElementById('dashActive').textContent=active;
-      document.getElementById('dashInactive').textContent=(data.length-active)+' inactive';
+document.getElementById('dashInactive').textContent=(data.length-active)+' inactive →';
 
       buildDashGradeDist(data);
       buildDashDonut(passed.length,failed.length);
@@ -725,7 +766,7 @@ function allTrackedAssignments(){
 function renderExpiredAssignments(data){
   const tb = document.getElementById('expiredAssignmentTable');
   if(!data.length){
-    tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="eico">⏰</div><p>No expired assignments</p></div></td></tr>`;
+    tb.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="eico">⏰</div><p>No expired assignments</p></div></td></tr>`;
     return;
   }
   tb.innerHTML = data.map(a => `<tr>
@@ -734,6 +775,10 @@ function renderExpiredAssignments(data){
     <td>${a.subject}</td>
     <td>${a.due ? new Date(a.due).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
     <td>${a.section}</td>
+    <td style="display:flex;gap:6px;">
+      <button class="btn btn-edit btn-sm" onclick="openExpiredAssignEdit(${a.id})">✎ Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteExpiredAssignment(${a.id})">🗑 Delete</button>
+    </td>
   </tr>`).join('');
 }
 
@@ -1183,6 +1228,15 @@ async function saveEdit() {
     }
     function dl(name,type,content){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; a.click(); }
 
+
+function exportAssignmentsCSV(){
+      if(!assignments.length){ showToast('No assignments to export','warn'); return; }
+      const rows=assignments.map(a=>[a.id,`"${a.title}"`,`"${a.subject||''}"`,`"${(a.description||'').replace(/"/g,'""')}"`,a.due||'',a.section||'']);
+      const csv=[['ID','Title','Subject','Description','Due Date','Section'],...rows].map(r=>r.join(',')).join('\n');
+      dl('assignments_export.csv','text/csv',csv);
+      showToast('Assignments exported!');
+      addLog('Exported Assignments CSV');
+    }
     /* ── ANALYTICS ── */
     async function loadAnalytics(){
       await getStudents();
@@ -1284,7 +1338,13 @@ async function saveEdit() {
       document.getElementById('gcStudentName').innerHTML=info;
       document.getElementById('gcFeedback').textContent=gradeFeedback(g);
     }
-
+function goToExpiredAssignments(){
+      showSection('assignmentsPage', document.querySelectorAll('.nav-btn')[4]);
+      setTimeout(()=>{
+        const el = document.getElementById('expiredAssignmentTable');
+        if(el) el.closest('.subpanel')?.scrollIntoView({behavior:'smooth', block:'start'});
+      }, 150);
+    }
     /* ── ASSIGNMENTS ── */
     function updateAssignCount(){
   const n = assignments.length;
@@ -1363,6 +1423,30 @@ async function updateAssignment(id, status){
     showToast('Failed to delete','warn');
   }
 }
+async function deleteExpiredAssignment(id){
+  try{
+    const res = await fetch(`${BASE_URL}/Delete/expired/Assignments/${id}`, {method:'DELETE', headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    showToast('Expired assignment deleted!');
+    addLog(`Deleted expired assignment #${id}`);
+    loadExpiredAssignments();
+  }catch(e){
+    showToast('Failed to delete expired assignment','warn');
+  }
+}
+
+let editingExpiredId = null;
+function openExpiredAssignEdit(id){
+  const a=expiredAssignments.find(x=>x.id===id); if(!a) return;
+  editingExpiredId = id;
+  document.getElementById('editAssignId').value=a.id;
+  document.getElementById('editAssignTitle').value=a.title||'';
+  document.getElementById('editAssignDesc').value=a.description||'';
+  document.getElementById('editAssignSubject').value=a.subject||'';
+  document.getElementById('editAssignDue').value=a.due||'';
+  document.getElementById('editAssignSection').value=a.section||'';
+  document.getElementById('editAssignModal').classList.add('open');
+}
     function openAssignEdit(id){
       const a=assignments.find(x=>x.id===id); if(!a) return;
       document.getElementById('editAssignId').value=a.id;
@@ -1370,27 +1454,57 @@ async function updateAssignment(id, status){
       document.getElementById('editAssignDesc').value=a.description||'';
       document.getElementById('editAssignSubject').value=a.subject||'';
       document.getElementById('editAssignDue').value=a.due||'';
+      document.getElementById('editAssignSection').value=a.section||'';
       document.getElementById('editAssignModal').classList.add('open');
     }
-    function closeAssignModal(){ document.getElementById('editAssignModal').classList.remove('open'); }
+    function closeAssignModal(){ document.getElementById('editAssignModal').classList.remove('open'); editingExpiredId = null; }
     document.getElementById('editAssignModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeAssignModal(); });
-    function saveAssignEdit(){
+    async function saveAssignEdit(){
       const id=parseInt(document.getElementById('editAssignId').value);
       const title=document.getElementById('editAssignTitle').value.trim();
       const desc=document.getElementById('editAssignDesc').value.trim();
       const subject=document.getElementById('editAssignSubject').value.trim();
       const due=document.getElementById('editAssignDue').value;
+
+    const section = document.getElementById('editAssignSection').value.trim().toUpperCase();
+          if(editingExpiredId !== null){
+            try{
+              const res = await fetch(`${BASE_URL}/Upadate/expired/assignments/${id}`, {
+                method:'PUT',
+                headers: authHeaders({'Content-Type':'application/json'}),
+                body: JSON.stringify({
+                  assignments: title,
+                  description: desc,
+                  subjects: subject,
+                  dueDate: due ? due+'T00:00:00' : null,
+                  section: section
+                })
+              });
+              if(!res.ok) throw new Error();
+              showToast('Assignment updated — moved to Active if date is in the future!');
+              addLog(`Edited expired assignment #${id}`);
+              editingExpiredId = null;
+              closeAssignModal();
+              // Refresh BOTH lists — the item should move from expired → active
+              await loadAssignments();
+              await loadExpiredAssignments();
+            }catch(e){
+              showToast('Failed to update expired assignment','warn');
+            }
+            return;
+          }
+
       const idx=assignments.findIndex(a=>a.id===id);
-      if(idx>-1){ assignments[idx]={...assignments[idx],title:title||assignments[idx].title,description:desc,subject:subject||'—',due:due||null}; addLog(`Edited assignment #${id}`); showToast('Assignment updated!'); closeAssignModal(); renderAssignments(); }
+      if(idx>-1){ assignments[idx]={...assignments[idx],title:title||assignments[idx].title,description:desc,subject:subject||'—',due:due||null,section:section||assignments[idx].section}; addLog(`Edited assignment #${id}`); showToast('Assignment updated!'); closeAssignModal(); renderAssignments(); }
     }
 
 async function loadResultModal(type){
-      const titles = { pass:'✓ Passed Students', fail:'✕ Failed Students', all:'👥 All Students', active:'⚡ Active Students' };
+      const titles = { pass:'✓ Passed Students', fail:'✕ Failed Students', all:'👥 All Students', active:'⚡ Active Students', inactive:'💤 Inactive Students' };
       document.getElementById('resultModalTitle').textContent = titles[type] || 'Students';
       document.getElementById('resultModalTable').innerHTML = `<tr><td colspan="7"><div class="empty"><div class="eico">⏳</div><p>Loading…</p></div></td></tr>`;
       document.getElementById('resultModal').classList.add('open');
 
-      const endpoints = { pass:'pass', fail:'failed', all:'all', active:'Active' };
+      const endpoints = { pass:'pass', fail:'failed', all:'all', active:'Active', inactive:'Inactive' };
       try{
         const res = await fetch(`${BASE_URL}/${endpoints[type]}`, {headers:authHeaders()});
         if(!res.ok) throw new Error();
@@ -2123,7 +2237,6 @@ function setSaRoleTab(role) {
     });
   });
   bodyMo.observe(document.body, { childList: true, subtree: true });
-  var watchedNums = new WeakSet();
   function watchNumber(el) {
     if (watchedNums.has(el) || REDUCE_MOTION) return;
     watchedNums.add(el);

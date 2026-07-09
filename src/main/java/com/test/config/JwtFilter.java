@@ -26,10 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private UseRepository userRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         try {
             String authHeader = request.getHeader("Authorization");
@@ -40,7 +37,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (jwtUtil.validateToken(token)) {
                     String username = jwtUtil.extractUsername(token);
 
-                    // AFTER
                     var userOpt = userRepository.findByUsername(username);
                     System.out.println("DEBUG user found: " + userOpt.isPresent());
                     userOpt.ifPresent(user -> {
@@ -54,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            System.err.println("JWT Filter error: " + e.getMessage()); // you'll see this in logs
+            System.err.println("JWT Filter error: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

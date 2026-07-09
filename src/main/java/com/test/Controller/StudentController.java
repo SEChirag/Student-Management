@@ -67,7 +67,6 @@ public class StudentController {
         existing.setStatus(model.getStatus());
         existing.setAssignments(model.getAssignments());
         existing.setUser(model.getUser());
-        System.out.println(model.getAssignments());
         if (model.getUsername() != null) existing.setUsername(model.getUsername());
         if (model.getRollNumber() != null) existing.setRollNumber(model.getRollNumber());
         return service.addStudent(existing);
@@ -155,6 +154,13 @@ public class StudentController {
     public List<AssignmentsList> getExpiredAssignments() {
         return service.getExpiredAssignments();
     }
+    @DeleteMapping("/Delete/expired/Assignments/{id}")
+    public  void deleteExpiredAssignments(@PathVariable Long id) {
+        service.deleteExpiredAssignments(id);
+    }
+
+
+
     @GetMapping("/failed")
     public List<Model> failedStudents(){
         return service.failedStudents();
@@ -167,9 +173,15 @@ public class StudentController {
     public List<Model> ActiveStudents(){
         return service.ActiveStudents();
     }
-
-
-
+    @GetMapping("/Inactive")
+    public List<Model> InactiveStudents(){
+        return service.InactiveStudents();
+    }
+    @PutMapping("/Upadate/expired/assignments/{id}")
+    public ResponseEntity<AssignmentsList> updateExpiredAssignments(@PathVariable Long id ,@RequestBody AssignmentsList assignmentsList) {
+        AssignmentsList saved = service.updateExpiredAssignments(id , assignmentsList);
+        return ResponseEntity.ok(saved);
+    }
 
 }
 

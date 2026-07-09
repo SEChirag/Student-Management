@@ -157,15 +157,18 @@ public class StudentService {
 
     public Map<String, Object> getStudentAssignmentSummary(Long studentId) {
         List<AssignmentsList> all = AssignmentRepo.findByStudentId(studentId);
-        long completed = all.stream().filter(a -> "completed".equals(a.getStatus())).count();
-        long incompleted = all.stream().filter(a -> "incompleted".equals(a.getStatus())).count();
-        long pending = all.stream().filter(a -> "pending".equals(a.getStatus())).count();
+        long completed = all.stream().filter(a -> "completed".equalsIgnoreCase(a.getStatus())).count();
+        long incompleted = all.stream().filter(a -> "incompleted".equalsIgnoreCase(a.getStatus())).count();
+        long pending = all.stream().filter(a -> "pending".equalsIgnoreCase(a.getStatus())).count();
         Map<String, Object> map = new HashMap<>();
         map.put("studentId", studentId);
         map.put("total", all.size());
         map.put("completed", completed);
         map.put("incompleted", incompleted);
         map.put("pending", pending);
+        for(Map.Entry<String , Object> entry : map.entrySet()) {
+            System.out.println(map.values());
+        }
         return map;
     }
 
@@ -240,8 +243,43 @@ public class StudentService {
     public List<Model> ActiveStudents() {
         return Repo.findAll().stream().filter(student -> student.getStatus().equalsIgnoreCase("ACTIVE")).toList();
     }
-}
 
+    public List<Model> InactiveStudents() {
+        return Repo.findAll().stream().filter(student -> student.getStatus().equalsIgnoreCase("INACTIVE")).toList();
+    }
+
+    public void deleteExpiredAssignments(Long id) {
+        Optional<AssignmentsList> optionalAssignment = AssignmentRepo.findById(id);
+
+        if (optionalAssignment.isEmpty()) {
+            throw new RuntimeException("Assignment not found with id: " + id);
+        }
+
+        AssignmentsList assignment = optionalAssignment.get();
+
+        boolean isExpired = assignment.getDueDate() != null
+                && assignment.getDueDate().isBefore(LocalDateTime.now());
+
+        if (isExpired) {
+            AssignmentRepo.deleteById(id);
+        } else {
+            throw new RuntimeException("Assignment is not expired, cannot delete: " + id);
+        }
+    }
+    public AssignmentsList updateExpiredAssignments(Long id, AssignmentsList assignmentsList) {
+        AssignmentsList existing = AssignmentRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Assignment not found with id: " + id));
+
+        existing.setAssignments(assignmentsList.getAssignments());
+        existing.setDescription(assignmentsList.getDescription());
+        existing.setSubjects(assignmentsList.getSubjects());
+        existing.setDueDate(assignmentsList.getDueDate());
+        existing.setSection(assignmentsList.getSection());
+
+        return AssignmentRepo.save(existing);
+    }
+
+}
 
 
 
