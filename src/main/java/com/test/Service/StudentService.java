@@ -157,6 +157,8 @@ public class StudentService {
 
     public Map<String, Object> getStudentAssignmentSummary(Long studentId) {
         List<AssignmentsList> all = AssignmentRepo.findByStudentId(studentId);
+        List<StudentAssignments> allAssignments = StudentAssignmentRepo.findAll();
+
         long completed = all.stream().filter(a -> "completed".equalsIgnoreCase(a.getStatus())).count();
         long incompleted = all.stream().filter(a -> "incompleted".equalsIgnoreCase(a.getStatus())).count();
         long pending = all.stream().filter(a -> "pending".equalsIgnoreCase(a.getStatus())).count();
@@ -270,11 +272,25 @@ public class StudentService {
         AssignmentsList existing = AssignmentRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Assignment not found with id: " + id));
 
-        existing.setAssignments(assignmentsList.getAssignments());
-        existing.setDescription(assignmentsList.getDescription());
-        existing.setSubjects(assignmentsList.getSubjects());
-        existing.setDueDate(assignmentsList.getDueDate());
-        existing.setSection(assignmentsList.getSection());
+        if (assignmentsList.getAssignments() != null) {
+            existing.setAssignments(assignmentsList.getAssignments());
+        }
+
+        if (assignmentsList.getDescription() != null) {
+            existing.setDescription(assignmentsList.getDescription());
+        }
+
+        if (assignmentsList.getSubjects() != null) {
+            existing.setSubjects(assignmentsList.getSubjects());
+        }
+
+        if (assignmentsList.getDueDate() != null) {
+            existing.setDueDate(assignmentsList.getDueDate());
+        }
+
+        if (assignmentsList.getSection() != null) {
+            existing.setSection(assignmentsList.getSection());
+        }
 
         return AssignmentRepo.save(existing);
     }

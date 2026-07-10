@@ -38,7 +38,6 @@ public class JwtFilter extends OncePerRequestFilter {
                     String username = jwtUtil.extractUsername(token);
 
                     var userOpt = userRepository.findByUsername(username);
-                    System.out.println("DEBUG user found: " + userOpt.isPresent());
                     userOpt.ifPresent(user -> {
                         System.out.println("DEBUG role from DB: " + user.getRole());
                         var authority = new SimpleGrantedAuthority("ROLE_" + user.getRole());
