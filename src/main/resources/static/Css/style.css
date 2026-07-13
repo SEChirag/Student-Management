@@ -1159,3 +1159,10 @@ body,input,select,textarea,button{font-family:var(--body);font-size:14px;letter-
 .status-pending::before{background:var(--warn);box-shadow:0 0 6px rgba(245,179,56,.5);animation:puls 2s infinite;}
 .status-rejected{color:var(--alert);}
 .status-rejected::before{background:var(--alert);box-shadow:0 0 6px rgba(255,84,112,.5);}
+.super-topbar-search{
+  display:flex;align-items:center;gap:8px;margin-left:auto;margin-right:16px;
+}
+.super-topbar-search input{
+  width:220px;padding:8px 12px;font-size:13px;
+}
+@media(max-width:700px){.super-topbar-search{display:none;}}

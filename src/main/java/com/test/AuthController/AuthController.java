@@ -29,30 +29,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @GetMapping("/pending")
-    public ResponseEntity<List<User>> getPendingUsers() {
-        return ResponseEntity.ok(authService.getPendingUsers());
-    }
 
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok(authService.getAllUsersExcludingSuperAdmin());
-    }
-
-    @PatchMapping("/approve/{id}")
-    public ResponseEntity<String> approveUser(@PathVariable long id) {
-        return ResponseEntity.ok(authService.approveUser(id));
-    }
-
-    @PatchMapping("/reject/{id}")
-    public ResponseEntity<String> rejectUser(@PathVariable long id) {
-        return ResponseEntity.ok(authService.rejectUser(id));
-    }
-
-    @PostMapping("/profile")
-    public ResponseEntity<?> saveProfile(@RequestBody StudentProfile profile) {
-        return ResponseEntity.ok(authService.saveProfile(profile));
-    }
 
     @GetMapping("/profile/{username}")
     public ResponseEntity<StudentProfile> getProfile(@PathVariable String username) {
@@ -64,6 +41,10 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<?> getMe(@RequestHeader("Authorization") String authHeader) {
         return ResponseEntity.ok(authService.getMe(authHeader));
+    }
+    @PostMapping("/profile")
+    public ResponseEntity<?> saveProfile(@RequestBody StudentProfile profile) {
+        return ResponseEntity.ok(authService.saveProfile(profile));
     }
 
     @PostMapping("/oauth/token")

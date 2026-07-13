@@ -228,4 +228,20 @@ public class AuthService {
         response.put("token_type", "bearer");
         return response;
     }
+
+    public List<User> getRejectedUsers() {
+       return repo.findByStatus("REJECTED");
+    }
+
+    public List<User> getApprovedUsers() {
+        return repo.findByStatus("APPROVED");
+    }
+
+    public void deleteUser(long id) {
+        repo.deleteById(id);
+    }
+
+    public User getUser(String username) {
+        return repo.findByUsernameIgnoreCase(username).filter(u->u.getUsername().equalsIgnoreCase(username)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found"));
+    }
 }

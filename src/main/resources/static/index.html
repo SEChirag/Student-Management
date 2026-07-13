@@ -182,6 +182,7 @@
                                 <div class="sc-num sc-num-violet" id="dashActive">0</div>
                                 <div class="sc-sub sc-sub-link" id="dashInactive" onclick="event.stopPropagation(); loadResultModal('inactive')"></div>
                             </div>
+
                         </div>
                     </div>
 
@@ -935,6 +936,18 @@
 <!-- ════════════════════════ SUPER ADMIN PAGE ════════════════════════ -->
 <div id="superAdminPage" class="super-page" style="display:none;">
 
+    <div class="modal-ov" id="saUserListModal">
+        <div class="modal" style="width:640px;max-width:95vw;">
+            <div class="mhdr"><h3 id="saUserListTitle">Users</h3><button class="mclose" onclick="closeSaUserListModal()">✕</button></div>
+            <div class="table-shell table-shell-tall table-shell-scrollx">
+                <table>
+                    <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th></tr></thead>
+                    <tbody id="saUserListTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <div class="super-topbar">
         <div class="super-brand">
             <div class="super-brand-icon">🎓</div>
@@ -942,6 +955,10 @@
                 <div class="super-brand-name">Super Admin</div>
                 <div class="super-brand-sub">User Approval Panel</div>
             </div>
+        </div>
+        <div class="super-topbar-search">
+            <input type="text" id="saSearchUserInput" placeholder="🔍 Find user by username…" onkeydown="if(event.key==='Enter')saSearchUser()">
+            <button class="tb-btn" onclick="saSearchUser()">Search</button>
         </div>
         <button class="tb-btn" onclick="logout()"><span class="tb-btn-icon">→</span> Logout</button>
     </div>

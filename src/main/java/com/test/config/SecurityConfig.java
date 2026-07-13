@@ -43,8 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs.yaml", "/scalar.html").permitAll()
                         .requestMatchers("/student/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/API/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-                        .requestMatchers("/auth/users").hasAnyRole("ADMIN", "SUPER_ADMIN")
-                        .requestMatchers("/auth/pending", "/auth/approve/**", "/auth/reject/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/superadmin/pending", "/superadmin/approve/**", "/superadmin/reject/**").hasRole("SUPER_ADMIN")
 
                         .anyRequest().authenticated()
                 )

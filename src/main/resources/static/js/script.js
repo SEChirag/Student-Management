@@ -1,6 +1,7 @@
     const AUTH_BASE = "http://localhost:8081/auth";
     const BASE_URL  = "http://localhost:8081/API";
     const USER_URL  = "http://localhost:8081/student";
+    const SUPER_URL = "http://localhost:8081/superadmin"
 
     let allStudents       = [];
     let displayedStudents = [];
@@ -82,7 +83,7 @@ try {
 async function loadPending(){
   // Load pending users
   try{
-    const res = await fetch(`${AUTH_BASE}/pending`, {headers:authHeaders()});
+    const res = await fetch(`${SUPER_URL}/pending`, {headers:authHeaders()});
     if(res.ok){
       const users = await res.json();
       document.getElementById('pendingCount').textContent = users.length;
@@ -105,7 +106,7 @@ async function loadPending(){
 
   // Load all users stats + table
   try{
-    const res2 = await fetch(`${AUTH_BASE}/users`, {headers:authHeaders()});
+    const res2 = await fetch(`${SUPER_URL}/users`, {headers:authHeaders()});
     if(res2.ok){
       const all = await res2.json();
       const admins   = all.filter(u=>u.role==='ADMIN').length;
@@ -1967,11 +1968,11 @@ function closeCenterAlert(){
       }catch(e){ msg.style.color='var(--pink)'; msg.textContent='⚠ Server unreachable'; }
     }
     async function approveUser(id){
-      const res = await fetch(`${AUTH_BASE}/approve/${id}`,{method:'PATCH',headers:authHeaders()});
+      const res = await fetch(`${SUPER_URL}/approve/${id}`,{method:'PATCH',headers:authHeaders()});
       if(res.ok){ showToast('User approved!'); loadPending(); }
     }
     async function rejectUser(id){
-      const res = await fetch(`${AUTH_BASE}/reject/${id}`,{method:'PATCH',headers:authHeaders()});
+      const res = await fetch(`${SUPER_URL}/reject/${id}`,{method:'PATCH',headers:authHeaders()});
       if(res.ok){ showToast('User rejected','warn'); loadPending(); }
     }
 
@@ -1998,7 +1999,7 @@ function spShowSection(id, btn) {
     async function loadSuperAdminPage(){
   // Load pending
   try{
-    const res = await fetch(`${AUTH_BASE}/pending`, {headers:authHeaders()});
+    const res = await fetch(`${SUPER_URL}/pending`, {headers:authHeaders()});
     if(res.ok){
       const users = await res.json();
       document.getElementById('pendingCount').textContent = users.length;
@@ -2026,7 +2027,7 @@ function spShowSection(id, btn) {
 
   // Load all users + stats
   try{
-    const res2 = await fetch(`${AUTH_BASE}/users`, {headers:authHeaders()});
+    const res2 = await fetch(`${SUPER_URL}/users`, {headers:authHeaders()});
     if(res2.ok){
       const all = await res2.json();
       const admins   = all.filter(u=>u.role==='ADMIN').length;
@@ -2037,32 +2038,32 @@ function spShowSection(id, btn) {
 
       const total = all.length;
       document.getElementById('saDashStats').innerHTML = `
-        <div class="stat-card sc-total">
+        <div class="stat-card sc-total" style="cursor:pointer" onclick="saShowTotalUsers()">
           <div class="sc-top"><div class="sc-icon">👥</div><div class="sc-label">Total accounts</div></div>
           <div class="sc-num">${total}</div>
           <div class="sc-sub">All registered users</div>
         </div>
-        <div class="stat-card sc-violet">
+        <div class="stat-card sc-violet" style="cursor:pointer" onclick="saShowAdmins()">
           <div class="sc-top"><div class="sc-icon">🛡</div><div class="sc-label">Admins</div></div>
           <div class="sc-num sc-num-violet">${admins}</div>
           <div class="sc-sub">Elevated access</div>
         </div>
-        <div class="stat-card sc-passed">
+        <div class="stat-card sc-passed" style="cursor:pointer" onclick="saShowUsersRole()">
           <div class="sc-top"><div class="sc-icon">🎓</div><div class="sc-label">Users</div></div>
           <div class="sc-num" style="color:var(--focus)">${users}</div>
           <div class="sc-sub">Standard accounts</div>
         </div>
-        <div class="stat-card sc-passed">
+        <div class="stat-card sc-passed" style="cursor:pointer" onclick="saShowApproved()">
           <div class="sc-top"><div class="sc-icon">✓</div><div class="sc-label">Approved</div></div>
           <div class="sc-num">${approved}</div>
           <div class="sc-sub">Active access</div>
         </div>
-        <div class="stat-card sc-avg">
+        <div class="stat-card sc-avg" style="cursor:pointer" onclick="saShowPendingTab()">
           <div class="sc-top"><div class="sc-icon">⏳</div><div class="sc-label">Pending</div></div>
           <div class="sc-num" style="color:var(--warn)">${pending}</div>
           <div class="sc-sub">Needs review</div>
         </div>
-        <div class="stat-card sc-failed">
+        <div class="stat-card sc-failed" style="cursor:pointer" onclick="saShowRejected()">
           <div class="sc-top"><div class="sc-icon">✕</div><div class="sc-label">Rejected</div></div>
           <div class="sc-num">${rejected}</div>
           <div class="sc-sub">Denied access</div>
@@ -2091,14 +2092,14 @@ function spShowSection(id, btn) {
 }
 
 async function saApprove(id){
-  const res = await fetch(`${AUTH_BASE}/approve/${id}`, {method:'PATCH', headers:authHeaders()});
+  const res = await fetch(`${SUPER_URL}/approve/${id}`, {method:'PATCH', headers:authHeaders()});
   if(res.ok){ showToast('User approved!'); loadSuperAdminPage(); }
   else showToast('Failed to approve','error');
 }
 
 async function saReject(id){
-  const res = await fetch(`${AUTH_BASE}/reject/${id}`, {method:'PATCH', headers:authHeaders()});
-  if(res.ok){ showToast('User rejected','warn'); loadSuperAdminPage(); }
+  const res = await fetch(`${SUPER_URL}/reject/${id}`, {method:'PATCH', headers:authHeaders()});
+  if(res.ok){ showToast('User rejected!'); loadSuperAdminPage(); }
   else showToast('Failed to reject','error');
 }
     let saUsersCache = [];
@@ -2365,6 +2366,7 @@ function renderSaUsersTable() {
         <td style="display:flex;gap:6px;">
             ${u.status!=='APPROVED'?`<button class="btn btn-green btn-sm" onclick="saApprove(${u.id})">✓ Approve</button>`:''}
             ${u.status!=='REJECTED'?`<button class="btn btn-danger btn-sm" onclick="saReject(${u.id})">✕ Reject</button>`:''}
+            <button class="btn btn-outline btn-sm" onclick="saDeleteUser(${u.id})" title="Delete user">🗑</button>
         </td>
     </tr>`).join('');
 
@@ -2386,4 +2388,65 @@ function renderSaUsersTable() {
 function saGoToPage(p){
     saUsersPage = p;
     renderSaUsersTable();
+}
+function saOpenUserListModal(title, users){
+  document.getElementById('saUserListTitle').textContent = title;
+  const tb = document.getElementById('saUserListTable');
+  if(!users.length){
+    tb.innerHTML = `<tr><td colspan="4"><div class="empty"><div class="eico">👥</div><p>No users found</p></div></td></tr>`;
+  } else {
+    tb.innerHTML = users.map(u=>`<tr>
+      <td><strong>#${u.id}</strong></td>
+      <td><strong data-initial="${u.username.charAt(0).toUpperCase()}">${u.username}</strong></td>
+      <td><span class="role-badge role-${u.role.toLowerCase()}">${u.role}</span></td>
+      <td><span class="status-badge status-${u.status.toLowerCase()}">${u.status}</span></td>
+    </tr>`).join('');
+  }
+  document.getElementById('saUserListModal').classList.add('open');
+}
+function closeSaUserListModal(){ document.getElementById('saUserListModal').classList.remove('open'); }
+document.getElementById('saUserListModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeSaUserListModal(); });
+
+function saShowTotalUsers(){ saOpenUserListModal('👥 All Accounts', saUsersCache); }
+function saShowAdmins(){ saOpenUserListModal('🛡 Admins', saUsersCache.filter(u=>u.role==='ADMIN')); }
+function saShowUsersRole(){ saOpenUserListModal('🎓 Users', saUsersCache.filter(u=>u.role==='USER')); }
+function saShowPendingTab(){ showSuperSection('saPendingSection', document.getElementById('satab-pending')); }
+
+async function saShowApproved(){
+  try{
+    const res = await fetch(`${SUPER_URL}/Approved`, {headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    saOpenUserListModal('✓ Approved Accounts', await res.json());
+  }catch(e){ showToast('Failed to load approved users','warn'); }
+}
+async function saShowRejected(){
+  try{
+    const res = await fetch(`${SUPER_URL}/Rejected`, {headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    saOpenUserListModal('✕ Rejected Accounts', await res.json());
+  }catch(e){ showToast('Failed to load rejected users','warn'); }
+}
+
+async function saSearchUser(){
+  const name = document.getElementById('saSearchUserInput').value.trim();
+  if(!name){ showToast('Enter a username to search','warn'); return; }
+  try{
+    const res = await fetch(`${SUPER_URL}/${encodeURIComponent(name)}`, {headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    const user = await res.json();
+    saOpenUserListModal(`🔍 Search result for "${name}"`, [user]);
+  }catch(e){
+    showToast('User not found','warn');
+  }
+}
+
+function saDeleteUser(id){
+  openConfirmModal('🗑 Delete User', 'This will permanently remove this user account. This cannot be undone.', async ()=>{
+    try{
+      const res = await fetch(`${SUPER_URL}/DeleteUser/${id}`, {method:'DELETE', headers:authHeaders()});
+      if(!res.ok) throw new Error();
+      showToast('User deleted!');
+      loadSuperAdminPage();
+    }catch(e){ showToast('Failed to delete user','warn'); }
+  });
 }
