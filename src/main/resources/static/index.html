@@ -946,51 +946,105 @@
         <button class="tb-btn" onclick="logout()"><span class="tb-btn-icon">→</span> Logout</button>
     </div>
 
+    <div class="super-tabs">
+        <button class="super-tab active" id="satab-dash" onclick="showSuperSection('saDashSection', this)">
+            <span class="super-tab-icon">⊞</span> Dashboard
+        </button>
+        <button class="super-tab" id="satab-pending" onclick="showSuperSection('saPendingSection', this)">
+            <span class="super-tab-icon">🔔</span> Pending Approvals
+            <span class="nav-badge" id="saPendingBadge">0</span>
+        </button>
+        <button class="super-tab" id="satab-users" onclick="showSuperSection('saUsersSection', this)">
+            <span class="super-tab-icon">👥</span> All Users
+        </button>
+    </div>
+
     <div class="super-content">
-        <div class="pill-row" id="saUserStats"></div>
 
-        <div class="page-card">
-            <div class="page-card-hdr">
-                <div class="pch-icon pch-yellow">🔔</div>
-                <div><h3>Pending Approvals</h3><p>Approve or reject new account requests</p></div>
-                <button class="sync-pill super-refresh-btn" onclick="runSync(this, loadSuperAdminPage, 'Synced!')"><span class="sync-icon">↻</span> Refresh</button>
-            </div>
-            <div class="table-shell">
-                <table>
-                    <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Actions</th></tr></thead>
-                    <tbody id="saPendingTable">
-                    <tr><td colspan="4"><div class="empty"><div class="eico">🔔</div><p>No pending users</p></div></td></tr>
-                    </tbody>
-                </table>
+        <!-- ══ DASHBOARD ══ -->
+        <div class="super-section active" id="saDashSection">
+            <div class="super-section-eyebrow">Overview</div>
+            <div class="super-stat-grid" id="saDashStats"></div>
+
+            <div class="dash-bottom" style="margin-top:6px;">
+                <div class="quick-actions-card">
+                    <div class="qa-title">Quick actions</div>
+                    <div class="qa-sub">Jump to what needs attention</div>
+                    <div class="qa-grid">
+                        <button class="qa-btn" onclick="showSuperSection('saPendingSection', document.getElementById('satab-pending'))">
+                            <div class="qa-btn-icon">🔔</div>
+                            <div><div class="qa-btn-title">Review pending</div><div class="qa-btn-sub" id="saQaPendingSub">Awaiting approval</div></div>
+                        </button>
+                        <button class="qa-btn" onclick="showSuperSection('saUsersSection', document.getElementById('satab-users'))">
+                            <div class="qa-btn-icon">👥</div>
+                            <div><div class="qa-btn-title">Manage users</div><div class="qa-btn-sub">Search &amp; filter accounts</div></div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grade-dist-card">
+                    <div class="gd-title">Role split</div>
+                    <div class="gd-sub">Admins vs users</div>
+                    <div id="saRoleDist"></div>
+                </div>
             </div>
         </div>
 
-        <div class="page-card">
-            <div class="page-card-hdr">
-                <div class="pch-icon pch-purple">👥</div>
-                <div><h3>All Users</h3><p>Manage registered accounts</p></div>
-            </div>
-            <div class="data-toolbar-filters" style="margin-bottom:14px;">
-                <button class="sort-btn active" id="saRoleTab-all" onclick="setSaRoleTab('all')">All</button>
-                <button class="sort-btn" id="saRoleTab-USER" onclick="setSaRoleTab('USER')">Users</button>
-                <button class="sort-btn" id="saRoleTab-ADMIN" onclick="setSaRoleTab('ADMIN')">Admins</button>
-                <select id="saStatusFilter" onchange="renderSaUsersTable()" class="select-compact">
-                    <option value="all">All Status</option>
-                    <option value="APPROVED">Approved</option>
-                    <option value="PENDING">Pending</option>
-                    <option value="REJECTED">Rejected</option>
-                </select>
-            </div>
-            <div class="table-shell">
-                <table>
-                    <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
-                    <tbody id="saAllUsersTable"></tbody>
-                </table>
+        <!-- ══ PENDING APPROVALS ══ -->
+        <div class="super-section" id="saPendingSection">
+            <div class="page-card">
+                <div class="page-card-hdr">
+                    <div class="pch-icon pch-yellow">🔔</div>
+                    <div><h3>Pending Approvals</h3><p>Approve or reject new account requests</p></div>
+                    <button class="sync-pill super-refresh-btn" onclick="runSync(this, loadSuperAdminPage, 'Synced!')"><span class="sync-icon">↻</span> Refresh</button>
+                </div>
+                <div class="table-shell">
+                    <table>
+                        <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Actions</th></tr></thead>
+                        <tbody id="saPendingTable">
+                        <tr><td colspan="4"><div class="empty"><div class="eico">🔔</div><p>No pending users</p></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
+        <!-- ══ ALL USERS ══ -->
+        <div class="super-section" id="saUsersSection">
+            <div class="page-card">
+                <div class="page-card-hdr">
+                    <div class="pch-icon pch-purple">👥</div>
+                    <div><h3>All Users</h3><p>Manage registered accounts</p></div>
+                </div>
+                <div class="data-toolbar">
+                    <div class="data-toolbar-filters">
+                        <input type="text" id="saUserSearch" placeholder="🔍 Search username…" oninput="saUsersPage=1;renderSaUsersTable()">
+                        <button class="sort-btn active" id="saRoleTab-all" onclick="setSaRoleTab('all')">All</button>
+                        <button class="sort-btn" id="saRoleTab-USER" onclick="setSaRoleTab('USER')">Users</button>
+                        <button class="sort-btn" id="saRoleTab-ADMIN" onclick="setSaRoleTab('ADMIN')">Admins</button>
+                        <select id="saStatusFilter" onchange="saUsersPage=1;renderSaUsersTable()" class="select-compact">
+                            <option value="all">All Status</option>
+                            <option value="APPROVED">Approved</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="REJECTED">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="data-toolbar-actions">
+                        <span id="saUsersShowingTxt" class="muted-note" style="margin:0;"></span>
+                    </div>
+                </div>
+                <div class="table-shell">
+                    <table>
+                        <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="saAllUsersTable"></tbody>
+                    </table>
+                </div>
+                <div class="super-pagination" id="saUsersPagination"></div>
+            </div>
+        </div>
+
     </div>
 </div>
-
 <script src="../js/script.js"></script>
 
 </body>

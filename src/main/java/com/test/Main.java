@@ -17,8 +17,6 @@ public class Main {
         EntityManagerFactory emf = ctx.getBean(EntityManagerFactory.class);
         Metamodel metamodel = emf.getMetamodel();
         metamodel.getEntities().forEach(e -> System.out.println("ENTITY FOUND: " + e.getName()));
-        System.out.println("MAIL_USER: " + System.getenv("MAIL_USERNAME"));
-        System.out.println("MAIL_PASS length: " + (System.getenv("MAIL_PASSWORD") != null ? System.getenv("MAIL_PASSWORD").length() : "NULL"));
     }
 
 }

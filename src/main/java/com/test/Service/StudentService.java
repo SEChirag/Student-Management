@@ -21,8 +21,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -213,6 +215,10 @@ public class StudentService {
     }
     @Transactional
     public Model addStudent(Model model) {
+
+        if(Repo.existsByEmail(model.getEmail())){
+            throw new ResponseStatusException(HttpStatusCode.valueOf(409) ,"Email already Exist");
+        }
         String username = credentialGenerator.generateUsername(model.getName(), model.getRollNumber());
         String tempPassword = credentialGenerator.generateTempPassword();
 
@@ -228,7 +234,6 @@ public class StudentService {
         Model saved = Repo.save(model);
 
         eventPublisher.publishEvent(new StudentAccountCreateEvent(saved, tempPassword));
-
 
         return saved;
     }

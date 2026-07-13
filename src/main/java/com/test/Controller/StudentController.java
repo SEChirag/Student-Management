@@ -52,8 +52,6 @@ public class StudentController {
         User user = useRepository.findByUsername(username).orElseThrow();
         model.setUser(user);
         model.setUsername(user.getUsername());
-
-
         return service.addStudent(model);
     }
 

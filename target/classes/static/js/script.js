@@ -315,8 +315,8 @@ function renderAllUsersTable() {
     tb.innerHTML = filtered.map(u => `<tr>
         <td><strong>#${u.id}</strong></td>
         <td><strong>${u.username}</strong></td>
-        <td><span class="badge gc">${u.role}</span></td>
-        <td><span class="badge ${u.status==='APPROVED'?'bp':u.status==='REJECTED'?'bf':'gc'}">${u.status}</span></td>
+       <td><span class="role-badge role-${u.role.toLowerCase()}">${u.role}</span></td>
+       <td><span class="status-badge status-${u.status.toLowerCase()}">${u.status}</span></td>
         <td style="display:flex;gap:6px;">
             ${u.status!=='APPROVED'?`<button class="btn btn-green btn-sm" onclick="approveUser(${u.id})">✓ Approve</button>`:''}
             ${u.status!=='REJECTED'?`<button class="btn btn-danger btn-sm" onclick="rejectUser(${u.id})">✕ Reject</button>`:''}
@@ -2008,11 +2008,16 @@ function spShowSection(id, btn) {
       } else {
         tb.innerHTML = users.map(u=>`<tr>
           <td><strong>#${u.id}</strong></td>
-          <td><strong>${u.username}</strong></td>
-          <td><span class="badge gc">${u.role}</span></td>
+<td><strong data-initial="${u.username.charAt(0).toUpperCase()}">${u.username}</strong></td>         <td><span class="role-badge role-${u.role.toLowerCase()}">${u.role}</span></td>
           <td style="display:flex;gap:6px;">
-            <button class="btn btn-green btn-sm" onclick="saApprove(${u.id})">✓ Approve</button>
-            <button class="btn btn-danger btn-sm" onclick="saReject(${u.id})">✕ Reject</button>
+            <button class="icon-action-btn iab-approve" onclick="saApprove(${u.id})">
+              <span class="iab-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+              Approve
+            </button>
+            <button class="icon-action-btn iab-reject" onclick="saReject(${u.id})">
+              <span class="iab-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+              Reject
+            </button>
           </td>
         </tr>`).join('');
       }
@@ -2030,29 +2035,56 @@ function spShowSection(id, btn) {
       const pending  = all.filter(u=>u.status==='PENDING').length;
       const rejected = all.filter(u=>u.status==='REJECTED').length;
 
-      document.getElementById('saUserStats').innerHTML = `
-        <div style="padding:12px 18px;background:rgba(177,76,255,.08);border:1px solid rgba(177,76,255,.2);border-radius:11px;">
-          <div style="font-size:22px;font-weight:800;color:var(--purple)">${admins}</div>
-          <div style="font-size:11px;color:var(--muted)">Admins</div>
+      const total = all.length;
+      document.getElementById('saDashStats').innerHTML = `
+        <div class="stat-card sc-total">
+          <div class="sc-top"><div class="sc-icon">👥</div><div class="sc-label">Total accounts</div></div>
+          <div class="sc-num">${total}</div>
+          <div class="sc-sub">All registered users</div>
         </div>
-        <div style="padding:12px 18px;background:rgba(0,245,212,.08);border:1px solid rgba(0,245,212,.2);border-radius:11px;">
-          <div style="font-size:22px;font-weight:800;color:var(--cyan)">${users}</div>
-          <div style="font-size:11px;color:var(--muted)">Users</div>
+        <div class="stat-card sc-violet">
+          <div class="sc-top"><div class="sc-icon">🛡</div><div class="sc-label">Admins</div></div>
+          <div class="sc-num sc-num-violet">${admins}</div>
+          <div class="sc-sub">Elevated access</div>
         </div>
-        <div style="padding:12px 18px;background:rgba(34,211,122,.08);border:1px solid rgba(34,211,122,.2);border-radius:11px;">
-          <div style="font-size:22px;font-weight:800;color:var(--green)">${approved}</div>
-          <div style="font-size:11px;color:var(--muted)">Approved</div>
+        <div class="stat-card sc-passed">
+          <div class="sc-top"><div class="sc-icon">🎓</div><div class="sc-label">Users</div></div>
+          <div class="sc-num" style="color:var(--focus)">${users}</div>
+          <div class="sc-sub">Standard accounts</div>
         </div>
-        <div style="padding:12px 18px;background:rgba(255,228,77,.08);border:1px solid rgba(255,228,77,.2);border-radius:11px;">
-          <div style="font-size:22px;font-weight:800;color:var(--yellow)">${pending}</div>
-          <div style="font-size:11px;color:var(--muted)">Pending</div>
+        <div class="stat-card sc-passed">
+          <div class="sc-top"><div class="sc-icon">✓</div><div class="sc-label">Approved</div></div>
+          <div class="sc-num">${approved}</div>
+          <div class="sc-sub">Active access</div>
         </div>
-        <div style="padding:12px 18px;background:rgba(255,45,120,.08);border:1px solid rgba(255,45,120,.2);border-radius:11px;">
-          <div style="font-size:22px;font-weight:800;color:var(--pink)">${rejected}</div>
-          <div style="font-size:11px;color:var(--muted)">Rejected</div>
+        <div class="stat-card sc-avg">
+          <div class="sc-top"><div class="sc-icon">⏳</div><div class="sc-label">Pending</div></div>
+          <div class="sc-num" style="color:var(--warn)">${pending}</div>
+          <div class="sc-sub">Needs review</div>
+        </div>
+        <div class="stat-card sc-failed">
+          <div class="sc-top"><div class="sc-icon">✕</div><div class="sc-label">Rejected</div></div>
+          <div class="sc-num">${rejected}</div>
+          <div class="sc-sub">Denied access</div>
         </div>`;
 
-     saUsersCache = all;
+      document.getElementById('saPendingBadge').textContent = pending;
+      document.getElementById('saQaPendingSub').textContent = pending>0 ? `${pending} awaiting approval` : 'All caught up';
+
+      const maxRole = Math.max(admins, users, 1);
+      document.getElementById('saRoleDist').innerHTML = `
+        <div class="pr-row">
+          <span class="pr-lbl" style="color:var(--violet)">Adm</span>
+          <div class="pr-bg"><div class="pr-fill" style="width:${admins/maxRole*100}%;background:var(--violet);"></div></div>
+          <span class="pr-val" style="color:var(--violet)">${admins}</span>
+        </div>
+        <div class="pr-row">
+          <span class="pr-lbl" style="color:var(--focus)">Usr</span>
+          <div class="pr-bg"><div class="pr-fill" style="width:${users/maxRole*100}%;background:var(--focus);"></div></div>
+          <span class="pr-val" style="color:var(--focus)">${users}</span>
+        </div>`;
+
+      saUsersCache = all;
       renderSaUsersTable();
     }
   }catch(e){}
@@ -2074,6 +2106,7 @@ let saActiveRoleTab = 'all';
 
 function setSaRoleTab(role) {
     saActiveRoleTab = role;
+    saUsersPage = 1;
     document.querySelectorAll('[id^="saRoleTab-"]').forEach(b => b.classList.remove('active'));
     document.getElementById('saRoleTab-' + role).classList.add('active');
     renderSaUsersTable();
@@ -2290,31 +2323,67 @@ function setSaRoleTab(role) {
   }
 
 })();
+function showSuperSection(id, btn){
+  document.querySelectorAll('#superAdminPage .super-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('#superAdminPage .super-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+let saUsersPage = 1;
+const SA_PAGE_SIZE = 8;
 
 function renderSaUsersTable() {
     const statusFilter = document.getElementById('saStatusFilter')?.value || 'all';
+    const search = (document.getElementById('saUserSearch')?.value || '').toLowerCase();
 
     const filtered = saUsersCache.filter(u => {
         if (saActiveRoleTab !== 'all' && u.role !== saActiveRoleTab) return false;
         if (statusFilter !== 'all' && u.status !== statusFilter) return false;
+        if (search && !u.username.toLowerCase().includes(search)) return false;
         return true;
     });
+
+    const totalPages = Math.max(1, Math.ceil(filtered.length / SA_PAGE_SIZE));
+    if (saUsersPage > totalPages) saUsersPage = totalPages;
+    const start = (saUsersPage - 1) * SA_PAGE_SIZE;
+    const pageItems = filtered.slice(start, start + SA_PAGE_SIZE);
 
     const tb = document.getElementById('saAllUsersTable');
     if (!filtered.length) {
         tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="eico">👥</div>
             <p>No users found for this filter</p></div></td></tr>`;
+        document.getElementById('saUsersPagination').innerHTML = '';
+        document.getElementById('saUsersShowingTxt').textContent = '';
         return;
     }
 
-    tb.innerHTML = filtered.map(u => `<tr>
+    tb.innerHTML = pageItems.map(u => `<tr>
         <td><strong>#${u.id}</strong></td>
-        <td><strong>${u.username}</strong></td>
-        <td><span class="badge gc">${u.role}</span></td>
-        <td><span class="badge ${u.status==='APPROVED'?'bp':u.status==='REJECTED'?'bf':'gc'}">${u.status}</span></td>
+        <td><strong data-initial="${u.username.charAt(0).toUpperCase()}">${u.username}</strong></td>
+      <td><span class="role-badge role-${u.role.toLowerCase()}">${u.role}</span></td>
+              <td><span class="status-badge status-${u.status.toLowerCase()}">${u.status}</span></td>
         <td style="display:flex;gap:6px;">
             ${u.status!=='APPROVED'?`<button class="btn btn-green btn-sm" onclick="saApprove(${u.id})">✓ Approve</button>`:''}
             ${u.status!=='REJECTED'?`<button class="btn btn-danger btn-sm" onclick="saReject(${u.id})">✕ Reject</button>`:''}
         </td>
     </tr>`).join('');
+
+    document.getElementById('saUsersShowingTxt').textContent =
+        `Showing ${start+1}–${Math.min(start+SA_PAGE_SIZE, filtered.length)} of ${filtered.length}`;
+
+    let pagHtml = `<button class="super-page-btn" ${saUsersPage===1?'disabled':''} onclick="saGoToPage(${saUsersPage-1})">‹</button>`;
+    for (let p = 1; p <= totalPages; p++) {
+        if (p===1 || p===totalPages || Math.abs(p-saUsersPage)<=1) {
+            pagHtml += `<button class="super-page-btn ${p===saUsersPage?'active':''}" onclick="saGoToPage(${p})">${p}</button>`;
+        } else if (Math.abs(p-saUsersPage)===2) {
+            pagHtml += `<span style="color:var(--muted);padding:0 4px;">…</span>`;
+        }
+    }
+    pagHtml += `<button class="super-page-btn" ${saUsersPage===totalPages?'disabled':''} onclick="saGoToPage(${saUsersPage+1})">›</button>`;
+    document.getElementById('saUsersPagination').innerHTML = pagHtml;
+}
+
+function saGoToPage(p){
+    saUsersPage = p;
+    renderSaUsersTable();
 }
