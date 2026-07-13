@@ -1832,7 +1832,7 @@ function filterStudentsByAssignment(){ applyFilters(); }
            const bg    = status==='completed'?'rgba(34,211,122,.08)':status==='incompleted'?'rgba(255,45,120,.08)':'rgba(255,228,77,.06)';
            const border= status==='completed'?'rgba(34,211,122,.2)':status==='incompleted'?'rgba(255,45,120,.2)':'rgba(255,228,77,.15)';
            const cls   = status==='completed'?'bp':status==='incompleted'?'bf':'gc';
-           return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:${bg};border:1px solid ${border};border-radius:9px;cursor:pointer;transition:all .18s;" onclick="${isPastDue?`showAssignmentDetail(${a.id})`:`toggleCompletion(${s.id},${a.id})`}" title="${isPastDue?'Expired — click to view results':'Click to toggle'}">
+           return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:${bg};border:1px solid ${border};border-radius:9px;cursor:pointer;transition:all .18s;"onclick="${isPastDue?`showCenterAlert('Assignment submission expired')`:`toggleCompletion(${s.id},${a.id})`}">
                 <div>
                     <div style="font-size:12px;font-weight:600;color:var(--text);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.title}</div>
                     <div style="font-size:10px;color:${isOverdueA?'var(--pink)':'var(--muted)'};margin-top:2px;">${a.due?new Date(a.due).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'No due date'}${isOverdueA?' ⚠':''}</div>
@@ -1920,7 +1920,30 @@ document.addEventListener('DOMContentLoaded', function(){
     else enterDashboard(false);
   }
 });
-
+function showCenterAlert(message, icon){
+  icon = icon || '⏰';
+  let modal = document.getElementById('centerAlertModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'centerAlertModal';
+    modal.className = 'center-alert-overlay';
+    modal.innerHTML = `
+      <div class="center-alert-box">
+        <div class="center-alert-icon">${icon}</div>
+        <div class="center-alert-msg"></div>
+        <button class="btn btn-edit center-alert-close" onclick="closeCenterAlert()">Exit</button>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e=>{ if(e.target===e.currentTarget) closeCenterAlert(); });
+  }
+  modal.querySelector('.center-alert-icon').textContent = icon;
+  modal.querySelector('.center-alert-msg').textContent = message;
+  modal.classList.add('open');
+}
+function closeCenterAlert(){
+  const modal = document.getElementById('centerAlertModal');
+  if(modal) modal.classList.remove('open');
+}
     // ── AUTH / REGISTRATION ──
     function showRegister(){
       document.getElementById('loginCard').style.display='none';
