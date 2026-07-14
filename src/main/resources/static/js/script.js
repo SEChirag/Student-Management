@@ -1,7 +1,7 @@
     const AUTH_BASE = "http://localhost:8081/auth";
     const BASE_URL  = "http://localhost:8081/API";
     const USER_URL  = "http://localhost:8081/student";
-    const SUPER_URL = "http://localhost:8081/superadmin"
+    const SUPER_URL = "http://localhost:8081/superadmin";
 
     let allStudents       = [];
     let displayedStudents = [];
@@ -355,6 +355,29 @@ async function loadMyProfile() {
         msg.textContent = '⚠ Could not refresh from server';
     }
 }
+async function saOpenProfileModal(){
+  document.getElementById('saProfileModal').classList.add('open');
+  const body = document.getElementById('saProfileBody');
+  body.innerHTML = `<div class="detail-tile"><div class="detail-label">Loading…</div></div>`;
+
+  try{
+    const res = await fetch(`${AUTH_BASE}/me`, { headers: authHeaders() });
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    body.innerHTML = `
+      <div class="detail-tile"><div class="detail-label">Username</div><div class="detail-value">${data.username || '—'}</div></div>
+      <div class="detail-tile"><div class="detail-label">Role</div><div class="detail-value">${data.role || '—'}</div></div>
+      <div class="detail-tile"><div class="detail-label">Status</div><div class="detail-value">${data.status || '—'}</div></div>
+    `;
+  }catch(e){
+    body.innerHTML = `<div class="detail-tile"><div class="detail-label" style="color:var(--pink)">⚠ Failed to load profile</div></div>`;
+  }
+}
+
+function closeSaProfileModal(){
+  document.getElementById('saProfileModal').classList.remove('open');
+}
+document.getElementById('saProfileModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeSaProfileModal(); });
 
 /* ── ADMIN PROFILE (ADMIN role) ── */
 async function loadAdminProfile() {
@@ -2407,7 +2430,16 @@ function saOpenUserListModal(title, users){
 function closeSaUserListModal(){ document.getElementById('saUserListModal').classList.remove('open'); }
 document.getElementById('saUserListModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeSaUserListModal(); });
 
-function saShowTotalUsers(){ saOpenUserListModal('👥 All Accounts', saUsersCache); }
+async function saShowTotalUsers(){
+  try{
+    const res = await fetch(`${SUPER_URL}/allUser`, {headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    const all = await res.json();
+    saOpenUserListModal('👥 All Accounts', all);
+  }catch(e){
+    showToast('Failed to load all accounts','warn');
+  }
+}
 function saShowAdmins(){ saOpenUserListModal('🛡 Admins', saUsersCache.filter(u=>u.role==='ADMIN')); }
 function saShowUsersRole(){ saOpenUserListModal('🎓 Users', saUsersCache.filter(u=>u.role==='USER')); }
 function saShowPendingTab(){ showSuperSection('saPendingSection', document.getElementById('satab-pending')); }

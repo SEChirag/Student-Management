@@ -56,8 +56,11 @@ public class StudentService {
     }
 
     public List<Model> getAllStudents() {
-
-        return Repo.findAll();
+        List<Model> students = Repo.findAll();
+        List<Model> sorted = students.stream()
+                .sorted(Comparator.comparing(Model::getName,String.CASE_INSENSITIVE_ORDER).thenComparing(Model::getName))
+                .toList();
+        return sorted;
     }
 
     public Model getbyname(String name) {
@@ -244,15 +247,15 @@ public class StudentService {
     }
 
     public List<Model> passStudents() {
-        return Repo.findAll().stream().filter(student -> student.getMarks()>32).toList();
+        return Repo.findAll().stream().filter(student -> student.getMarks()>32).sorted(Comparator.comparing(Model::getMarks).reversed()).toList();
     }
 
     public List<Model> ActiveStudents() {
-        return Repo.findAll().stream().filter(student -> student.getStatus().equalsIgnoreCase("ACTIVE")).toList();
+        return Repo.findAll().stream().filter(student -> student.getStatus().equalsIgnoreCase("ACTIVE")).sorted(Comparator.comparing(Model ::getName, String.CASE_INSENSITIVE_ORDER)).toList();
     }
 
     public List<Model> InactiveStudents() {
-        return Repo.findAll().stream().filter(student -> student.getStatus().equalsIgnoreCase("INACTIVE")).toList();
+        return Repo.findAll().stream().filter(student -> student.getStatus().equalsIgnoreCase("INACTIVE")).sorted(Comparator.comparing(Model::getName,String.CASE_INSENSITIVE_ORDER)).toList();
     }
 
     public void deleteExpiredAssignments(Long id) {

@@ -4,6 +4,7 @@ import com.test.Entity.*;
 import com.test.Service.AuthService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,8 +29,6 @@ public class AuthController {
     public ResponseEntity<String> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
-
-
 
     @GetMapping("/profile/{username}")
     public ResponseEntity<StudentProfile> getProfile(@PathVariable String username) {

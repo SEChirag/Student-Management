@@ -144,7 +144,7 @@
                         <div class="topbar-menu" id="topbarMenu">
                             <button class="topbar-menu-item" onclick="closeTopbarMenu();showSection('profileSection',null)">👤 My Profile</button>
                             <div class="topbar-menu-divider"></div>
-                            <button class="topbar-menu-item topbar-menu-item-alert" onclick="closeTopbarMenu();logout()">→ Logout</button>
+                            <button class="topbar-menu-item topbar-menu-item-alert" onclick="closeTopbarMenu();logout()">Logout</button>
                         </div>
                     </div>
                 </div>
@@ -814,7 +814,7 @@
         </div>
         <button class="login-btn" onclick="submitProfile()">Save & Continue →</button>
         <p id="psMsg" class="auth-msg"></p>
-        <p class="auth-switch-line"><span onclick="logout()" class="auth-link auth-link-alert">← Logout</span></p>
+        <p class="auth-switch-line"><span onclick="logout()" class="auth-link auth-link-alert">Logout</span></p>
     </div>
 </div>
 
@@ -948,6 +948,15 @@
         </div>
     </div>
 
+    <div class="modal-ov" id="saProfileModal">
+        <div class="modal" style="width:420px;max-width:95vw;">
+            <div class="mhdr"><h3>👤 My Profile</h3><button class="mclose" onclick="closeSaProfileModal()">✕</button></div>
+            <div class="detail-grid" id="saProfileBody">
+                <div class="detail-tile"><div class="detail-label">Username</div><div class="detail-value">—</div></div>
+            </div>
+        </div>
+    </div>
+
     <div class="super-topbar">
         <div class="super-brand">
             <div class="super-brand-icon">🎓</div>
@@ -960,7 +969,8 @@
             <input type="text" id="saSearchUserInput" placeholder="🔍 Find user by username…" onkeydown="if(event.key==='Enter')saSearchUser()">
             <button class="tb-btn" onclick="saSearchUser()">Search</button>
         </div>
-        <button class="tb-btn" onclick="logout()"><span class="tb-btn-icon">→</span> Logout</button>
+        <button class="tb-btn" onclick="saOpenProfileModal()"><span class="tb-btn-icon">👤</span> Profile</button>
+        <button class="tb-btn" onclick="logout()"><span class="tb-btn-icon"></span> Logout</button>
     </div>
 
     <div class="super-tabs">

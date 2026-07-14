@@ -16,13 +16,15 @@ public class JwtUtil {
 
     // Generate Token
     public String generateToken(String username, String role) {
-        return Jwts.builder()
+     String token = Jwts.builder()
                 .setSubject(username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+
+        return token;
     }
 
     // Extract username

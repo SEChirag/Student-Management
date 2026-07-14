@@ -51,6 +51,8 @@ public class JwtFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             System.err.println("JWT Filter error: " + e.getMessage());
         }
+        String authHeader = request.getHeader("Authorization");
+        System.out.println("DEBUG authHeader: " + authHeader);
 
         filterChain.doFilter(request, response);
     }
