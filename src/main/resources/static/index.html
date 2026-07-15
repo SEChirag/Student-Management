@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -23,7 +23,7 @@
         <h1>Campus<span class="title-dot">.</span></h1>
         <p class="login-sub">Sign in to continue</p>
         <div class="inp-group"><label>Username</label>
-            <input type="text" id="username" placeholder="admin" autocomplete="off">
+            <input type="text" id="username" name="username" placeholder="admin" autocomplete="username" aria-label="Username">
         </div>
         <div class="inp-group"><label>Password</label>
             <input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
@@ -371,7 +371,7 @@
                                 </tr>
                                 </thead>
                                 <tbody id="studentTable">
-                                <tr><td colspan="8"><div class="empty"><div class="eico">📋</div><p>Click Refresh to load</p></div></td></tr>
+                                <tr><td colspan="8"><div class="empty"><div class="eico">📋</div><p>No students loaded yet</p><button class="btn btn-outline btn-sm" onclick="getStudents()" style="margin-top:10px;">↻ Load students</button></div></td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -737,7 +737,7 @@
 <div class="modal-ov" id="editModal">
 
     <div class="modal">
-        <div class="mhdr"><h3>✎ Edit Student</h3><button class="mclose" onclick="closeModal()">✕</button></div>
+        <div class="mhdr"><h3>✎ Edit Student</h3><button class="mclose" onclick="closeModal()" aria-label="Close dialog">✕</button></div>
         <input type="hidden" id="editId">
         <div class="mgrid">
             <div class="fg"><label>Full Name</label><input type="text" id="editName"></div>

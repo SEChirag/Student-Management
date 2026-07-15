@@ -38,7 +38,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                   .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/register", "/auth/oauth/token").permitAll()
-                        .requestMatchers("/auth/me", "/auth/profile").permitAll()
+                        .requestMatchers("/auth/me", "/auth/profile" ,"/auth/getProfile").permitAll()
                         .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
                           .requestMatchers("/student/**").hasAnyRole("USER", "ADMIN")
                           .requestMatchers("/API/**").hasAnyRole("ADMIN", "SUPER_ADMIN")

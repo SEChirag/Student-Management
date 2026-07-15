@@ -92,15 +92,15 @@ public class AuthService {
         String role = (user != null) ? user.getRole() : "USER";
 
         if ("ADMIN".equalsIgnoreCase(role)) {
-            return saveAdminProfile(profile);
+            return saveProfile(profile);
         }
         return saveStudentProfile(profile);
     }
 
-    private AdminProfile saveAdminProfile(StudentProfile profile) {
+    public AdminProfile saveAdminProfile(AdminProfile profile) {
         AdminProfile adminToSave = adminProfileRepo.findByUsername(profile.getUsername())
                 .map(existing -> {
-                    existing.setDepartment(profile.getSection());
+                    existing.setDepartment(profile.getDepartment());
                     if (existing.getStatus() == null) existing.setStatus("APPROVED");
                     if (existing.getRole() == null) existing.setRole("ADMIN");
                     return existing;
@@ -108,7 +108,7 @@ public class AuthService {
                 .orElseGet(() -> {
                     AdminProfile a = new AdminProfile();
                     a.setUsername(profile.getUsername());
-                    a.setDepartment(profile.getSection());
+                    a.setDepartment(profile.getDepartment());
                     a.setRole("ADMIN");
                     a.setStatus("APPROVED");
                     return a;
@@ -201,4 +201,7 @@ public class AuthService {
     }
 
 
+    public AdminProfile getTheProfile(String username) {
+        return adminProfileRepo.findByUsername(username).stream().findAny().orElseThrow(()->new RuntimeException("Profile not found"));
+    }
 }

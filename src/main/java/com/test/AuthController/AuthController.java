@@ -2,9 +2,8 @@ package com.test.AuthController;
 
 import com.test.Entity.*;
 import com.test.Service.AuthService;
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,6 +43,15 @@ public class AuthController {
     @PostMapping("/profile")
     public ResponseEntity<?> saveProfile(@RequestBody StudentProfile profile) {
         return ResponseEntity.ok(authService.saveProfile(profile));
+    }
+    @PostMapping("/Adminprofile")
+    public ResponseEntity<?> saveAdminProfile(@RequestBody AdminProfile profile) {
+        return ResponseEntity.ok(authService.saveAdminProfile(profile));
+    }
+    @GetMapping("/getProfile")
+    public ResponseEntity<AdminProfile> getTheProfile(Authentication authentication){
+        String username = authentication.getName();
+        return ResponseEntity.ok(authService.getTheProfile(username));
     }
 
     @PostMapping("/oauth/token")

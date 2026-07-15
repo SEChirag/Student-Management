@@ -914,6 +914,7 @@ const payload = {name, marks:parseInt(marks), section, result, status:status||'A
 
     /* ── GET STUDENTS ── */
     async function getStudents(){
+      document.getElementById('studentTable').innerHTML = Array(5).fill('<tr><td colspan="8"><div class="hud-skeleton" style="height:20px;border-radius:6px;"></div></td></tr>').join('');
       try{
         const res=await fetch(`${BASE_URL}/all`,{headers:authHeaders(),signal:AbortSignal.timeout(4000)});
         if(!res.ok) throw new Error();
