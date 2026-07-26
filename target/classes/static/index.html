@@ -99,6 +99,14 @@
             </div>
 
             <div class="nav-section">
+                <div class="nav-label">Support</div>
+                <button class="nav-btn" onclick="showSection('doubtsSection',this)">
+                    <div class="nav-icon">💬</div>Doubts
+                    <span class="nav-badge" id="doubtsCount" style="display:none">0</span>
+                </button>
+            </div>
+
+            <div class="nav-section">
                 <div class="nav-label">Insights</div>
                 <button class="nav-btn" onclick="showSection('analyticsSection',this)"><div class="nav-icon">◈</div>Analytics</button>
                 <button class="nav-btn" onclick="showSection('topSection',this)"><div class="nav-icon">🏆</div>Top performers</button>
@@ -653,6 +661,24 @@
                     </div>
                 </div>
 
+                <!-- ══ DOUBTS (admin side) ══ -->
+                <div class="section" id="doubtsSection">
+                    <div class="page-card">
+                        <div class="page-card-hdr">
+                            <div class="pch-icon pch-cyan">💬</div>
+                            <div><h3>Student Doubts</h3><p>Questions from students, waiting on your reply</p></div>
+                        </div>
+                        <div class="data-toolbar">
+                            <div class="data-toolbar-actions">
+                                <button class="sync-pill" onclick="runSync(this, loadAdminDoubts, 'Synced!')"><span class="sync-icon">↻</span> Refresh</button>
+                            </div>
+                        </div>
+                        <div id="doubtsList">
+                            <div class="empty"><div class="eico">💬</div><p>Loading…</p></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- ══ MY PROFILE (admin) ══ -->
                 <div class="section" id="profileSection">
                     <div class="page-card">
@@ -831,6 +857,7 @@
                 <button class="nav-btn active" onclick="spShowSection('spHomeSection',this)"><div class="nav-icon">⊞</div>Home</button>
                 <button class="nav-btn" onclick="spShowSection('spAssignSection',this)"><div class="nav-icon">📝</div>My Assignments</button>
                 <button class="nav-btn" onclick="spShowSection('spGradesSection',this)"><div class="nav-icon">🎯</div>My Grades</button>
+                <button class="nav-btn" onclick="spShowSection('spDoubtsSection',this)"><div class="nav-icon">💬</div>Ask a Doubt</button>
             </div>
             <div class="sb-footer">
                 <button class="nav-btn" onclick="spShowSection('spProfileSection',this)"><div class="nav-icon">👤</div>My Profile</button>
@@ -908,6 +935,41 @@
                                 <div id="spMarks2" class="sp-marks-num-lg">—</div>
                                 <div class="sp-result-row"><span id="spResult2" class="badge bp">—</span></div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section" id="spDoubtsSection">
+                    <div class="page-card">
+                        <div class="page-card-hdr">
+                            <div class="pch-icon pch-cyan">💬</div>
+                            <div><h3>Ask a Doubt</h3><p>Pick an admin and ask your question</p></div>
+                        </div>
+                        <div class="fgrid">
+                            <div class="fg"><label>Admin *</label>
+                                <select id="doubtAdminSelect"><option value="">Loading admins…</option></select>
+                            </div>
+                            <div class="fg"><label>Subject</label><input type="text" id="doubtSubject" placeholder="e.g. Mathematics"></div>
+                            <div class="fg" style="grid-column:1/-1;"><label>Your Question *</label>
+                                <textarea id="doubtQuestion" rows="3" placeholder="Type your question…"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="askDoubt()">💬 Submit Doubt</button>
+                        </div>
+                    </div>
+                    <div class="page-card">
+                        <div class="page-card-hdr">
+                            <div class="pch-icon pch-yellow">📨</div>
+                            <div><h3>My Doubts</h3><p>Track your questions and replies</p></div>
+                        </div>
+                        <div class="data-toolbar">
+                            <div class="data-toolbar-actions">
+                                <button class="sync-pill" onclick="runSync(this, loadMyDoubts, 'Synced!')"><span class="sync-icon">↻</span> Refresh</button>
+                            </div>
+                        </div>
+                        <div id="myDoubtsList">
+                            <div class="empty"><div class="eico">💬</div><p>Loading…</p></div>
                         </div>
                     </div>
                 </div>

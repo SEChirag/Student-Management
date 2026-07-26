@@ -35,7 +35,6 @@ public class Model {
     @JoinColumn(name = "user_id")
     private  User user;
 
-    @Column(nullable = false)
     private String email;
 
 }

@@ -67,6 +67,10 @@ public class StudentService {
         return Repo.findByName(name);
     }
 
+    public Model updateExistingStudent(Model model) {
+        return Repo.save(model);
+    }
+
 //    public Model addStudent(Model model) {
 //        return Repo.save(model);
 //

@@ -67,7 +67,7 @@ public class StudentController {
         existing.setUser(model.getUser());
         if (model.getUsername() != null) existing.setUsername(model.getUsername());
         if (model.getRollNumber() != null) existing.setRollNumber(model.getRollNumber());
-        return service.addStudent(existing);
+        return service.updateExistingStudent(existing);
     }
 
     @DeleteMapping("/delete/{id}")

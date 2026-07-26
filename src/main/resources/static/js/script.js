@@ -704,6 +704,7 @@ async function loadStudentMarks(profile) {
        if(id==='profileSection')    loadAdminProfile();
        if(id==='searchSection') getStudents();
          if(id==='assignmentsPage') { loadAssignments(); loadExpiredAssignments(); }
+         if(id==='doubtsSection') loadAdminDoubts();
 
     }
 
@@ -1401,6 +1402,140 @@ document.getElementById('assignmentSectionInput').value='';
       renderAssignments();
     }
 
+/* ── DOUBTS ── */
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str == null ? '' : String(str);
+  return d.innerHTML;
+}
+
+async function loadAdminDoubts(){
+  const wrap = document.getElementById('doubtsList');
+  try{
+    const res = await fetch(`${BASE_URL}/doubts`, {headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    renderAdminDoubts(await res.json());
+  }catch(e){
+    wrap.innerHTML = `<div class="empty"><div class="eico">💬</div><p>Could not load doubts</p></div>`;
+  }
+}
+
+function renderAdminDoubts(doubts){
+  const wrap = document.getElementById('doubtsList');
+  const badge = document.getElementById('doubtsCount');
+  const pending = doubts.filter(d=>d.status==='PENDING').length;
+  if(pending>0){ badge.style.display='inline-block'; badge.textContent=pending; }
+  else badge.style.display='none';
+
+  if(!doubts.length){
+    wrap.innerHTML = `<div class="empty"><div class="eico">💬</div><p>No doubts yet</p></div>`;
+    return;
+  }
+  wrap.innerHTML = doubts.map(d=>{
+    const answered = d.status==='ANSWERED';
+    return `<div class="page-card" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+        <div>
+          <div style="font-weight:600;font-size:13px;">${escapeHtml(d.studentName||d.studentUsername)}${d.subject?' · '+escapeHtml(d.subject):''}</div>
+          <div style="font-size:13px;margin-top:6px;">${escapeHtml(d.question)}</div>
+        </div>
+        <span class="badge ${answered?'bp':'bf'}">${d.status}</span>
+      </div>
+      ${answered
+        ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(91,140,255,.06);border-radius:9px;font-size:13px;"><strong>Your reply:</strong> ${escapeHtml(d.reply)}</div>`
+        : `<div style="margin-top:10px;">
+             <textarea id="reply-${d.id}" rows="2" placeholder="Type your reply…"></textarea>
+             <div class="form-actions" style="margin-top:8px;">
+               <button class="btn btn-primary btn-sm" onclick="replyToDoubt(${d.id})">↩ Send Reply</button>
+             </div>
+           </div>`}
+    </div>`;
+  }).join('');
+}
+
+async function replyToDoubt(id){
+  const box = document.getElementById(`reply-${id}`);
+  const reply = box ? box.value.trim() : '';
+  if(!reply){ showToast('Reply cannot be empty','warn'); return; }
+  try{
+    const res = await fetch(`${BASE_URL}/doubts/${id}/reply`, {
+      method:'PATCH',
+      headers: authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify({reply})
+    });
+    if(!res.ok) throw new Error();
+    showToast('Reply sent!');
+    addLog('Replied to a doubt');
+    loadAdminDoubts();
+  }catch(e){ showToast('Failed to send reply','warn'); }
+}
+
+async function loadDoubtAdmins(){
+  const sel = document.getElementById('doubtAdminSelect');
+  try{
+    const res = await fetch(`${USER_URL}/admins`, {headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    const admins = await res.json();
+    sel.innerHTML = admins.length
+      ? admins.map(a=>`<option value="${escapeHtml(a.username)}">${escapeHtml(a.username)}${a.department?' — '+escapeHtml(a.department):''}</option>`).join('')
+      : `<option value="">No admins available</option>`;
+  }catch(e){
+    sel.innerHTML = `<option value="">Could not load admins</option>`;
+  }
+}
+
+async function askDoubt(){
+  const adminUsername = document.getElementById('doubtAdminSelect').value;
+  const subject = document.getElementById('doubtSubject').value.trim();
+  const question = document.getElementById('doubtQuestion').value.trim();
+  if(!adminUsername){ showToast('Select an admin first','warn'); return; }
+  if(!question){ showToast('Type your question','warn'); return; }
+  try{
+    const res = await fetch(`${USER_URL}/doubts`, {
+      method:'POST',
+      headers: authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify({adminUsername, subject, question})
+    });
+    if(!res.ok) throw new Error();
+    showToast('Doubt submitted!');
+    document.getElementById('doubtSubject').value='';
+    document.getElementById('doubtQuestion').value='';
+    loadMyDoubts();
+  }catch(e){ showToast('Failed to submit doubt','warn'); }
+}
+
+async function loadMyDoubts(){
+  const wrap = document.getElementById('myDoubtsList');
+  try{
+    const res = await fetch(`${USER_URL}/doubts`, {headers:authHeaders()});
+    if(!res.ok) throw new Error();
+    renderMyDoubts(await res.json());
+  }catch(e){
+    wrap.innerHTML = `<div class="empty"><div class="eico">💬</div><p>Could not load your doubts</p></div>`;
+  }
+}
+
+function renderMyDoubts(doubts){
+  const wrap = document.getElementById('myDoubtsList');
+  if(!doubts.length){
+    wrap.innerHTML = `<div class="empty"><div class="eico">💬</div><p>You haven't asked anything yet</p></div>`;
+    return;
+  }
+  wrap.innerHTML = doubts.map(d=>{
+    const answered = d.status==='ANSWERED';
+    return `<div class="page-card" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+        <div>
+          <div style="font-weight:600;font-size:13px;">To: ${escapeHtml(d.adminUsername)}${d.subject?' · '+escapeHtml(d.subject):''}</div>
+          <div style="font-size:13px;margin-top:6px;">${escapeHtml(d.question)}</div>
+        </div>
+        <span class="badge ${answered?'bp':'bf'}">${d.status}</span>
+      </div>
+      ${answered ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(47,227,166,.06);border-radius:9px;font-size:13px;"><strong>Reply:</strong> ${escapeHtml(d.reply)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
 async function loadAssignmentReport(){
   try{
     const res = await fetch(`${BASE_URL}/assignments/report`, {headers:authHeaders()});
@@ -2018,6 +2153,11 @@ function spShowSection(id, btn) {
 
     if(id === 'spProfileSection') {
         loadMyProfile();
+    }
+
+    if(id === 'spDoubtsSection') {
+        loadDoubtAdmins();
+        loadMyDoubts();
     }
 }
     async function loadSuperAdminPage(){
