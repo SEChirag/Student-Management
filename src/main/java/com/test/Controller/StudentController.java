@@ -46,12 +46,7 @@ public class StudentController {
     }
 
     @PostMapping("/add")
-    public Model addStudent(@RequestBody Model model, Authentication authentication) {
-
-        String username = authentication.getName();
-        User user = useRepository.findByUsername(username).orElseThrow();
-        model.setUser(user);
-        model.setUsername(user.getUsername());
+    public Model addStudent(@RequestBody Model model) {
         return service.addStudent(model);
     }
 
@@ -90,10 +85,18 @@ public class StudentController {
         return service.addAssignments(assignmentsList);
     }
 
-    @PatchMapping("/updateAssignments/{studentId}")
-    public StudentAssignments updateAssignments(@PathVariable long studentId, @RequestParam long assignmentId, @RequestParam String status) {
-        return service.updateAssignments(assignmentId, studentId, status);
-
+    @PatchMapping("/updateAssignments/{id}")
+    public Object updateAssignments(
+            @PathVariable long id,
+            @RequestParam(required = false) Long assignmentId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String assignments) {
+        String finalStatus = (status != null) ? status : assignments;
+        if (assignmentId != null) {
+            return service.updateAssignments(assignmentId, id, finalStatus);
+        } else {
+            return service.updateAssignmentStatus(id, finalStatus);
+        }
     }
 
     @GetMapping("/assignments/list/{status}")
@@ -136,7 +139,7 @@ public class StudentController {
         return service.getAllassignments();
     }
 
-    @GetMapping("/StuentAssignment/all")
+    @GetMapping({"/StuentAssignment/all", "/StudentAssignment/all"})
     public List<StudentAssignments> getAllStudentAssignments() {
         return service.getAllStudentAssignments();
     }
@@ -152,8 +155,8 @@ public class StudentController {
     public List<AssignmentsList> getExpiredAssignments() {
         return service.getExpiredAssignments();
     }
-    @DeleteMapping("/Delete/expired/Assignments/{id}")
-    public  void deleteExpiredAssignments(@PathVariable Long id) {
+    @DeleteMapping({"/Delete/expired/Assignments/{id}", "/delete/expired/assignments/{id}"})
+    public void deleteExpiredAssignments(@PathVariable Long id) {
         service.deleteExpiredAssignments(id);
     }
 
@@ -175,7 +178,7 @@ public class StudentController {
     public List<Model> InactiveStudents(){
         return service.InactiveStudents();
     }
-    @PutMapping("/Upadate/expired/assignments/{id}")
+    @PutMapping({"/Upadate/expired/assignments/{id}", "/update/expired/assignments/{id}"})
     public ResponseEntity<AssignmentsList> updateExpiredAssignments(@PathVariable Long id ,@RequestBody AssignmentsList assignmentsList) {
         AssignmentsList saved = service.updateExpiredAssignments(id , assignmentsList);
         return ResponseEntity.ok(saved);

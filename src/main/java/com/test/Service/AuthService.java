@@ -49,8 +49,8 @@ public class AuthService {
         String role = user.getRole();
         role = (role == null) ? null : role.replace("ROLE_", "").toUpperCase();
 
-        if (!"ADMIN".equals(role) && !"USER".equals(role)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role must be ADMIN or USER");
+        if (!"ADMIN".equals(role) && !"USER".equals(role) && !"STUDENT".equals(role)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role must be ADMIN, USER, or STUDENT");
         }
 
         user.setRole(role);
@@ -92,7 +92,10 @@ public class AuthService {
         String role = (user != null) ? user.getRole() : "USER";
 
         if ("ADMIN".equalsIgnoreCase(role)) {
-            return saveProfile(profile);
+            AdminProfile adminProfile = new AdminProfile();
+            adminProfile.setUsername(profile.getUsername());
+            adminProfile.setDepartment(profile.getSection() != null ? profile.getSection() : "General");
+            return saveAdminProfile(adminProfile);
         }
         return saveStudentProfile(profile);
     }
@@ -201,7 +204,15 @@ public class AuthService {
     }
 
 
-    public AdminProfile getTheProfile(String username) {
-        return adminProfileRepo.findByUsername(username).stream().findAny().orElseThrow(()->new RuntimeException("Profile not found"));
+    public Object getTheProfile(String username) {
+        Optional<AdminProfile> adminOpt = adminProfileRepo.findByUsername(username);
+        if (adminOpt.isPresent()) {
+            return adminOpt.get();
+        }
+        Optional<StudentProfile> studentOpt = profileRepo.findByUsername(username);
+        if (studentOpt.isPresent()) {
+            return studentOpt.get();
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found for " + username);
     }
 }

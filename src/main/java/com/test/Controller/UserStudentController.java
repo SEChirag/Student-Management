@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/student")
-@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@PreAuthorize("hasAnyRole('USER', 'STUDENT', 'ADMIN')")
 public class UserStudentController {
 
     @Autowired

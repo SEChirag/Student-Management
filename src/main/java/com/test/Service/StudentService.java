@@ -67,6 +67,10 @@ public class StudentService {
         return Repo.findByName(name);
     }
 
+    public Model getbyid(long id) {
+        return Repo.findById(id).orElseThrow(() -> new StudentNotFoundException("Student not found with id: " + id));
+    }
+
     public Model updateExistingStudent(Model model) {
         return Repo.save(model);
     }
@@ -106,11 +110,9 @@ public class StudentService {
         }
         List<StudentAssignments> records = students.stream().map(student -> {
             StudentAssignments sa = new StudentAssignments();
-            sa.setStudentId(saved.getStudentId());
+            sa.setStudentId(student.getId());
             sa.setAssignmentId(saved.getId());
             sa.setStatus(saved.getStatus());
-
-
 
             return sa;
         }).collect(Collectors.toList());
@@ -148,8 +150,14 @@ public class StudentService {
         record.setAssignmentId(assignmentId);
         record.setStatus(status);
 
-
         return StudentAssignmentRepo.save(record);
+    }
+
+    public AssignmentsList updateAssignmentStatus(Long assignmentId, String status) {
+        AssignmentsList assignment = AssignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new RuntimeException("Assignment not found with id: " + assignmentId));
+        assignment.setStatus(status);
+        return AssignmentRepo.save(assignment);
     }
 
     public void deleteAssignment(Long id) {

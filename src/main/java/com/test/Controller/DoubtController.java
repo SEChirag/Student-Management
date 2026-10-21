@@ -27,13 +27,13 @@ public class DoubtController {
 
     // ── Student side (Role_USER) ──
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'STUDENT', 'ADMIN')")
     @GetMapping("/student/admins")
     public ResponseEntity<List<AdminSummary>> listAdmins() {
         return ResponseEntity.ok(doubtService.listAdmins());
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'STUDENT', 'ADMIN')")
     @PostMapping("/student/doubts")
     public ResponseEntity<Doubt> askDoubt(@RequestBody Map<String, String> body, Authentication auth) {
         String username = auth.getName();
@@ -51,7 +51,7 @@ public class DoubtController {
         return ResponseEntity.ok(doubt);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'STUDENT', 'ADMIN')")
     @GetMapping("/student/doubts")
     public ResponseEntity<List<Doubt>> myDoubts(Authentication auth) {
         return ResponseEntity.ok(doubtService.getDoubtsForStudent(auth.getName()));

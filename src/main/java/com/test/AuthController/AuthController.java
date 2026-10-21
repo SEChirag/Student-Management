@@ -49,7 +49,10 @@ public class AuthController {
         return ResponseEntity.ok(authService.saveAdminProfile(profile));
     }
     @GetMapping("/getProfile")
-    public ResponseEntity<AdminProfile> getTheProfile(Authentication authentication){
+    public ResponseEntity<?> getTheProfile(Authentication authentication){
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("Authentication required");
+        }
         String username = authentication.getName();
         return ResponseEntity.ok(authService.getTheProfile(username));
     }

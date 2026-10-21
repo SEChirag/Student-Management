@@ -36,17 +36,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                  .authorizeHttpRequests(auth -> auth
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/register", "/auth/oauth/token").permitAll()
-                        .requestMatchers("/auth/me", "/auth/profile" ,"/auth/getProfile").permitAll()
-                        .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/favicon.ico", "/error").permitAll()
-                          .requestMatchers("/student/**").hasAnyRole("USER", "ADMIN")
-                          .requestMatchers("/API/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-                          .requestMatchers("/superadmin/**").hasRole("SUPER_ADMIN")
-                          .requestMatchers("/superadmin/pending", "/superadmin/approve/**", "/superadmin/reject/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs.yaml", "/scalar.html").permitAll()
-
-
+                        .requestMatchers("/auth/me", "/auth/profile/**", "/auth/getProfile").permitAll()
+                        .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/favicon.ico", "/error", "/scalar.html", "/h2-console/**").permitAll()
+                        .requestMatchers("/student/**").hasAnyRole("USER", "STUDENT", "ADMIN")
+                        .requestMatchers("/API/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers("/superadmin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
